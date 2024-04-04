@@ -5,3 +5,4 @@ Habit tracking and planning app
 2. Registration and authentification with JWT
 3. Email confirmation - registration confirmation
 4. 
+accepted
