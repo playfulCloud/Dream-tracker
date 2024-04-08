@@ -52,11 +52,4 @@ We welcome contributions! If you would like to help improve Dream-tracker, pleas
 
 Your contributions will be thoroughly reviewed and merged upon approval.
 
-## License:
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
-
-## Contact:
-
-For further inquiries, please reach out to us via [project-email@example.com](mailto:project-email@example.com).
 
