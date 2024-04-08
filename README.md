@@ -1,4 +1,8 @@
 # Dream-tracker
+### Tech stack:
+*Java Spring Boot
+*Postresql
+*React
 Habit tracking and planning app
 
 1. Postgresql database connection + React frontend addition
