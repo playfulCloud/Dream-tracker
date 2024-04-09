@@ -50,6 +50,6 @@ We welcome contributions! If you would like to help improve Dream-tracker, pleas
    - Ensure your code passes all the tests and checks.
    - Submit a pull request targeting the main branch for review.
 
-Your contributions will be thoroughly reviewed and merged upon approval.
+Your contributions will be thoroughly reviewed and merged upon approval.!
 
 
