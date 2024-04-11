@@ -39,6 +39,9 @@ ___
     * Connected with habit of choice 
 * User is able to apply predefined habit creation schema for habit of choice
 * User is able to attach habit to own profile page
+* User is able to mark habit as done or undone for specified time interval 
+  * Properly marked habit is being count to goal if attached and it counts to habit statistics chart
+
 ___
 #### Other 
 
