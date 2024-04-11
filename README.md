@@ -25,8 +25,9 @@ ___
     * User is able to define duration of a habit
     * User is able to attach category to a habit(in predefined set of categories or created one)
     * User is able to attach habit to a certain goal
-    * User is able to define difficulty of habit
+    * User is able to define difficulty of habit(Easy/Medium/Hard)
     * User is able to add other people to habit or goal via email or username
+    * User is able to define status of a habit(Active/Inactive)
 * User is able to create goal
   * User is able to define list of habits which goal consist of 
   * User is able to define amount of done habits to finish a goal
@@ -41,12 +42,14 @@ ___
 * User is able to attach habit to own profile page
 * User is able to mark habit as done or undone for specified time interval 
   * Properly marked habit is being count to goal if attached and it counts to habit statistics chart
-
+* User is able to browse through active and inactive habits 
 ___
-#### Other 
-
-should be done between 11-12 of April
- 
+#### Interface oriented 
+* User is able to create his own view of of Habit tracking(by moving habit blocks)
+* User is able to use predefined set of views
+  * Habit oriented
+  * Goal oriented
+  * Category oriented
 ___
 
 ### Non-functional requirements
