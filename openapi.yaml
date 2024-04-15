@@ -15,29 +15,20 @@ tags:
 
 paths:
   /habits:
-    summary: Operations about habit
     post:
       tags:
         - habit
-      summary: Create habit
+      summary: Create a new Habit
+      description: Creates a new habit based on the provided habit details.
       requestBody:
+        Request Body Description: Accepts a single habit object.
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                  description: Name of the new habit
-                description:
-                  type: string
-                  description: Description of the new habit
-                frequency:
-                  type: string
-                  description: Frequency of the habit
+              type: array
+              items:
+                $ref: '#/components/schemas/Habit'
       responses:
         201:
           description: Habit correctly created
@@ -46,7 +37,8 @@ paths:
     get:
       tags:
         - habit
-      summary: Get all the habits
+      summary: Retrieve All Habits
+      description: Fetches a list of all habits stored in the database.
       responses:
         200:
           description: Success
@@ -55,23 +47,47 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      description: The unique identifier of the habit.
-                    name:
-                      type: string
-                      description: The name of the habit.
+                  $ref: '#/components/schemas/Habit'
 
         500:
           description: Internal server error
+  /habits/{habit_id}/category/{category_id}:
+    put:
+      tags:
+        - habit
+      summary: Associate a category with a habit
+      description: Associates a specific category with an existing habit using their respective identifiers.
+      parameters:
+        - in: path
+          name: habit_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the habit.
+        - in: path
+          name: category_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the category to associate.
+      responses:
+        200:
+          description: Category associated with habit successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Habit'
+        400:
+          description: Bad Request - The request was invalid or cannot be served.
+        404:
+          description: Not Found - The habit or category does not exist.
 
   /habits/{habit_id}:
     put:
       tags:
         - habit
-      summary: Updates existing habit by id
+      summary: Update a Specific Habit
+      description: Updates the details of an existing habit identified by its unique ID.
       parameters:
         - in: path
           name: habit_id
@@ -84,19 +100,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                  description: Name of the new habit
-                description:
-                  type: string
-                  description: Description of the new habit
-                frequency:
-                  type: string
-                  description: Frequency of the habit
+              $ref: '#/components/schemas/Habit'
       responses:
         200:
           description: Success
@@ -120,7 +124,8 @@ paths:
     delete:
       tags:
         - habit
-      summary: Delete habit by id
+      summary: Delete a Specific Habit
+      description: Removes a habit from the system using its unique identifier.
       parameters:
         - in: path
           name: habit_id
@@ -137,7 +142,8 @@ paths:
     get:
       tags:
         - habit
-      summary: Get habit by id
+      summary: Retrieve a Specific Habit
+      description: Fetches the details of a habit using its unique identifier.
       parameters:
         - in: path
           name: habit_id
@@ -169,7 +175,8 @@ paths:
     get:
       tags:
         - habit
-      summary: Get all of users habits
+      summary: Retrieve Habits for a User
+      description: Fetches all habits associated with a specific user by user ID.
       parameters:
         - in: path
           name: user_id
@@ -182,19 +189,30 @@ paths:
           description: Success
   # it could be achieved by swinging left for -> true or right for false
   /habits/{habit_id}/status:
-   post:
-     tags:
-       - habit
-     summary: Creating new record in habit track schema with status(done/undone) depending on request body
-     requestBody:
-       required: true
-       content:
-         application/json:
-           schema:
-             type: object
-             properties:
-               active:
-                 type: boolean
+    put:
+      tags:
+        - habit
+      summary: Increase the count of done habits by 1
+      description: Updates the count status of done habit based on boolean value
+      parameters:
+        - in: path
+          name: habit_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                active:
+                  type: boolean
+      responses:
+        200:
+          description: Success
 
   /goals:
     post:
@@ -206,19 +224,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                  description: Name of the new habit
-                description:
-                  type: string
-                  description: Description of the new habit
-                frequency:
-                  type: string
-                  description: Frequency of the habit
+              $ref: '#/components/schemas/Goal'
       responses:
         201:
           description: goal correctly created
@@ -273,19 +279,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                  description: Name of the new habit
-                description:
-                  type: string
-                  description: Description of the new habit
-                frequency:
-                  type: string
-                  description: Frequency of the habit
+              $ref: '#/components/schemas/Goal'
       responses:
         200:
           description: Success
@@ -322,3 +316,388 @@ paths:
           description: Goal properly deleted
         400:
           description: Bad Request - The request was invalid or cannot be served
+    get:
+      tags:
+        - goal
+      summary: Get a specified goal by id
+      parameters:
+        - in: path
+          name: goal_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the goal.
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request - The request was invalid or cannot be served
+  /goals/{goal_id}/habits:
+    post:
+      tags:
+        - goal
+      summary: Add a habit to a goal
+      description: Associates an existing habit with a specified goal by adding the habit's ID to the goal's habit list.
+      parameters:
+        - in: path
+          name: goal_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the goal to which the habit will be added.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - habit_id
+              properties:
+                habit_id:
+                  type: integer
+                  description: The unique identifier of the habit to add to the goal.
+      responses:
+        200:
+          description: Habit added to the goal successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
+        400:
+          description: Invalid input, object invalid
+        404:
+          description: Goal not found
+
+  /categories:
+    post:
+      tags:
+        - category
+      summary: Create a new category
+      description: Adds a new category to the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: The name of the category to be created.
+      responses:
+        201:
+          description: Category created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        400:
+          description: Bad request if the request body is incorrect.
+
+    get:
+      tags:
+        - category
+      summary: Get all categories
+      description: Retrieves a list of all categories.
+      responses:
+        200:
+          description: An array of categories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        500:
+          description: Internal server error
+
+  /categories/{category_id}:
+    get:
+      tags:
+        - category
+      summary: Get a specific category
+      parameters:
+        - in: path
+          name: category_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the category
+      description: Retrieves a category by its ID.
+      responses:
+        200:
+          description: Details of a specific category.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        404:
+          description: Category not found
+
+    put:
+      tags:
+        - category
+      summary: Update a specific category
+      description: Updates the details of an existing category.
+      parameters:
+        - in: path
+          name: category_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        200:
+          description: Category updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        400:
+          description: Bad request if the request body is incorrect
+        404:
+          description: Category not found
+
+    delete:
+      tags:
+        - category
+      summary: Delete a specific category
+      description: Removes a category from the system.
+      parameters:
+        - in: path
+          name: category_id
+          required: true
+          schema:
+            type: integer
+          description: The unique identifier of the category
+      responses:
+        204:
+          description: Category deleted successfully.
+        404:
+          description: Category not found
+
+
+  /views:
+    post:
+      tags:
+        - view
+      summary: Create a new view
+      description: Adds a new custom view configuration to the user's profile.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/View'
+      responses:
+        201:
+          description: View created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/View'
+        400:
+          description: Bad request if the request body is incorrect.
+
+    get:
+      tags:
+        - view
+      summary: Get all views
+      description: Retrieves a list of all views configured by the user.
+      responses:
+        200:
+          description: An array of views.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/View'
+        500:
+          description: Internal server error
+
+  /views/{view_id}:
+    parameters:
+      - in: path
+        name: view_id
+        required: true
+        schema:
+          type: integer
+        description: The unique identifier of the view
+
+    get:
+      tags:
+        - view
+      summary: Get a specific view
+      description: Retrieves a specific view by its ID.
+      responses:
+        200:
+          description: Details of a specific view.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/View'
+        404:
+          description: View not found
+
+    put:
+      tags:
+        - view
+      summary: Update a specific view
+      description: Updates the configuration of an existing view.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/View'
+      responses:
+        200:
+          description: View updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/View'
+        400:
+          description: Bad request if the request body is incorrect
+        404:
+          description: View not found
+
+    delete:
+      tags:
+        - view
+      summary: Delete a specific view
+      description: Removes a view from the system.
+      responses:
+        204:
+          description: View deleted successfully.
+        404:
+          description: View not found
+
+### Schemas draft
+components:
+  schemas:
+    Habit:
+      type: object
+      required:
+        - id
+        - name
+        - action
+        - frequency
+        - duration
+        - category
+        - difficulty
+        - status
+        - count
+      properties:
+        name:
+          type: string
+          example: 'Morning Run'
+        action:
+          type: string
+          example: 'Running 5km'
+        frequency:
+          type: string
+          enum: [ Daily, Weekly, Monthly ]
+          example: 'Daily'
+        duration:
+          type: integer
+          description: 'Duration in days'
+          example: 30
+        category:
+          $ref: '#/components/schemas/Category'
+        goal_id:
+          type: string
+          nullable: true
+          example: '12345'
+        difficulty:
+          type: string
+          enum: [ Easy, Medium, Hard ]
+          example: 'Medium'
+        status:
+          type: string
+          enum: [ Active, Inactive ]
+          example: 'Active'
+        count:
+          type: int
+          example: 0
+
+    Goal:
+      type: object
+      required:
+        - id
+        - name
+        - habits
+        - completion_threshold
+        - duration
+      properties:
+        name:
+          type: string
+          example: 'Health Improvement'
+        habits:
+          type: array
+          items:
+            type: string
+          description: 'Array of habit IDs'
+          example: ['hab1', 'hab2']
+        completion_threshold:
+          type: integer
+          description: 'Number of habits to complete the goal'
+          example: 20
+        duration:
+          type: integer
+          description: 'Duration of the goal in days'
+          example: 60
+
+    View:
+      type: object
+      required:
+        - type
+        - layout
+      properties:
+        id:
+          type: integer
+          description: The unique identifier of the view.
+        type:
+          type: string
+          enum: [Habit, Goal, Category]
+          description: The focus of the view (habit, goal, or category).
+          example: 'Habit'
+        layout:
+          type: string
+          enum: [List, Grid, Custom]
+          description: 'The layout format of the view.'
+          example: 'Grid'
+    Category:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          description: The unique identifier of the category.
+        name:
+          type: string
+          description: The name of the category
+    Error:
+      type: object
+      required: [ code, message ]
+      properties:
+        code:
+          type: integer
+          description: "Error code representing the type of error"
+        message:
+          type: string
+          description: "Human-readable message describing the error"
+        details:
+          type: string
+          description: "Additional details that might help diagnose the issue"
