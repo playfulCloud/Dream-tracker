@@ -21,7 +21,7 @@ paths:
       summary: Create a new Habit
       description: Creates a new habit based on the provided habit details.
       requestBody:
-        Request Body Description: Accepts a single habit object.
+        description: Accepts a single habit object.
         required: true
         content:
           application/json:
@@ -32,8 +32,18 @@ paths:
       responses:
         201:
           description: Habit correctly created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Habit'
         400:
-          description: Bad request
+          description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
       tags:
         - habit
@@ -79,8 +89,13 @@ paths:
                 $ref: '#/components/schemas/Habit'
         400:
           description: Bad Request - The request was invalid or cannot be served.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: Not Found - The habit or category does not exist.
+
 
   /habits/{habit_id}:
     put:
@@ -107,20 +122,16 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    description: The unique identifier of the habit.
-                  name:
-                    type: string
-                    description: The name of the habit.
+                type: array
+                items:
+                  $ref: '#/components/schemas/Habit'
         400:
           description: Bad Request - The request was invalid or cannot be served.
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Error'
+
     delete:
       tags:
         - habit
@@ -138,6 +149,10 @@ paths:
           description: Habit properly deleted
         400:
           description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     get:
       tags:
@@ -170,7 +185,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Error'
   /habits/user/{user_id}:
     get:
       tags:
@@ -183,12 +198,12 @@ paths:
           required: true
           schema:
             type: integer
-          description: The unique identifier of the habit.
+          description: The unique identifier of the user.
       responses:
         200:
           description: Success
   # it could be achieved by swinging left for -> true or right for false
-  /habits/{habit_id}/status:
+  /habits/{habit_id}/count:
     put:
       tags:
         - habit
@@ -200,7 +215,7 @@ paths:
           required: true
           schema:
             type: integer
-          description: The unique identifier of the category
+          description: The unique identifier of the habit
       requestBody:
         required: true
         content:
@@ -228,8 +243,16 @@ paths:
       responses:
         201:
           description: goal correctly created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
         400:
-          description: Bad request
+          description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
       tags:
         - goal
@@ -240,9 +263,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
+                $ref: '#/components/schemas/Goal'
         500:
           description: Internal server error
   /goals/user/{user_id}:
@@ -256,10 +277,14 @@ paths:
           required: true
           schema:
             type: integer
-          description: The unique identifier of the habit.
+          description: The unique identifier of the user.
       responses:
         200:
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
         500:
           description: Internal server error
   /goals/{goal_id}:
@@ -273,7 +298,7 @@ paths:
           required: true
           schema:
             type: integer
-          description: The unique identifier of the habit.
+          description: The unique identifier of a goal to be updated.
       requestBody:
         required: true
         content:
@@ -286,20 +311,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    description: The unique identifier of the habit.
-                  name:
-                    type: string
-                    description: The name of the habit.
+                $ref: '#/components/schemas/Goal'
         400:
           description: Bad Request - The request was invalid or cannot be served.
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Error'
     delete:
       tags:
         - goal
@@ -316,6 +334,10 @@ paths:
           description: Goal properly deleted
         400:
           description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
       tags:
         - goal
@@ -330,8 +352,16 @@ paths:
       responses:
         200:
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
         400:
           description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /goals/{goal_id}/habits:
     post:
       tags:
@@ -348,15 +378,9 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - habit_id
-              properties:
-                habit_id:
-                  type: integer
-                  description: The unique identifier of the habit to add to the goal.
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Goal'
       responses:
         200:
           description: Habit added to the goal successfully.
@@ -366,8 +390,16 @@ paths:
                 $ref: '#/components/schemas/Goal'
         400:
           description: Invalid input, object invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: Goal not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /categories:
     post:
@@ -395,7 +427,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
         400:
-          description: Bad request if the request body is incorrect.
+          description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     get:
       tags:
@@ -463,7 +499,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
         400:
-          description: Bad request if the request body is incorrect
+          description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: Category not found
 
@@ -506,7 +546,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/View'
         400:
-          description: Bad request if the request body is incorrect.
+          description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     get:
       tags:
@@ -568,7 +612,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/View'
         400:
-          description: Bad request if the request body is incorrect
+          description: Bad Request - The request was invalid or cannot be served
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: View not found
 
@@ -599,6 +647,10 @@ components:
         - status
         - count
       properties:
+        id:
+          type: integer
+          description: 'The unique identifier of the habit.'
+          example: 1
         name:
           type: string
           example: 'Morning Run'
@@ -628,8 +680,9 @@ components:
           enum: [ Active, Inactive ]
           example: 'Active'
         count:
-          type: int
+          type: integer
           example: 0
+
 
     Goal:
       type: object
@@ -640,6 +693,10 @@ components:
         - completion_threshold
         - duration
       properties:
+        id:
+          type: integer
+          description: 'The unique identifier of the goal.'
+          example: 100
         name:
           type: string
           example: 'Health Improvement'
@@ -648,7 +705,7 @@ components:
           items:
             type: string
           description: 'Array of habit IDs'
-          example: ['hab1', 'hab2']
+          example: [ 'hab1', 'hab2' ]
         completion_threshold:
           type: integer
           description: 'Number of habits to complete the goal'
@@ -658,36 +715,44 @@ components:
           description: 'Duration of the goal in days'
           example: 60
 
+
     View:
       type: object
       required:
+        - id
         - type
         - layout
       properties:
         id:
           type: integer
-          description: The unique identifier of the view.
+          description: 'The unique identifier of the view.'
+          example: 200
         type:
           type: string
-          enum: [Habit, Goal, Category]
-          description: The focus of the view (habit, goal, or category).
+          enum: [ Habit, Goal, Category ]
+          description: 'The focus of the view (habit, goal, or category).'
           example: 'Habit'
         layout:
           type: string
-          enum: [List, Grid, Custom]
+          enum: [ List, Grid, Custom ]
           description: 'The layout format of the view.'
           example: 'Grid'
+
     Category:
       type: object
       required:
+        - id
         - name
       properties:
         id:
           type: integer
-          description: The unique identifier of the category.
+          description: 'The unique identifier of the category.'
+          example: 300
         name:
           type: string
-          description: The name of the category
+          description: 'The name of the category'
+          example: 'Fitness'
+
     Error:
       type: object
       required: [ code, message ]
