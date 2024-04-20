@@ -647,6 +647,7 @@ components:
         - status
         - habitStats
         - habitCharts
+        - category
       properties:
         id:
           type: string
@@ -676,9 +677,16 @@ components:
           enum: [ Active, Inactive ]
           example: 'Active'
         habitStats:
-          $ref: '#/components/schemas/HabitStats'
+          type: array
+          items:
+            $ref: '#/components/schemas/HabitStats'
         habitCharts:
+          type: object
           $ref: '#/components/schemas/HabitCharts'
+        category:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
     HabitStats:
       type: object
       description: "This schema contains data about habit implementation status in described by date moment in time"
@@ -690,6 +698,7 @@ components:
         id:
           type: string
           format: uuid
+          description: 'The unique identifier of the habit statistic.'
           nullable: false
         date:
           type: string
@@ -716,6 +725,7 @@ components:
           type: string
           format: uuid
           nullable: false
+          description: 'The unique identifier of the habit chart.'
         notCompletionCounts:
          type: integer
          default: 0
@@ -755,6 +765,8 @@ components:
           type: integer
           description: 'Duration of the goal in days'
           example: 60
+        goalHabitSummary:
+          type: array
     GoalHabitSummary:
       type: object
       description: 'This schema keeps track of habits completion from the time when habit is associated with a certain goal'
@@ -768,6 +780,7 @@ components:
         id:
           type: string
           format: uuid
+          description: 'The unique identifier of the goal habit summary.'
         amountToComplete:
           type: integer
           description: 'Number of habitStats records marked as done to finish this part of goal'
@@ -775,18 +788,37 @@ components:
           type: integer
           description: 'Number of habitStats records marked as done from time when habit is associated with goal'
         habit:
-
+          type: object
+          $ref: '#/components/schemas/Habit'
+    GoalCharts:
+      type: object
+      description: 'This schema aggregates data from habits attached to goal and offers statistics about goal progression'
+      required:
+        - id
+        - percentOfCompletion
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 'The unique identifier of the goal chart.'
+        percentOfCompletion:
+          type: number
+          format: float
     View:
       type: object
+      description: 'Schema which contains set of information needed to display interface'
       required:
         - id
         - type
         - layout
+        - categories
+        - goals
+        - habits
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
           description: 'The unique identifier of the view.'
-          example: 200
         type:
           type: string
           enum: [ Habit, Goal, Category ]
@@ -797,20 +829,37 @@ components:
           enum: [ List, Grid, Custom ]
           description: 'The layout format of the view.'
           example: 'Grid'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Goal'
+        habits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Habit'
     Category:
       type: object
       required:
         - id
         - name
+        - habits
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
           description: 'The unique identifier of the category.'
-          example: 300
         name:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
+        habits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Habit'
     Error:
       type: object
       required: [ code, message ]
