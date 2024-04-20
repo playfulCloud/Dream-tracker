@@ -26,7 +26,7 @@ paths:
         content:
           application/json:
             schema:
-              type: array
+              type: object
               items:
                 $ref: '#/components/schemas/Habit'
       responses:
@@ -35,7 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
+                type: object
                 items:
                   $ref: '#/components/schemas/Habit'
         400:
@@ -122,7 +122,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
+                type: object
                 items:
                   $ref: '#/components/schemas/Habit'
         400:
@@ -645,10 +645,12 @@ components:
         - category
         - difficulty
         - status
-        - count
+        - habitStats
+        - habitCharts
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
           description: 'The unique identifier of the habit.'
           example: 1
         name:
@@ -663,14 +665,8 @@ components:
           example: 'Daily'
         duration:
           type: integer
-          description: 'Duration in days'
+          description: 'Amount of activity in specified by frequency time interval'
           example: 30
-        category:
-          $ref: '#/components/schemas/Category'
-        goal_id:
-          type: string
-          nullable: true
-          example: '12345'
         difficulty:
           type: string
           enum: [ Easy, Medium, Hard ]
@@ -679,42 +675,106 @@ components:
           type: string
           enum: [ Active, Inactive ]
           example: 'Active'
-        count:
+        habitStats:
+          $ref: '#/components/schemas/HabitStats'
+        habitCharts:
+          $ref: '#/components/schemas/HabitCharts'
+    HabitStats:
+      type: object
+      description: "This schema contains data about habit implementation status in described by date moment in time"
+      required:
+       - id
+       - date
+       - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: false
+        date:
+          type: string
+          format: date
+          description: 'Date of setting habit status as done or undone in ISO 8601 format'
+          nullable: false
+        status:
+         type: string
+         enum:
+           - done
+           - undone
+    HabitCharts:
+      type: object
+      description: 'This schema aggregates data from Habit and HabitStats'
+      required:
+        - id
+        - notCompletionCounts
+        - completionCounts
+        - frequencyAdherence
+        - difficultyToFrequencyCorrelation
+        - improvementTrend
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: false
+        notCompletionCounts:
+         type: integer
+         default: 0
+        completionCounts:
           type: integer
-          example: 0
-
-
+          default: 0
+        frequencyAdherence:
+          type: number
+          format: float
+          description: 'Percentage of adherence to the planned frequency of the habit.'
+        difficultyToFrequencyCorrelation:
+          type: number
+          format: float
+          description: 'Success rate related to the difficulty level of the habit.'
+        improvementTrend:
+          type: string
+          enum:
+            - improvement
+            - deterioration
+            - stagnation
     Goal:
       type: object
       required:
         - id
         - name
-        - habits
-        - completion_threshold
+        - goalHabitSummary
         - duration
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
           description: 'The unique identifier of the goal.'
-          example: 100
         name:
           type: string
           example: 'Health Improvement'
-        habits:
-          type: array
-          items:
-            type: string
-          description: 'Array of habit IDs'
-          example: [ 'hab1', 'hab2' ]
-        completion_threshold:
-          type: integer
-          description: 'Number of habits to complete the goal'
-          example: 20
         duration:
           type: integer
           description: 'Duration of the goal in days'
           example: 60
-
+    GoalHabitSummary:
+      type: object
+      description: 'This schema keeps track of habits completion from the time when habit is associated with a certain goal'
+      required:
+        - id
+        - amountToComplete
+        - actualAmount
+        - habit
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        amountToComplete:
+          type: integer
+          description: 'Number of habitStats records marked as done to finish this part of goal'
+        actualAmount:
+          type: integer
+          description: 'Number of habitStats records marked as done from time when habit is associated with goal'
+        habit:
 
     View:
       type: object
@@ -737,7 +797,6 @@ components:
           enum: [ List, Grid, Custom ]
           description: 'The layout format of the view.'
           example: 'Grid'
-
     Category:
       type: object
       required:
@@ -752,7 +811,6 @@ components:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
-
     Error:
       type: object
       required: [ code, message ]
