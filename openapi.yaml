@@ -928,16 +928,12 @@ components:
           enum: [ List, Grid, Custom ]
           description: 'The layout format of the view.'
           example: 'Grid'
-    ViewResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/View'
     ViewHabitModificationRequest:
       type: object
-      description: 'Special request schema responsible for attaching and detaching habit with the view'
+      description: 'Request schema responsible for attaching and detaching habit with the view'
       required:
-        -habitId
-        -viewId
+        - habitId
+        - viewId
       properties:
         habitId:
           type: string
@@ -947,10 +943,10 @@ components:
           format: uuid
     ViewGoalModificationRequest:
       type: object
-      description: 'Special request schema responsible for attaching and detaching goal with the view'
+      description: 'Request schema responsible for attaching and detaching goal with the view'
       required:
-        -goalId
-        -viewId
+        - goalId
+        - viewId
       properties:
         goalId:
           type: string
@@ -958,6 +954,23 @@ components:
         viewId:
           type: string
           format: uuid
+    ViewCategoryModificationRequest:
+      type: object
+      description: 'Request schema responsible for attaching and detaching category with the view'
+      required:
+        - categoryId
+        - viewId
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        viewId:
+          type: string
+          format: uuid
+    ViewResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/View'
     Category:
       type: object
       properties:
