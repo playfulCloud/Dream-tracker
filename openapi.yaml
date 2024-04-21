@@ -1,9 +1,15 @@
-openapi: 3.1.3
+openapi: 3.0.0
 
 info:
-  title: Dream-tracker Habit tracking app
+  title: Dream-tracker Habit Tracking App
   version: '1.0'
-
+  description: API for a habit tracking application
+  contact:
+    name: API Support Team
+    url: https://www.dream-tracker.com/support
+    email: playfulCloud@proton.me
+  x-api-id: urn:dream-tracker:habit-tracking-app:1.0
+  x-audience: Public
 servers:
   - url: http://localhost:8080/api
 
@@ -14,7 +20,9 @@ tags:
   - name: category
 
 paths:
+
   /habits:
+  ######
     post:
       tags:
         - habit
@@ -38,12 +46,13 @@ paths:
                 type: object
                 items:
                   $ref: '#/components/schemas/Habit'
-        400:
+        404:
           description: Bad Request - The request was invalid or cannot be served
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  #####
     get:
       tags:
         - habit
@@ -58,8 +67,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Habit'
-
-        500:
+        404:
           description: Internal server error
   /habits/{habit_id}/category/{category_id}:
     put:
@@ -73,12 +81,14 @@ paths:
           required: true
           schema:
             type: integer
+            format: int64
           description: The unique identifier of the habit.
         - in: path
           name: category_id
           required: true
           schema:
             type: integer
+            format: int64
           description: The unique identifier of the category to associate.
       responses:
         200:
@@ -109,6 +119,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int64
           description: The unique identifier of the habit.
       requestBody:
         required: true
@@ -378,9 +389,9 @@ paths:
       requestBody:
         required: true
         content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Goal'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Goal'
       responses:
         200:
           description: Habit added to the goal successfully.
@@ -633,21 +644,14 @@ paths:
 
 ### Schemas draft
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Habit:
       type: object
-      required:
-        - id
-        - name
-        - action
-        - frequency
-        - duration
-        - category
-        - difficulty
-        - status
-        - habitStats
-        - habitCharts
-        - category
       properties:
         id:
           type: string
@@ -666,6 +670,7 @@ components:
           example: 'Daily'
         duration:
           type: integer
+          format: int64
           description: 'Amount of activity in specified by frequency time interval'
           example: 30
         difficulty:
@@ -676,12 +681,11 @@ components:
           type: string
           enum: [ Active, Inactive ]
           example: 'Active'
-        habitStats:
+        habit_stats:
           type: array
           items:
             $ref: '#/components/schemas/HabitStats'
-        habitCharts:
-          type: object
+        habit_charts:
           $ref: '#/components/schemas/HabitCharts'
         category:
           type: array
@@ -691,9 +695,9 @@ components:
       type: object
       description: "This schema contains data about habit implementation status in described by date moment in time"
       required:
-       - id
-       - date
-       - status
+        - id
+        - date
+        - status
       properties:
         id:
           type: string
@@ -706,19 +710,19 @@ components:
           description: 'Date of setting habit status as done or undone in ISO 8601 format'
           nullable: false
         status:
-         type: string
-         enum:
-           - done
-           - undone
+          type: string
+          enum:
+            - done
+            - undone
     HabitCharts:
       type: object
       description: 'This schema aggregates data from Habit and HabitStats'
       required:
         - id
-        - notCompletionCounts
+        - not_completion_counts
         - completionCounts
-        - frequencyAdherence
-        - difficultyToFrequencyCorrelation
+        - frequency_adherence
+        - difficulty_to_frequency_correlation
         - improvementTrend
       properties:
         id:
@@ -726,17 +730,18 @@ components:
           format: uuid
           nullable: false
           description: 'The unique identifier of the habit chart.'
-        notCompletionCounts:
-         type: integer
-         default: 0
+        not_completion_counts:
+          type: integer
+          format: int64
+          default: 0
         completionCounts:
           type: integer
           default: 0
-        frequencyAdherence:
+        frequency_adherence:
           type: number
           format: float
           description: 'Percentage of adherence to the planned frequency of the habit.'
-        difficultyToFrequencyCorrelation:
+        difficulty_to_frequency_correlation:
           type: number
           format: float
           description: 'Success rate related to the difficulty level of the habit.'
@@ -746,13 +751,49 @@ components:
             - improvement
             - deterioration
             - stagnation
-    Goal:
+    HabitRequest:
       type: object
       required:
-        - id
         - name
-        - goalHabitSummary
+        - action
+        - frequency
         - duration
+        - difficulty
+      properties:
+        name:
+          type: string
+          example: 'Morning Run'
+        action:
+          type: string
+          example: 'Running 5km'
+        frequency:
+          type: string
+          enum: [ Daily, Weekly, Monthly ]
+          example: 'Daily'
+        duration:
+          type: integer
+          format: int64
+          description: 'Amount of activity in specified by frequency time interval'
+          example: 30
+        difficulty:
+          type: string
+          enum: [ Easy, Medium, Hard ]
+          example: 'Medium'
+    HabitCategoryAdditionRequest:
+      type: object
+      required:
+        - categoryId
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+          description: 'The unique identifier of the category'
+    HabitResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Habit'
+    Goal:
+      type: object
       properties:
         id:
           type: string
@@ -763,19 +804,18 @@ components:
           example: 'Health Improvement'
         duration:
           type: integer
+          format: int64
           description: 'Duration of the goal in days'
           example: 60
         goalHabitSummary:
           type: array
+          items:
+            $ref: '#/components/schemas/GoalHabitSummary'
+        goal_charts:
+          $ref: '#/components/schemas/GoalCharts'
     GoalHabitSummary:
       type: object
       description: 'This schema keeps track of habits completion from the time when habit is associated with a certain goal'
-      required:
-        - id
-        - amountToComplete
-        - actualAmount
-        - habit
-        - status
       properties:
         id:
           type: string
@@ -783,19 +823,17 @@ components:
           description: 'The unique identifier of the goal habit summary.'
         amountToComplete:
           type: integer
-          description: 'Number of habitStats records marked as done to finish this part of goal'
+          format: int64
+          description: 'Number of habit_stats records marked as done to finish this part of goal'
         actualAmount:
           type: integer
-          description: 'Number of habitStats records marked as done from time when habit is associated with goal'
+          format: int64
+          description: 'Number of habit_stats records marked as done from time when habit is associated with goal'
         habit:
-          type: object
           $ref: '#/components/schemas/Habit'
     GoalCharts:
       type: object
       description: 'This schema aggregates data from habits attached to goal and offers statistics about goal progression'
-      required:
-        - id
-        - percentOfCompletion
       properties:
         id:
           type: string
@@ -804,16 +842,41 @@ components:
         percentOfCompletion:
           type: number
           format: float
+    GoalRequest:
+      type: object
+      required:
+        - name
+        - duration
+      properties:
+        name:
+          type: string
+          example: 'Health Improvement'
+        duration:
+          type: integer
+          format: int64
+          description: 'Duration of the goal in days'
+          example: 60
+    GoalHabitSummaryAdditionRequest:
+     type: object
+     required:
+       - habitId
+       - amount_to_complete
+     properties:
+       habitId:
+         type: string
+         format: uuid
+         description: 'The unique identifier of the habit'
+       amount_to_complete:
+         type: integer
+         format: int64
+         description: 'Integer value of habit records marked as done to complete this part of the goal'
+    GoalResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Goal'
     View:
       type: object
       description: 'Schema which contains set of information needed to display interface'
-      required:
-        - id
-        - type
-        - layout
-        - categories
-        - goals
-        - habits
       properties:
         id:
           type: string
@@ -841,12 +904,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Habit'
+    ViewResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/View'
     Category:
       type: object
-      required:
-        - id
-        - name
-        - habits
       properties:
         id:
           type: string
@@ -856,16 +919,23 @@ components:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
-        habits:
-          type: array
-          items:
-            $ref: '#/components/schemas/Habit'
+    CategoryRequest:
+      type: object
+      required:
+        name:
+          type: string
+      properties:
+        name:
+          type: string
+          description: 'The name of the category'
+          example: 'Fitness'
     Error:
       type: object
       required: [ code, message ]
       properties:
         code:
           type: integer
+          format: int64
           description: "Error code representing the type of error"
         message:
           type: string
@@ -873,3 +943,4 @@ components:
         details:
           type: string
           description: "Additional details that might help diagnose the issue"
+
