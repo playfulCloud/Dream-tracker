@@ -691,6 +691,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Category'
+        view:
+          type: array
+          items:
+            $ref: '#/components/schemas/View'
     HabitStats:
       type: object
       description: "This schema contains data about habit implementation status in described by date moment in time"
@@ -813,6 +817,10 @@ components:
             $ref: '#/components/schemas/GoalHabitSummary'
         goal_charts:
           $ref: '#/components/schemas/GoalCharts'
+        view:
+          type: array
+          items:
+            $ref: '#/components/schemas/View'
     GoalHabitSummary:
       type: object
       description: 'This schema keeps track of habits completion from the time when habit is associated with a certain goal'
@@ -904,10 +912,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Habit'
+    ViewRequest:
+      type: object
+      required:
+        - type
+        - layout
+      properties:
+        type:
+          type: string
+          enum: [ Habit, Goal, Category ]
+          description: 'The focus of the view (habit, goal, or category).'
+          example: 'Habit'
+        layout:
+          type: string
+          enum: [ List, Grid, Custom ]
+          description: 'The layout format of the view.'
+          example: 'Grid'
     ViewResponse:
       type: array
       items:
         $ref: '#/components/schemas/View'
+    ViewHabitModificationRequest:
+      type: object
+      description: 'Special request schema responsible for attaching and detaching habit with the view'
+      required:
+        -habitId
+        -viewId
+      properties:
+        habitId:
+          type: string
+          format: uuid
+        viewId:
+          type: string
+          format: uuid
+    ViewGoalModificationRequest:
+      type: object
+      description: 'Special request schema responsible for attaching and detaching goal with the view'
+      required:
+        -goalId
+        -viewId
+      properties:
+        goalId:
+          type: string
+          format: uuid
+        viewId:
+          type: string
+          format: uuid
     Category:
       type: object
       properties:
@@ -919,6 +969,10 @@ components:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
+        view:
+          type: array
+          items:
+            $ref: '#/components/schemas/View'
     CategoryRequest:
       type: object
       required:
@@ -929,6 +983,10 @@ components:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
+    CategoryResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Category'
     Error:
       type: object
       required: [ code, message ]
