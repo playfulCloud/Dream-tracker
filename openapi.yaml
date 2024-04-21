@@ -727,7 +727,7 @@ components:
         - completionCounts
         - frequency_adherence
         - difficulty_to_frequency_correlation
-        - improvementTrend
+        - improvement_trend
       properties:
         id:
           type: string
@@ -749,7 +749,7 @@ components:
           type: number
           format: float
           description: 'Success rate related to the difficulty level of the habit.'
-        improvementTrend:
+        improvement_trend:
           type: string
           enum:
             - improvement
@@ -811,7 +811,7 @@ components:
           format: int64
           description: 'Duration of the goal in days'
           example: 60
-        goalHabitSummary:
+        goal_habit_summary:
           type: array
           items:
             $ref: '#/components/schemas/GoalHabitSummary'
@@ -829,11 +829,11 @@ components:
           type: string
           format: uuid
           description: 'The unique identifier of the goal habit summary.'
-        amountToComplete:
+        amount_to_complete:
           type: integer
           format: int64
           description: 'Number of habit_stats records marked as done to finish this part of goal'
-        actualAmount:
+        actual_amount:
           type: integer
           format: int64
           description: 'Number of habit_stats records marked as done from time when habit is associated with goal'
@@ -847,7 +847,7 @@ components:
           type: string
           format: uuid
           description: 'The unique identifier of the goal chart.'
-        percentOfCompletion:
+        percent_of_completion:
           type: number
           format: float
     GoalRequest:
