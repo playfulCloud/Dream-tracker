@@ -691,6 +691,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Category'
+        view:
+          type: array
+          items:
+            $ref: '#/components/schemas/View'
     HabitStats:
       type: object
       description: "This schema contains data about habit implementation status in described by date moment in time"
@@ -723,7 +727,7 @@ components:
         - completionCounts
         - frequency_adherence
         - difficulty_to_frequency_correlation
-        - improvementTrend
+        - improvement_trend
       properties:
         id:
           type: string
@@ -745,7 +749,7 @@ components:
           type: number
           format: float
           description: 'Success rate related to the difficulty level of the habit.'
-        improvementTrend:
+        improvement_trend:
           type: string
           enum:
             - improvement
@@ -807,12 +811,16 @@ components:
           format: int64
           description: 'Duration of the goal in days'
           example: 60
-        goalHabitSummary:
+        goal_habit_summary:
           type: array
           items:
             $ref: '#/components/schemas/GoalHabitSummary'
         goal_charts:
           $ref: '#/components/schemas/GoalCharts'
+        view:
+          type: array
+          items:
+            $ref: '#/components/schemas/View'
     GoalHabitSummary:
       type: object
       description: 'This schema keeps track of habits completion from the time when habit is associated with a certain goal'
@@ -821,11 +829,11 @@ components:
           type: string
           format: uuid
           description: 'The unique identifier of the goal habit summary.'
-        amountToComplete:
+        amount_to_complete:
           type: integer
           format: int64
           description: 'Number of habit_stats records marked as done to finish this part of goal'
-        actualAmount:
+        actual_amount:
           type: integer
           format: int64
           description: 'Number of habit_stats records marked as done from time when habit is associated with goal'
@@ -839,7 +847,7 @@ components:
           type: string
           format: uuid
           description: 'The unique identifier of the goal chart.'
-        percentOfCompletion:
+        percent_of_completion:
           type: number
           format: float
     GoalRequest:
@@ -904,6 +912,61 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Habit'
+    ViewRequest:
+      type: object
+      required:
+        - type
+        - layout
+      properties:
+        type:
+          type: string
+          enum: [ Habit, Goal, Category ]
+          description: 'The focus of the view (habit, goal, or category).'
+          example: 'Habit'
+        layout:
+          type: string
+          enum: [ List, Grid, Custom ]
+          description: 'The layout format of the view.'
+          example: 'Grid'
+    ViewHabitModificationRequest:
+      type: object
+      description: 'Request schema responsible for attaching and detaching habit with the view'
+      required:
+        - habitId
+        - viewId
+      properties:
+        habitId:
+          type: string
+          format: uuid
+        viewId:
+          type: string
+          format: uuid
+    ViewGoalModificationRequest:
+      type: object
+      description: 'Request schema responsible for attaching and detaching goal with the view'
+      required:
+        - goalId
+        - viewId
+      properties:
+        goalId:
+          type: string
+          format: uuid
+        viewId:
+          type: string
+          format: uuid
+    ViewCategoryModificationRequest:
+      type: object
+      description: 'Request schema responsible for attaching and detaching category with the view'
+      required:
+        - categoryId
+        - viewId
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        viewId:
+          type: string
+          format: uuid
     ViewResponse:
       type: array
       items:
@@ -919,6 +982,10 @@ components:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
+        view:
+          type: array
+          items:
+            $ref: '#/components/schemas/View'
     CategoryRequest:
       type: object
       required:
@@ -929,6 +996,10 @@ components:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
+    CategoryResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Category'
     Error:
       type: object
       required: [ code, message ]
