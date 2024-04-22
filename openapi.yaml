@@ -1,8 +1,7 @@
 openapi: 3.0.0
-
 info:
   title: Dream-tracker Habit Tracking App
-  version: '2.2.0'
+  version: '2.3.0'
   description: API for a habit tracking application
   contact:
     name: API Support Team
@@ -12,13 +11,11 @@ info:
   x-audience: Public
 servers:
   - url: https://localhost:8080/dream-tracker
-
 tags:
   - name: habit
   - name: view
   - name: goal
   - name: category
-
 paths:
   /v2/habits:
     post:
@@ -71,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/HabitResponse'
+                $ref: '#/components/schemas/HabitResponse'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
@@ -256,7 +253,7 @@ paths:
       summary: Retrieve habits for a User
       description: Fetches detailed information about a specific habit using its unique identifier. This includes comprehensive data such as habit name, actions, frequency, and associated categories or statistics.
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       responses:
         200:
           description: List of habits successfully retrieved
@@ -395,7 +392,7 @@ paths:
       summary: Retrieves goals for a User
       description: Fetches all goal associated with a specific user. This endpoint requires JWT send through header which include the user id needed for further computation.
       security:
-        - bearerAuth: [ ]
+        - BearerAuth: [ ]
       responses:
         200:
           description: Success
@@ -778,14 +775,14 @@ paths:
       summary: Retrieves all categories available for user
       description: Retrieves a comprehensive list of all categories associated with the authenticated user. This endpoint is essential for users who need to access their personalized categories, which might include custom categories they've created or categories assigned to them by the system. The operation requires a valid JWT provided through the header, ensuring that only authorized user's categories are fetched.
       security:
-        - bearerAuth: [ ]
+        - BearerAuth: [ ]
       responses:
         200:
           description: Categories successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ViewCategoryModificationRequest'
+                $ref: '#/components/schemas/CategoryResponse'
         401:
           description: The request has not been applied because it lacks valid authentication credentials for the target resource.
           content:
@@ -905,6 +902,14 @@ paths:
         - view
       summary: Update a specific view
       description: Updates an existing view configuration identified by its unique ID. The request should include updates to attributes such as type or layout, and can modify the associated elements like adding or removing categories, goals, or habits.
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
       requestBody:
         required: true
         content:
@@ -941,6 +946,14 @@ paths:
         - view
       summary: Delete a specific view
       description: Removes a specified view configuration from the system using its unique identifier. This operation is irreversible and should be used when a view is no longer needed.
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
       responses:
         204:
           description: View deleted successfully.
@@ -956,18 +969,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /v2/views/habit:
+  /v2/views/{view-id}/habit/{habit-id}:
     post:
       tags:
         - view
       summary: Adding a habit to a view
       description: Associates a specific habit with an existing view by including the habit's unique identifier. This operation allows users to customize their views by adding specific habits they wish to track within that view.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewHabitModificationRequest'
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
+        - in: path
+          name: habit-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the habit
       responses:
         201:
           description: Habit successfully added to view.
@@ -999,12 +1021,21 @@ paths:
         - view
       summary: Remove habit from view
       description:  Detaches a specific habit from a view using the habit's unique identifier. This allows for dynamic customization of views depending on the user's changing preferences or goals.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewHabitModificationRequest'
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
+        - in: path
+          name: habit-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the habit
       responses:
         204:
           description: Habit successfully removed from the view.
@@ -1020,18 +1051,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /v2/views/goal:
+  /v2/views/{view-id}/goal/{goal-id}:
     post:
       tags:
         - view
       summary: Adding goal to a view
       description: Incorporates a specific goal into a view by providing the goal's unique identifier. This facilitates focused tracking of goals within a user's customized view setting.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewGoalModificationRequest'
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
+        - in: path
+          name: goal-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the goal
       responses:
         201:
           description: Goal successfully added to view.
@@ -1062,12 +1102,21 @@ paths:
         - view
       summary: Remove goal from view
       description: Removes a specific goal from a view, using the goal's unique identifier. This operation supports users in managing and updating their views to reflect their current priorities and objectives.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewGoalModificationRequest'
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
+        - in: path
+          name: goal-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the goal
       responses:
         204:
           description: Goal successfully removed from the view.
@@ -1083,18 +1132,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /v2/views/category:
+  /v2/views/{view-id}/category/{category-id}:
     post:
       tags:
         - view
       summary: Adding a category to view
       description: Adds a specific category to a view, enhancing the organizational aspect of the view by grouping related habits or goals under a common category based on the category's unique identifier.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewCategoryModificationRequest'
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
+        - in: path
+          name: category-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the category
       responses:
         201:
           description: Category successfully added to view.
@@ -1126,12 +1184,21 @@ paths:
         - view
       summary: Removes category from view
       description:  Detaches a specific category from a view using the category's unique identifier. This operation allows users to customize how they categorize and view their habits or goals within the view.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewCategoryModificationRequest'
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
+        - in: path
+          name: category-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the category
       responses:
         204:
           description: Category successfully removed from the view.
@@ -1453,45 +1520,6 @@ components:
           enum: [ List, Grid, Custom ]
           description: 'The layout format of the view.'
           example: 'Grid'
-    ViewHabitModificationRequest:
-      type: object
-      description: 'Request schema responsible for attaching and detaching habit with the view'
-      required:
-        - habitId
-        - viewId
-      properties:
-        habitId:
-          type: string
-          format: uuid
-        viewId:
-          type: string
-          format: uuid
-    ViewGoalModificationRequest:
-      type: object
-      description: 'Request schema responsible for attaching and detaching goal with the view'
-      required:
-        - goalId
-        - viewId
-      properties:
-        goalId:
-          type: string
-          format: uuid
-        viewId:
-          type: string
-          format: uuid
-    ViewCategoryModificationRequest:
-      type: object
-      description: 'Request schema responsible for attaching and detaching category with the view'
-      required:
-        - categoryId
-        - viewId
-      properties:
-        categoryId:
-          type: string
-          format: uuid
-        viewId:
-          type: string
-          format: uuid
     ViewResponse:
       type: array
       items:
@@ -1514,8 +1542,7 @@ components:
     CategoryRequest:
       type: object
       required:
-        name:
-          type: string
+        - name
       properties:
         name:
           type: string
@@ -1539,4 +1566,3 @@ components:
         details:
           type: string
           description: "Additional details that might help diagnose the issue"
-
