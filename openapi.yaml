@@ -566,105 +566,246 @@ paths:
       tags:
         - view
       summary: Create a new view
-      description: Adds a new custom view configuration to the user's profile.
+      description: Adds a new custom view configuration to a user's profile. This includes setting the type of view (Habit, Goal, or Category), and choosing the layout (List, Grid, Custom). The request body must provide all necessary attributes for creating this view configuration.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/View'
+              $ref: '#/components/schemas/ViewRequest'
       responses:
         201:
           description: View created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/View'
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+                $ref: '#/components/schemas/ViewResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v2/views/user:
+    get:
+      tags:
+        - view
+      summary: Retrieve all user-configured views
+      description: Fetches a list of all custom view configurations created by the user. Each entry in the list includes details such as the view type, layout, and associated categories, goals, or habits, depending on the view type.
+      responses:
+        200:
+          description: Views successfully retrieved
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/ViewResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /v2/views/{view-id}:
     get:
       tags:
         - view
-      summary: Get all views
-      description: Retrieves a list of all views configured by the user.
+      summary: Retrieve a specific view
+      description: Retrieves detailed information about a specific view configuration using its unique identifier. This includes the view type, layout, and all elements associated with this view such as categories, goals, or habits.
+      parameters:
+        - in: path
+          name: view-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the view
       responses:
         200:
-          description: An array of views.
+          description: View specified by id successfully retrieved.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/View'
-        500:
-          description: Internal server error
-
-  /v2/views/{view_id}:
-    parameters:
-      - in: path
-        name: view_id
-        required: true
-        schema:
-          type: integer
-        description: The unique identifier of the view
-
-    get:
-      tags:
-        - view
-      summary: Get a specific view
-      description: Retrieves a specific view by its ID.
-      responses:
-        200:
-          description: Details of a specific view.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/View'
+                $ref: '#/components/schemas/ViewResponse'
         404:
-          description: View not found
-
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - view
       summary: Update a specific view
-      description: Updates the configuration of an existing view.
+      description: Updates an existing view configuration identified by its unique ID. The request should include updates to attributes such as type or layout, and can modify the associated elements like adding or removing categories, goals, or habits.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/View'
+              $ref: '#/components/schemas/ViewRequest'
       responses:
         200:
           description: View updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/View'
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+                $ref: '#/components/schemas/ViewResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        404:
-          description: View not found
-
     delete:
       tags:
         - view
       summary: Delete a specific view
-      description: Removes a view from the system.
+      description: Removes a specified view configuration from the system using its unique identifier. This operation is irreversible and should be used when a view is no longer needed.
       responses:
         204:
           description: View deleted successfully.
         404:
-          description: View not found
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v2/views/habit:
+    post:
+      tags:
+        - view
+      summary: Adding a habit to a view
+      description: Associates a specific habit with an existing view by including the habit's unique identifier. This operation allows users to customize their views by adding specific habits they wish to track within that view.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewHabitModificationRequest'
+      responses:
+        201:
+          description: Habit successfully added to view.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - view
+      summary: Remove habit from view
+      description:  Detaches a specific habit from a view using the habit's unique identifier. This allows for dynamic customization of views depending on the user's changing preferences or goals.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewHabitModificationRequest'
+      responses:
+        204:
+          description: Habit successfully removed from the view.
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v2/views/goal:
+    post:
+      tags:
+        - view
+      summary:
+      description: Incorporates a specific goal into a view by providing the goal's unique identifier. This facilitates focused tracking of goals within a user's customized view setting.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewGoalModificationRequest'
+      responses:
+        201:
+          description: Goal successfully added to view.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - view
+      summary: Remove goal from view
+      description: Removes a specific goal from a view, using the goal's unique identifier. This operation supports users in managing and updating their views to reflect their current priorities and objectives.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewGoalModificationRequest'
+      responses:
+        204:
+          description: Goal successfully removed from the view.
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v2/views/category:
+    post:
+      tags:
+        - view
+      summary: Adding a category to view
+      description: Adds a specific category to a view, enhancing the organizational aspect of the view by grouping related habits or goals under a common category based on the category's unique identifier.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewCategoryModificationRequest'
+      responses:
+        201:
+          description: Category successfully added to view.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - view
+      summary: Removes category from view
+      description:  Detaches a specific category from a view using the category's unique identifier. This operation allows users to customize how they categorize and view their habits or goals within the view.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewCategoryModificationRequest'
+      responses:
+        204:
+          description: Category successfully removed from the view.
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     BearerAuth:
