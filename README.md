@@ -52,6 +52,3 @@ ___
   * Category oriented
 ___
 
-### Non-functional requirements
-
-should be done between 11-12 of April
