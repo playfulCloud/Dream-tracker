@@ -143,7 +143,7 @@ paths:
       description: Removes a specific habit from the database using its unique identifier. This operation is irreversible and should be used when a habit is no longer relevant or needed.
       parameters:
         - in: path
-          name: habit_id
+          name: habit-id
           required: true
           schema:
             type: string
@@ -165,7 +165,7 @@ paths:
       description: Fetches detailed information about a specific habit using its unique identifier. This includes comprehensive data such as habit name, actions, frequency, and associated categories or statistics.
       parameters:
         - in: path
-          name: habit_id
+          name: habit-id
           required: true
           schema:
             type: string
@@ -236,7 +236,7 @@ paths:
       description: Generates and retrieves visual analytics and charts based on a specific habit's performance data. This includes completion rates, frequency adherence, and trends over time, providing valuable insights into habit effectiveness and areas for improvement.
       parameters:
         - in: path
-          name: habit_id
+          name: habit-id
           required: true
           schema:
             type: string
@@ -441,126 +441,149 @@ paths:
       tags:
         - category
       summary: Create a new category
-      description: Adds a new category to the system.
+      description: Adds a new category to the system. Categories help to organize content such as habits or goals into manageable groups. The request body must include the name of the category and optionally other attributes as defined in the CategoryRequest schema.
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                  description: The name of the category to be created.
+              schema:
+                $ref: '#/components/schemas/CategoryRequest'
       responses:
         201:
           description: Category created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+                $ref: '#/components/schemas/CategoryResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - category
+      summary: Retrieve all categories.
+      description: Retrieves a list of all categories configured in the system. This endpoint is useful for displaying available categories to users, allowing them to filter or organize content according to these categories.
+      responses:
+        200:
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /v2/categories/{category-id}:
     get:
       tags:
         - category
-      summary: Get all categories
-      description: Retrieves a list of all categories.
-      responses:
-        200:
-          description: An array of categories.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Category'
-        500:
-          description: Internal server error
-
-  /v2/categories/{category_id}:
-    get:
-      tags:
-        - category
-      summary: Get a specific category
+      summary: Retrieve a specific category
+      description: Retrieves detailed information about a specific category using its unique identifier. This includes the category's name and any associated views, providing an overview of how the category is used within the system.
       parameters:
         - in: path
-          name: category_id
+          name: category-id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of the category
-      description: Retrieves a category by its ID.
       responses:
         200:
-          description: Details of a specific category.
+          description: Category successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/CategoryResponse'
         404:
-          description: Category not found
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
     put:
       tags:
         - category
       summary: Update a specific category
-      description: Updates the details of an existing category.
+      description: Updates an existing category identified by its unique ID. This endpoint allows for modifications to the category's name and other attributes, helping maintain relevance and accuracy of category data over time.
       parameters:
         - in: path
-          name: category_id
+          name: category-id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of the category
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Category'
+              $ref: '#/components/schemas/CategoryRequest'
       responses:
         200:
           description: Category updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+                $ref: '#/components/schemas/CategoryResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        404:
-          description: Category not found
 
     delete:
       tags:
         - category
       summary: Delete a specific category
-      description: Removes a category from the system.
+      description: Removes a specific category from the system using its unique identifier. This operation is irreversible and should be used when a category is no longer relevant or required, helping to keep the category management system clean and efficient.
       parameters:
         - in: path
-          name: category_id
+          name: category-id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of the category
       responses:
         204:
           description: Category deleted successfully.
         404:
-          description: Category not found
-
-
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v2/category/user:
+    get:
+      tags:
+        - category
+      summary: Retrieves all categories available for user
+      description: Retrieves a comprehensive list of all categories associated with the authenticated user. This endpoint is essential for users who need to access their personalized categories, which might include custom categories they've created or categories assigned to them by the system. The operation requires a valid JWT provided through the header, ensuring that only authorized user's categories are fetched.
+      security:
+        - bearerAuth: [ ]
+      responses:
+        200:
+          description: Categories successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewCategoryModificationRequest'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v2/views:
     post:
       tags:
@@ -806,6 +829,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+
+
+
+
+
 components:
   securitySchemes:
     BearerAuth:
