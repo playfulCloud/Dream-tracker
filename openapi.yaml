@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: Dream-tracker Habit Tracking App
-  version: '2.1.0'
+  version: '2.2.0'
   description: API for a habit tracking application
   contact:
     name: API Support Team
@@ -27,17 +27,49 @@ paths:
       summary: Create a new Habit
       description: Creates a new habit based on the details provided in the request. The habit object should include essential attributes such as name, action, frequency, duration, and difficulty. This endpoint is used to initialize and save a new habit in the system.
       requestBody:
-        description: Accepts a single habit object.
         required: true
         content:
           application/json:
             schema:
-              type: object
-              items:
                 $ref: '#/components/schemas/HabitRequest'
       responses:
         201:
-          description: Habit correctly created
+          description: Habit has been successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/HabitResponse'
+        400:
+         description: The request body is missing required attributes or data format is incorrect
+         content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - habit
+      summary: Retrieve all habits
+      description: Retrieves a list of all habits stored in the database. This endpoint returns detailed information about each habit, including name, frequency, duration, and current status, to help users manage their daily routines effectively..
+      responses:
+        200:
+          description: A list of all habits has been successfully retrieved.
           content:
             application/json:
               schema:
@@ -50,22 +82,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    get:
-      tags:
-        - habit
-      summary: Retrieve all habits
-      description: Retrieves a list of all habits stored in the database. This endpoint returns detailed information about each habit, including name, frequency, duration, and current status, to help users manage their daily routines effectively..
-      responses:
-        200:
-          description: Success
+
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/HabitResponse'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
+                $ref: '#/components/schemas/Error'
+
 
   /v2/habits/{habit-id}/category/{category-id}:
     put:
@@ -95,12 +119,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HabitResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
 
   /v2/habits/{habit-id}:
     put:
@@ -129,12 +169,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HabitResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 
     delete:
       tags:
@@ -158,6 +212,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     get:
       tags:
         - habit
@@ -184,6 +245,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 
   /v2/habits/user:
     get:
@@ -200,8 +268,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HabitResponse'
+        401:
+          description: The request has not been applied because it lacks valid authentication credentials for the target resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -222,12 +302,25 @@ paths:
       responses:
         200:
           description: Success
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /v2/habits/charts/{habit-id}:
     get:
       tags:
@@ -255,7 +348,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /v2/goals:
     post:
@@ -276,12 +374,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GoalResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     get:
       tags:
         - goal
@@ -296,12 +407,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GoalResponse'
+        401:
+          description: The request has not been applied because it lacks valid authentication credentials for the target resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
   /v2/goals/{goal-id}:
     put:
       tags:
@@ -329,8 +454,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GoalResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -353,6 +490,12 @@ paths:
           description: Goal properly deleted
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -383,6 +526,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /v2/goals/habits-summary:
     post:
       tags:
@@ -402,12 +552,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GoalResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /v2/goals/{goal-id}/goal-charts:
     get:
       tags:
@@ -435,7 +598,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v2/categories:
     post:
       tags:
@@ -455,12 +623,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     get:
       tags:
         - category
@@ -479,6 +660,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 
   /v2/categories/{category-id}:
     get:
@@ -507,7 +695,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - category
@@ -534,8 +727,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -563,6 +768,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /v2/category/user:
     get:
       tags:
@@ -578,12 +790,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViewCategoryModificationRequest'
+        401:
+          description: The request has not been applied because it lacks valid authentication credentials for the target resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /v2/views:
     post:
       tags:
@@ -603,8 +828,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViewResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -628,7 +865,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v2/views/{view-id}:
     get:
       tags:
@@ -656,6 +898,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     put:
       tags:
         - view
@@ -674,8 +922,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViewResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -690,6 +950,12 @@ paths:
           description: View deleted successfully.
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -713,12 +979,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViewResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     delete:
       tags:
         - view
@@ -739,11 +1018,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v2/views/goal:
     post:
       tags:
         - view
-      summary:
+      summary: Adding goal to a view
       description: Incorporates a specific goal into a view by providing the goal's unique identifier. This facilitates focused tracking of goals within a user's customized view setting.
       requestBody:
         required: true
@@ -758,8 +1043,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViewResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
@@ -784,6 +1081,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /v2/views/category:
     post:
       tags:
@@ -803,12 +1106,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViewResponse'
+        400:
+          description: The request body is missing required attributes or data format is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     delete:
       tags:
         - view
@@ -829,11 +1145,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-
-
-
-
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/Error'
 
 components:
   securitySchemes:
