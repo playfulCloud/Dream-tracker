@@ -11,7 +11,7 @@ info:
   x-api-id: urn:dream-tracker:habit-tracking-app:1.0
   x-audience: Public
 servers:
-  - url: https://localhost:8080/api
+  - url: https://localhost:8080/dream-tracker
 
 tags:
   - name: habit
@@ -38,8 +38,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                items:
                   $ref: '#/components/schemas/HabitResponse'
         400:
          description: The request body is missing required attributes or data format is incorrect
@@ -73,8 +71,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                items:
                   $ref: '#/components/schemas/HabitResponse'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
@@ -1225,8 +1221,8 @@ components:
         status:
           type: string
           enum:
-            - done
-            - undone
+            - Done
+            - Undone
     HabitCharts:
       type: object
       description: 'This schema aggregates data from Habit and HabitStats'
