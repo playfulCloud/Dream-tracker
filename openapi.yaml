@@ -11,7 +11,7 @@ info:
   x-api-id: urn:dream-tracker:habit-tracking-app:1.0
   x-audience: Public
 servers:
-  - url: http://localhost:8080/api
+  - url: https://localhost:8080/api
 
 tags:
   - name: habit
@@ -20,9 +20,7 @@ tags:
   - name: category
 
 paths:
-
   /habits:
-  ######
     post:
       tags:
         - habit
@@ -36,7 +34,7 @@ paths:
             schema:
               type: object
               items:
-                $ref: '#/components/schemas/Habit'
+                $ref: '#/components/schemas/HabitRequest'
       responses:
         201:
           description: Habit correctly created
@@ -45,14 +43,13 @@ paths:
               schema:
                 type: object
                 items:
-                  $ref: '#/components/schemas/Habit'
+                  $ref: '#/components/schemas/HabitResponse'
         404:
-          description: Bad Request - The request was invalid or cannot be served
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  #####
     get:
       tags:
         - habit
@@ -64,12 +61,13 @@ paths:
           content:
             application/json:
               schema:
-                type: array
+                type: object
                 items:
-                  $ref: '#/components/schemas/Habit'
+                  $ref: '#/components/schemas/HabitResponse'
         404:
-          description: Internal server error
-  /habits/{habit_id}/category/{category_id}:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+
+  /habits/{habit-id}/category/{category-id}:
     put:
       tags:
         - habit
@@ -77,18 +75,18 @@ paths:
       description: Associates a specific category with an existing habit using their respective identifiers.
       parameters:
         - in: path
-          name: habit_id
+          name: habit-id
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
           description: The unique identifier of the habit.
         - in: path
-          name: category_id
+          name: category-id
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
           description: The unique identifier of the category to associate.
       responses:
         200:
@@ -96,18 +94,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Habit'
-        400:
-          description: Bad Request - The request was invalid or cannot be served.
+                $ref: '#/components/schemas/HabitResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        404:
-          description: Not Found - The habit or category does not exist.
 
-
-  /habits/{habit_id}:
+  /habits/{habit-id}:
     put:
       tags:
         - habit
@@ -115,29 +110,27 @@ paths:
       description: Updates the details of an existing habit identified by its unique ID.
       parameters:
         - in: path
-          name: habit_id
+          name: habit-id
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
           description: The unique identifier of the habit.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Habit'
+              $ref: '#/components/schemas/HabitRequest'
       responses:
         200:
-          description: Success
+          description: Habit has been successfully updated
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/Habit'
-        400:
-          description: Bad Request - The request was invalid or cannot be served.
+                $ref: '#/components/schemas/HabitResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
@@ -153,18 +146,18 @@ paths:
           name: habit_id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of the habit.
       responses:
         204:
           description: Habit properly deleted
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
     get:
       tags:
         - habit
@@ -175,7 +168,8 @@ paths:
           name: habit_id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of the habit.
       responses:
         200:
@@ -183,62 +177,84 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    description: The unique identifier of the habit.
-                  name:
-                    type: string
-                    description: The name of the habit.
-        400:
-          description: Bad Request - The request was invalid or cannot be served.
+                $ref: '#/components/schemas/HabitResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /habits/user/{user_id}:
+
+  /habits/user:
     get:
       tags:
         - habit
       summary: Retrieve Habits for a User
-      description: Fetches all habits associated with a specific user by user ID.
-      parameters:
-        - in: path
-          name: user_id
-          required: true
-          schema:
-            type: integer
-          description: The unique identifier of the user.
+      description: Fetches all habits associated with a specific user. This endpoint requires JWT send through header which include the user id needed for further computation.
+      security:
+        - bearerAuth: []
       responses:
         200:
-          description: Success
-  # it could be achieved by swinging left for -> true or right for false
-  /habits/{habit_id}/count:
+          description: List of habits successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /habits/stats:
     put:
       tags:
         - habit
-      summary: Increase the count of done habits by 1
-      description: Updates the count status of done habit based on boolean value
-      parameters:
-        - in: path
-          name: habit_id
-          required: true
-          schema:
-            type: integer
-          description: The unique identifier of the habit
+      summary: Mark habit as done or undone for according time interval
+      description: Creates record in HabitStats database with according habit and status passed through habitStatsRequest
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                active:
-                  type: boolean
+              $ref: '#/components/schemas/HabitStatsRequest'
       responses:
         200:
           description: Success
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /habits/charts/{habit-id}:
+    get:
+      tags:
+        - habit
+      summary: Fetches charts aggregated based on specific habit.
+      parameters:
+        - in: path
+          name: habit_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the habit.
+      responses:
+        200:
+          description: Habit charts successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitChartsResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 
   /goals:
     post:
@@ -641,8 +657,6 @@ paths:
           description: View deleted successfully.
         404:
           description: View not found
-
-### Schemas draft
 components:
   securitySchemes:
     BearerAuth:
@@ -783,6 +797,18 @@ components:
           type: string
           enum: [ Easy, Medium, Hard ]
           example: 'Medium'
+    HabitStatsRequest:
+      type: object
+      required:
+        - habitId
+        - status
+      properties:
+        habitId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [Done, Undone]
     HabitCategoryAdditionRequest:
       type: object
       required:
@@ -796,6 +822,10 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Habit'
+    HabitChartsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/HabitCharts'
     Goal:
       type: object
       properties:
