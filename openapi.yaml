@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: Dream-tracker Habit Tracking App
-  version: '1.0'
+  version: '2.0'
   description: API for a habit tracking application
   contact:
     name: API Support Team
@@ -20,12 +20,12 @@ tags:
   - name: category
 
 paths:
-  /habits:
+  /v2/habits:
     post:
       tags:
         - habit
       summary: Create a new Habit
-      description: Creates a new habit based on the provided habit details.
+      description: Creates a new habit based on the details provided in the request. The habit object should include essential attributes such as name, action, frequency, duration, and difficulty. This endpoint is used to initialize and save a new habit in the system.
       requestBody:
         description: Accepts a single habit object.
         required: true
@@ -53,8 +53,8 @@ paths:
     get:
       tags:
         - habit
-      summary: Retrieve All Habits
-      description: Fetches a list of all habits stored in the database.
+      summary: Retrieve all habits
+      description: Retrieves a list of all habits stored in the database. This endpoint returns detailed information about each habit, including name, frequency, duration, and current status, to help users manage their daily routines effectively..
       responses:
         200:
           description: Success
@@ -67,12 +67,12 @@ paths:
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
 
-  /habits/{habit-id}/category/{category-id}:
+  /v2/habits/{habit-id}/category/{category-id}:
     put:
       tags:
         - habit
-      summary: Associate a category with a habit
-      description: Associates a specific category with an existing habit using their respective identifiers.
+      summary: Link a category to a habit
+      description: Associates a specific category with an existing habit using their respective UUIDs. This operation is used to organize habits into categories, enhancing the manageability of user habits.
       parameters:
         - in: path
           name: habit-id
@@ -102,12 +102,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /habits/{habit-id}:
+  /v2/habits/{habit-id}:
     put:
       tags:
         - habit
       summary: Update a Specific Habit
-      description: Updates the details of an existing habit identified by its unique ID.
+      description: Updates the details of an existing habit based on the provided habit object, which includes attributes like name, action, frequency, duration, and difficulty. This endpoint ensures that users can modify their habits as their routines change.
       parameters:
         - in: path
           name: habit-id
@@ -140,7 +140,7 @@ paths:
       tags:
         - habit
       summary: Delete a Specific Habit
-      description: Removes a habit from the system using its unique identifier.
+      description: Removes a specific habit from the database using its unique identifier. This operation is irreversible and should be used when a habit is no longer relevant or needed.
       parameters:
         - in: path
           name: habit_id
@@ -161,8 +161,8 @@ paths:
     get:
       tags:
         - habit
-      summary: Retrieve a Specific Habit
-      description: Fetches the details of a habit using its unique identifier.
+      summary: Retrieve a specific habit
+      description: Fetches detailed information about a specific habit using its unique identifier. This includes comprehensive data such as habit name, actions, frequency, and associated categories or statistics.
       parameters:
         - in: path
           name: habit_id
@@ -185,12 +185,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /habits/user:
+  /v2/habits/user:
     get:
       tags:
         - habit
-      summary: Retrieve Habits for a User
-      description: Fetches all habits associated with a specific user. This endpoint requires JWT send through header which include the user id needed for further computation.
+      summary: Retrieve habits for a User
+      description: Fetches detailed information about a specific habit using its unique identifier. This includes comprehensive data such as habit name, actions, frequency, and associated categories or statistics.
       security:
         - bearerAuth: []
       responses:
@@ -207,12 +207,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /habits/stats:
+  /v2/habits/stats:
     put:
       tags:
         - habit
       summary: Mark habit as done or undone for according time interval
-      description: Creates record in HabitStats database with according habit and status passed through habitStatsRequest
+      description: Records a habit's completion status for a specific time interval, based on the details provided in the request. This data is used to track habit adherence and performance over time.
       requestBody:
         required: true
         content:
@@ -228,11 +228,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /habits/charts/{habit-id}:
+  /v2/habits/charts/{habit-id}:
     get:
       tags:
         - habit
       summary: Fetches charts aggregated based on specific habit.
+      description: Generates and retrieves visual analytics and charts based on a specific habit's performance data. This includes completion rates, frequency adherence, and trends over time, providing valuable insights into habit effectiveness and areas for improvement.
       parameters:
         - in: path
           name: habit_id
@@ -256,26 +257,27 @@ paths:
                 $ref: '#/components/schemas/Error'
 
 
-  /goals:
+  /v2/goals:
     post:
       tags:
         - goal
-      summary: Create goal
+      summary: Creates a new Goal
+      description: Creates a new goal for a user with details specified in the request body, such as goal name, description, and target date. This endpoint requires a JSON object that includes all necessary goal attributes.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Goal'
+              $ref: '#/components/schemas/GoalRequest'
       responses:
         201:
           description: goal correctly created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Goal'
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+                $ref: '#/components/schemas/GoalResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
@@ -283,64 +285,52 @@ paths:
     get:
       tags:
         - goal
-      summary: Get all the goals
+      summary: Retrieves goals for a User
+      description: Fetches all goal associated with a specific user. This endpoint requires JWT send through header which include the user id needed for further computation.
+      security:
+        - bearerAuth: [ ]
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Goal'
-        500:
-          description: Internal server error
-  /goals/user/{user_id}:
-    get:
-      tags:
-        - goal
-      summary: Get all the goals of specified user by id
-      parameters:
-        - in: path
-          name: user_id
-          required: true
-          schema:
-            type: integer
-          description: The unique identifier of the user.
-      responses:
-        200:
-          description: Success
+                $ref: '#/components/schemas/GoalResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Goal'
-        500:
-          description: Internal server error
-  /goals/{goal_id}:
+                $ref: '#/components/schemas/Error'
+  /v2/goals/{goal-id}:
     put:
       tags:
         - goal
       summary: Updates existing goal by id
+      description: Updates the details of an existing goal identified by its unique ID. The request must include all goal attributes that need to be updated as a JSON object. This operation will overwrite the existing goal details with the new data provided.
       parameters:
         - in: path
-          name: goal_id
+          name: goal-id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of a goal to be updated.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Goal'
+              $ref: '#/components/schemas/GoalRequest'
       responses:
         200:
-          description: Success
+          description: Goal successfully updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Goal'
-        400:
-          description: Bad Request - The request was invalid or cannot be served.
+                $ref: '#/components/schemas/GoalResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
@@ -348,19 +338,21 @@ paths:
     delete:
       tags:
         - goal
-      summary: Delete goal by id
+      summary: Delete a specific goal
+      description: Permanently deletes a goal identified by its unique ID from the database. This action cannot be undone. A successful deletion returns a HTTP 204 status code, indicating that the operation was successful but no content is being returned.
       parameters:
         - in: path
-          name: goal_id
+          name: goal-id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of the goal.
       responses:
         204:
           description: Goal properly deleted
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
@@ -368,67 +360,83 @@ paths:
     get:
       tags:
         - goal
-      summary: Get a specified goal by id
+      summary: Retrieve specific goal
+      description: Retrieves detailed information about a specific goal, identified by its unique ID. The information includes all aspects of the goal such as its name, description, progress, and associated tasks or habits.
       parameters:
         - in: path
-          name: goal_id
+          name: goal-id
           required: true
           schema:
-            type: integer
+            type: string
+            format: uuid
           description: The unique identifier of the goal.
       responses:
         200:
-          description: Success
+          description: Goal successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Goal'
-        400:
-          description: Bad Request - The request was invalid or cannot be served
+                $ref: '#/components/schemas/GoalResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /goals/{goal_id}/habits:
+  /v2/goals/habits-summary:
     post:
       tags:
         - goal
-      summary: Add a habit to a goal
+      summary: Associate habit with a goal
       description: Associates an existing habit with a specified goal by adding the habit's ID to the goal's habit list.
-      parameters:
-        - in: path
-          name: goal_id
-          required: true
-          schema:
-            type: integer
-          description: The unique identifier of the goal to which the habit will be added.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Goal'
+              $ref: '#/components/schemas/GoalHabitSummaryAdditionRequest'
       responses:
-        200:
+        201:
           description: Habit added to the goal successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Goal'
-        400:
-          description: Invalid input, object invalid
+                $ref: '#/components/schemas/GoalResponse'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v2/goals/{goal-id}/goal-charts:
+    get:
+      tags:
+        - goal
+      summary: Retrieves goal charts from specified by id goal
+      description: Generates and retrieves visual charts that represent the progress and statistics of a specific goal identified by its unique ID. These charts can help visualize aspects like progress over time, goal completion rate, and other relevant analytics.
+      parameters:
+        - in: path
+          name: goal-id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: The unique identifier of the goal.
+      responses:
+        200:
+          description: Goal charts successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalResponse'
         404:
-          description: Goal not found
+          description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /categories:
+  /v2/categories:
     post:
       tags:
         - category
@@ -477,7 +485,7 @@ paths:
         500:
           description: Internal server error
 
-  /categories/{category_id}:
+  /v2/categories/{category_id}:
     get:
       tags:
         - category
@@ -553,7 +561,7 @@ paths:
           description: Category not found
 
 
-  /views:
+  /v2/views:
     post:
       tags:
         - view
@@ -596,7 +604,7 @@ paths:
         500:
           description: Internal server error
 
-  /views/{view_id}:
+  /v2/views/{view_id}:
     parameters:
       - in: path
         name: view_id
@@ -942,6 +950,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Habit'
+    GoalChartsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/GoalCharts'
     ViewRequest:
       type: object
       required:
