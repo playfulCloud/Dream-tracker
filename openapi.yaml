@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Dream-tracker Habit Tracking App
-  version: '2.3.0'
+  version: '0.1.0'
   description: API for a habit tracking application
   contact:
     name: API Support Team
@@ -17,7 +17,7 @@ tags:
   - name: goal
   - name: category
 paths:
-  /v2/habits:
+  /v1/habits:
     post:
       tags:
         - habit
@@ -28,86 +28,10 @@ paths:
         content:
           application/json:
             schema:
-                $ref: '#/components/schemas/HabitRequest'
+              $ref: '#/components/schemas/HabitRequest'
       responses:
         201:
           description: Habit has been successfully created.
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/HabitResponse'
-        400:
-         description: The request body is missing required attributes or data format is incorrect
-         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Error'
-
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    get:
-      tags:
-        - habit
-      summary: Retrieve all habits
-      description: Retrieves a list of all habits stored in the database. This endpoint returns detailed information about each habit, including name, frequency, duration, and current status, to help users manage their daily routines effectively..
-      responses:
-        200:
-          description: A list of all habits has been successfully retrieved.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HabitResponse'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-
-  /v2/habits/{habit-id}/category/{category-id}:
-    put:
-      tags:
-        - habit
-      summary: Link a category to a habit
-      description: Associates a specific category with an existing habit using their respective UUIDs. This operation is used to organize habits into categories, enhancing the manageability of user habits.
-      parameters:
-        - in: path
-          name: habit-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the habit.
-        - in: path
-          name: category-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the category to associate.
-      responses:
-        200:
-          description: Category associated with habit successfully.
           content:
             application/json:
               schema:
@@ -118,24 +42,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
         500:
           description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-
-
-  /v2/habits/{habit-id}:
+    get:
+      tags:
+        - habit
+      summary: Retrieve habits for a User
+      description: Fetches detailed information about a specific habit using its unique identifier. This includes comprehensive data such as habit name, actions, frequency, and associated categories or statistics.
+      security:
+        - BearerAuth: [ ]
+      responses:
+        200:
+          description: Page of habits successfully retrieved. Currently contains only items. Can be extended later.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitPage'
+        401:
+          description: The request has not been applied because it lacks valid authentication credentials for the target resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: The server has not found anything matching the Request-URI or the resource is not available.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/habits/{habit-id}:
     put:
       tags:
         - habit
@@ -174,15 +125,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
         500:
           description: An unexpected error occurred on the server.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-
     delete:
       tags:
         - habit
@@ -211,12 +159,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-    get:
+  /v1/habits/{habit-id}/categories:
+    post:
       tags:
         - habit
-      summary: Retrieve a specific habit
-      description: Fetches detailed information about a specific habit using its unique identifier. This includes comprehensive data such as habit name, actions, frequency, and associated categories or statistics.
+      summary: Link a category to a habit
+      description: Associates a specific category with an existing habit using their respective UUIDs. This operation is used to organize habits into categories, enhancing the manageability of user habits.
       parameters:
         - in: path
           name: habit-id
@@ -225,44 +173,17 @@ paths:
             type: string
             format: uuid
           description: The unique identifier of the habit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitCategoryCreateRequest'
       responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HabitResponse'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-
-  /v2/habits/user:
-    get:
-      tags:
-        - habit
-      summary: Retrieve habits for a User
-      description: Fetches detailed information about a specific habit using its unique identifier. This includes comprehensive data such as habit name, actions, frequency, and associated categories or statistics.
-      security:
-        - BearerAuth: []
-      responses:
-        200:
-          description: List of habits successfully retrieved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HabitResponse'
-        401:
-          description: The request has not been applied because it lacks valid authentication credentials for the target resource.
+        204:
+          description: Category associated with habit successfully.
+        400:
+          description: The request body is missing required attributes or data format is incorrect
           content:
             application/json:
               schema:
@@ -279,9 +200,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /v2/habits/stats:
-    put:
+  /v1/habits-tracking:
+    post:
       tags:
         - habit
       summary: Mark habit as done or undone for according time interval
@@ -291,9 +211,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HabitStatsRequest'
+              $ref: '#/components/schemas/HabitTrackingRequest'
       responses:
-        200:
+        201:
           description: Success
         400:
           description: The request body is missing required attributes or data format is incorrect
@@ -313,15 +233,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /v2/habits/charts/{habit-id}:
     get:
       tags:
         - habit
-      summary: Fetches charts aggregated based on specific habit.
-      description: Generates and retrieves visual analytics and charts based on a specific habit's performance data. This includes completion rates, frequency adherence, and trends over time, providing valuable insights into habit effectiveness and areas for improvement.
+      summary: Retrieve habit tracking data
+      description: Fetches habit tracking data for a specific habit based on the provided habit ID. This data includes completion status, frequency, and adherence over time, providing valuable insights into habit performance and user behavior.
       parameters:
-        - in: path
+        - in: query
           name: habit-id
           required: true
           schema:
@@ -330,11 +248,11 @@ paths:
           description: The unique identifier of the habit.
       responses:
         200:
-          description: Habit charts successfully retrieved
+          description: Habit tracking data successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HabitChartsResponse'
+                $ref: '#/components/schemas/HabitTrack'
         404:
           description: The server has not found anything matching the Request-URI or the resource is not available.
           content:
@@ -347,8 +265,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /v2/goals:
+  /v1/goals:
     post:
       tags:
         - goal
@@ -418,9 +335,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-
-  /v2/goals/{goal-id}:
+  /v1/goals/{goal-id}:
     put:
       tags:
         - goal
@@ -525,8 +440,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /v2/goals/habits-summary:
+  /v1/goals/{goal-id}/habits:
     post:
       tags:
         - goal
@@ -537,14 +451,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GoalHabitSummaryAdditionRequest'
+              $ref: '#/components/schemas/GoalAssignHabitRequest'
       responses:
-        201:
+        204:
           description: Habit added to the goal successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GoalResponse'
         400:
           description: The request body is missing required attributes or data format is incorrect
           content:
@@ -563,41 +473,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /v2/goals/{goal-id}/goal-charts:
-    get:
-      tags:
-        - goal
-      summary: Retrieves goal charts from specified by id goal
-      description: Generates and retrieves visual charts that represent the progress and statistics of a specific goal identified by its unique ID. These charts can help visualize aspects like progress over time, goal completion rate, and other relevant analytics.
-      parameters:
-        - in: path
-          name: goal-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the goal.
-      responses:
-        200:
-          description: Goal charts successfully retrieved.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GoalResponse'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /v2/categories:
+  /v1/categories:
     post:
       tags:
         - category
@@ -607,8 +483,8 @@ paths:
         required: true
         content:
           application/json:
-              schema:
-                $ref: '#/components/schemas/CategoryRequest'
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
       responses:
         201:
           description: Category created successfully.
@@ -634,12 +510,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
     get:
       tags:
         - category
       summary: Retrieve all categories.
-      description: Retrieves a list of all categories configured in the system. This endpoint is useful for displaying available categories to users, allowing them to filter or organize content according to these categories.
+      description: Retrieves a list of all categories configured in the system and configured by the user. This endpoint provides an overview of the available categories and their respective IDs, which can be used to manage habits and goals more effectively.
       responses:
         200:
           description: Categories retrieved successfully
@@ -659,41 +534,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-
-  /v2/categories/{category-id}:
-    get:
-      tags:
-        - category
-      summary: Retrieve a specific category
-      description: Retrieves detailed information about a specific category using its unique identifier. This includes the category's name and any associated views, providing an overview of how the category is used within the system.
-      parameters:
-        - in: path
-          name: category-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the category
-      responses:
-        200:
-          description: Category successfully retrieved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CategoryResponse'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+  /v1/categories/{category-id}:
     put:
       tags:
         - category
@@ -738,7 +579,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
     delete:
       tags:
         - category
@@ -767,454 +607,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-  /v2/category/user:
-    get:
-      tags:
-        - category
-      summary: Retrieves all categories available for user
-      description: Retrieves a comprehensive list of all categories associated with the authenticated user. This endpoint is essential for users who need to access their personalized categories, which might include custom categories they've created or categories assigned to them by the system. The operation requires a valid JWT provided through the header, ensuring that only authorized user's categories are fetched.
-      security:
-        - BearerAuth: [ ]
-      responses:
-        200:
-          description: Categories successfully retrieved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CategoryResponse'
-        401:
-          description: The request has not been applied because it lacks valid authentication credentials for the target resource.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /v2/views:
-    post:
-      tags:
-        - view
-      summary: Create a new view
-      description: Adds a new custom view configuration to a user's profile. This includes setting the type of view (Habit, Goal, or Category), and choosing the layout (List, Grid, Custom). The request body must provide all necessary attributes for creating this view configuration.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewRequest'
-      responses:
-        201:
-          description: View created successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViewResponse'
-        400:
-          description: The request body is missing required attributes or data format is incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /v2/views/user:
-    get:
-      tags:
-        - view
-      summary: Retrieve all user-configured views
-      description: Fetches a list of all custom view configurations created by the user. Each entry in the list includes details such as the view type, layout, and associated categories, goals, or habits, depending on the view type.
-      responses:
-        200:
-          description: Views successfully retrieved
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/ViewResponse'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /v2/views/{view-id}:
-    get:
-      tags:
-        - view
-      summary: Retrieve a specific view
-      description: Retrieves detailed information about a specific view configuration using its unique identifier. This includes the view type, layout, and all elements associated with this view such as categories, goals, or habits.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-      responses:
-        200:
-          description: View specified by id successfully retrieved.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViewResponse'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      tags:
-        - view
-      summary: Update a specific view
-      description: Updates an existing view configuration identified by its unique ID. The request should include updates to attributes such as type or layout, and can modify the associated elements like adding or removing categories, goals, or habits.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ViewRequest'
-      responses:
-        200:
-          description: View updated successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViewResponse'
-        400:
-          description: The request body is missing required attributes or data format is incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      tags:
-        - view
-      summary: Delete a specific view
-      description: Removes a specified view configuration from the system using its unique identifier. This operation is irreversible and should be used when a view is no longer needed.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-      responses:
-        204:
-          description: View deleted successfully.
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /v2/views/{view-id}/habit/{habit-id}:
-    post:
-      tags:
-        - view
-      summary: Adding a habit to a view
-      description: Associates a specific habit with an existing view by including the habit's unique identifier. This operation allows users to customize their views by adding specific habits they wish to track within that view.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-        - in: path
-          name: habit-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the habit
-      responses:
-        201:
-          description: Habit successfully added to view.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViewResponse'
-        400:
-          description: The request body is missing required attributes or data format is incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    delete:
-      tags:
-        - view
-      summary: Remove habit from view
-      description:  Detaches a specific habit from a view using the habit's unique identifier. This allows for dynamic customization of views depending on the user's changing preferences or goals.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-        - in: path
-          name: habit-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the habit
-      responses:
-        204:
-          description: Habit successfully removed from the view.
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /v2/views/{view-id}/goal/{goal-id}:
-    post:
-      tags:
-        - view
-      summary: Adding goal to a view
-      description: Incorporates a specific goal into a view by providing the goal's unique identifier. This facilitates focused tracking of goals within a user's customized view setting.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-        - in: path
-          name: goal-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the goal
-      responses:
-        201:
-          description: Goal successfully added to view.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViewResponse'
-        400:
-          description: The request body is missing required attributes or data format is incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    delete:
-      tags:
-        - view
-      summary: Remove goal from view
-      description: Removes a specific goal from a view, using the goal's unique identifier. This operation supports users in managing and updating their views to reflect their current priorities and objectives.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-        - in: path
-          name: goal-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the goal
-      responses:
-        204:
-          description: Goal successfully removed from the view.
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /v2/views/{view-id}/category/{category-id}:
-    post:
-      tags:
-        - view
-      summary: Adding a category to view
-      description: Adds a specific category to a view, enhancing the organizational aspect of the view by grouping related habits or goals under a common category based on the category's unique identifier.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-        - in: path
-          name: category-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the category
-      responses:
-        201:
-          description: Category successfully added to view.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViewResponse'
-        400:
-          description: The request body is missing required attributes or data format is incorrect
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    delete:
-      tags:
-        - view
-      summary: Removes category from view
-      description:  Detaches a specific category from a view using the category's unique identifier. This operation allows users to customize how they categorize and view their habits or goals within the view.
-      parameters:
-        - in: path
-          name: view-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the view
-        - in: path
-          name: category-id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: The unique identifier of the category
-      responses:
-        204:
-          description: Category successfully removed from the view.
-        404:
-          description: The server has not found anything matching the Request-URI or the resource is not available.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        500:
-          description: An unexpected error occurred on the server.
-          content:
-            application/json:
-              schema:
-               $ref: '#/components/schemas/Error'
-
 components:
   securitySchemes:
     BearerAuth:
@@ -1241,10 +633,10 @@ components:
           enum: [ Daily, Weekly, Monthly ]
           example: 'Daily'
         duration:
-          type: integer
-          format: int64
-          description: 'Amount of activity in specified by frequency time interval'
-          example: 30
+          type: string
+          format: duration
+          description: Duration of the habit specified in ISO 8601 format
+          example: P30D
         difficulty:
           type: string
           enum: [ Easy, Medium, Hard ]
@@ -1253,21 +645,11 @@ components:
           type: string
           enum: [ Active, Inactive ]
           example: 'Active'
-        habit_stats:
-          type: array
-          items:
-            $ref: '#/components/schemas/HabitStats'
-        habit_charts:
-          $ref: '#/components/schemas/HabitCharts'
-        category:
+        categories:
           type: array
           items:
             $ref: '#/components/schemas/Category'
-        view:
-          type: array
-          items:
-            $ref: '#/components/schemas/View'
-    HabitStats:
+    HabitTrack:
       type: object
       description: "This schema contains data about habit implementation status in described by date moment in time"
       required:
@@ -1290,43 +672,6 @@ components:
           enum:
             - Done
             - Undone
-    HabitCharts:
-      type: object
-      description: 'This schema aggregates data from Habit and HabitStats'
-      required:
-        - id
-        - not_completion_counts
-        - completionCounts
-        - frequency_adherence
-        - difficulty_to_frequency_correlation
-        - improvement_trend
-      properties:
-        id:
-          type: string
-          format: uuid
-          nullable: false
-          description: 'The unique identifier of the habit chart.'
-        not_completion_counts:
-          type: integer
-          format: int64
-          default: 0
-        completionCounts:
-          type: integer
-          default: 0
-        frequency_adherence:
-          type: number
-          format: float
-          description: 'Percentage of adherence to the planned frequency of the habit.'
-        difficulty_to_frequency_correlation:
-          type: number
-          format: float
-          description: 'Success rate related to the difficulty level of the habit.'
-        improvement_trend:
-          type: string
-          enum:
-            - improvement
-            - deterioration
-            - stagnation
     HabitRequest:
       type: object
       required:
@@ -1347,15 +692,15 @@ components:
           enum: [ Daily, Weekly, Monthly ]
           example: 'Daily'
         duration:
-          type: integer
-          format: int64
-          description: 'Amount of activity in specified by frequency time interval'
-          example: 30
+          type: string
+          description: Duration of the habit specified in ISO 8601 format
+          example: P30D
+          format: duration
         difficulty:
           type: string
           enum: [ Easy, Medium, Hard ]
           example: 'Medium'
-    HabitStatsRequest:
+    HabitTrackingRequest:
       type: object
       required:
         - habitId
@@ -1366,24 +711,20 @@ components:
           format: uuid
         status:
           type: string
-          enum: [Done, Undone]
-    HabitCategoryAdditionRequest:
+          enum: [ Done, Undone ]
+    HabitPage:
       type: object
-      required:
-        - categoryId
       properties:
-        categoryId:
-          type: string
-          format: uuid
-          description: 'The unique identifier of the category'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Habit'
+      required:
+        - items
     HabitResponse:
       type: array
       items:
         $ref: '#/components/schemas/Habit'
-    HabitChartsResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/HabitCharts'
     Goal:
       type: object
       properties:
@@ -1395,49 +736,29 @@ components:
           type: string
           example: 'Health Improvement'
         duration:
-          type: integer
-          format: int64
-          description: 'Duration of the goal in days'
-          example: 60
-        goal_habit_summary:
+          type: string
+          format: duration
+          description: 'Duration of the goal specified in ISO 8601 format'
+          example: P30D
+        habits:
           type: array
           items:
-            $ref: '#/components/schemas/GoalHabitSummary'
-        goal_charts:
-          $ref: '#/components/schemas/GoalCharts'
-        view:
-          type: array
-          items:
-            $ref: '#/components/schemas/View'
-    GoalHabitSummary:
+            $ref: '#/components/schemas/GoalHabit'
+    GoalHabit:
       type: object
-      description: 'This schema keeps track of habits completion from the time when habit is associated with a certain goal'
       properties:
-        id:
+        habitId:
           type: string
           format: uuid
-          description: 'The unique identifier of the goal habit summary.'
-        amount_to_complete:
+          description: 'The unique identifier of the habit.'
+        completionCount:
           type: integer
           format: int64
-          description: 'Number of habit_stats records marked as done to finish this part of goal'
-        actual_amount:
+          description: 'Integer value of habit records marked as done to complete this part of the goal'
+        currentCount:
           type: integer
           format: int64
-          description: 'Number of habit_stats records marked as done from time when habit is associated with goal'
-        habit:
-          $ref: '#/components/schemas/Habit'
-    GoalCharts:
-      type: object
-      description: 'This schema aggregates data from habits attached to goal and offers statistics about goal progression'
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: 'The unique identifier of the goal chart.'
-        percent_of_completion:
-          type: number
-          format: float
+          description: 'Integer value of habit records marked as done to complete this part of the goal'
     GoalRequest:
       type: object
       required:
@@ -1448,82 +769,28 @@ components:
           type: string
           example: 'Health Improvement'
         duration:
+          type: string
+          format: duration
+          description: Duration of the goal specified in ISO 8601 format
+          example: P3Y
+    GoalAssignHabitRequest:
+      type: object
+      required:
+        - habitId
+        - completionCount
+      properties:
+        habitId:
+          type: string
+          format: uuid
+          description: 'The unique identifier of the habit'
+        completionCount:
           type: integer
           format: int64
-          description: 'Duration of the goal in days'
-          example: 60
-    GoalHabitSummaryAdditionRequest:
-     type: object
-     required:
-       - habitId
-       - amount_to_complete
-     properties:
-       habitId:
-         type: string
-         format: uuid
-         description: 'The unique identifier of the habit'
-       amount_to_complete:
-         type: integer
-         format: int64
-         description: 'Integer value of habit records marked as done to complete this part of the goal'
+          description: 'Integer value of habit records marked as done to complete this part of the goal'
     GoalResponse:
       type: array
       items:
         $ref: '#/components/schemas/Goal'
-    View:
-      type: object
-      description: 'Schema which contains set of information needed to display interface'
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: 'The unique identifier of the view.'
-        type:
-          type: string
-          enum: [ Habit, Goal, Category ]
-          description: 'The focus of the view (habit, goal, or category).'
-          example: 'Habit'
-        layout:
-          type: string
-          enum: [ List, Grid, Custom ]
-          description: 'The layout format of the view.'
-          example: 'Grid'
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
-        goals:
-          type: array
-          items:
-            $ref: '#/components/schemas/Goal'
-        habits:
-          type: array
-          items:
-            $ref: '#/components/schemas/Habit'
-    GoalChartsResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/GoalCharts'
-    ViewRequest:
-      type: object
-      required:
-        - type
-        - layout
-      properties:
-        type:
-          type: string
-          enum: [ Habit, Goal, Category ]
-          description: 'The focus of the view (habit, goal, or category).'
-          example: 'Habit'
-        layout:
-          type: string
-          enum: [ List, Grid, Custom ]
-          description: 'The layout format of the view.'
-          example: 'Grid'
-    ViewResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/View'
     Category:
       type: object
       properties:
@@ -1535,10 +802,15 @@ components:
           type: string
           description: 'The name of the category'
           example: 'Fitness'
-        view:
-          type: array
-          items:
-            $ref: '#/components/schemas/View'
+    HabitCategoryCreateRequest:
+      type: object
+      required:
+        - categoryId
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+          description: 'The unique identifier of the category.'
     CategoryRequest:
       type: object
       required:
