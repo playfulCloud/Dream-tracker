@@ -1,0 +1,9 @@
+services:
+  db:
+    image: postgres:alpine
+    ports:
+      - "5232:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dream-tracker
