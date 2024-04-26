@@ -1,13 +1,13 @@
-package dream.track.alfa;
+package com.dreamtracker.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AlfaApplication {
+public class AppApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AlfaApplication.class, args);
+		SpringApplication.run(AppApplication.class, args);
 	}
 
 }

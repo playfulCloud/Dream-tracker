@@ -1,10 +1,10 @@
-package dream.track.alfa;
+package com.dreamtracker.app;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AlfaApplicationTests {
+class AppApplicationTests {
 
 	@Test
 	void contextLoads() {
