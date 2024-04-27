@@ -1,9 +1,9 @@
 package com.dreamtracker.repository;
 
-import com.dreamtracker.entity.Habit;
+import com.dreamtracker.entity.HabitTrack;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface HabitRepository extends JpaRepository<Habit, UUID> {
+public interface HabitTrackRepository extends JpaRepository<HabitTrack, UUID> {
 }
