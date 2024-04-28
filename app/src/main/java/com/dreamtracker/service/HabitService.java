@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface HabitService {
     Optional<Habit> save(Habit habit);
+    Optional<Habit>findHabitById(UUID id);
     void deleteById(UUID id);
     Optional<HabitTrack>trackTheHabit(HabitTrackingRequest habitTrackingRequest);
     Optional<List<HabitTrack>>getHabitTrack(UUID id);
