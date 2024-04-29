@@ -48,6 +48,21 @@ public class HabitServiceImpl implements HabitService {
   }
 
   @Override
+  @Transactional
+  public boolean delete(UUID id) {
+    if (existsById(id)) {
+      deleteById(id);
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public boolean existsById(UUID id) {
+    return habitRepository.existsById(id);
+  }
+
+  @Override
   public Optional<HabitTrack> trackTheHabit(HabitTrackingRequest habitTrackingRequest) {
     ZonedDateTime date = ZonedDateTime.now();
     String formattedDate = date.format(DateTimeFormatter.ISO_DATE_TIME);
@@ -116,8 +131,9 @@ public class HabitServiceImpl implements HabitService {
   }
 
   @Override
-  public HabitResponse updateHabit(UUID id,HabitRequest habitRequest) {
-    var habitToUpdate = findHabitById(id).orElseThrow(() -> new RuntimeException("Request habit doesnt not exits"));
+  public HabitResponse updateHabit(UUID id, HabitRequest habitRequest) {
+    var habitToUpdate =
+        findHabitById(id).orElseThrow(() -> new RuntimeException("Request habit doesnt not exits"));
 
     Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
     Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
@@ -125,7 +141,8 @@ public class HabitServiceImpl implements HabitService {
     Optional.ofNullable(habitRequest.duration()).ifPresent(habitToUpdate::setDuration);
     Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
 
-    var updatedHabit = save(habitToUpdate).orElseThrow(() -> new RuntimeException("Error updating habit "));
+    var updatedHabit =
+        save(habitToUpdate).orElseThrow(() -> new RuntimeException("Error updating habit "));
 
     return mapToResponse(updatedHabit);
   }
@@ -141,5 +158,3 @@ public class HabitServiceImpl implements HabitService {
         .build();
   }
 }
-
-

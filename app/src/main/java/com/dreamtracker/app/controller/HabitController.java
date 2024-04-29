@@ -4,13 +4,11 @@ import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.response.HabitResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.service.HabitService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1")
@@ -33,5 +31,12 @@ public class HabitController {
   public ResponseEntity<HabitResponse> updateHabit(
       @PathVariable("habit-id") UUID id, @RequestBody HabitRequest habitRequest) {
     return new ResponseEntity<>(habitService.updateHabit(id, habitRequest), HttpStatus.OK);
+  }
+
+  @DeleteMapping("/habits/{habit-id}")
+  public ResponseEntity<Void> deleteHabit(@PathVariable("habit-id") UUID id) {
+    return habitService.delete(id)
+        ? ResponseEntity.noContent().build()
+        : ResponseEntity.notFound().build();
   }
 }
