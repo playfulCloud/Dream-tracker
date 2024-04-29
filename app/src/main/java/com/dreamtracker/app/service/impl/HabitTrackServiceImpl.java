@@ -1,9 +1,10 @@
-package com.dreamtracker.app.service;
+package com.dreamtracker.app.service.impl;
 
 
 import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.repository.HabitTrackRepository;
+import com.dreamtracker.app.service.HabitTrackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class HabitTrackServiceImpl implements HabitTrackService{
+public class HabitTrackServiceImpl implements HabitTrackService {
 
     private final HabitTrackRepository habitTrackRepository;
 

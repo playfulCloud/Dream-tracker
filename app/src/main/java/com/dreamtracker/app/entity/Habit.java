@@ -26,4 +26,8 @@ public class Habit {
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HabitTrack>habitTrackList;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }

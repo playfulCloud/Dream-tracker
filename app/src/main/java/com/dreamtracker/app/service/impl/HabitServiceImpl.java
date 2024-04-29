@@ -1,4 +1,4 @@
-package com.dreamtracker.app.service;
+package com.dreamtracker.app.service.impl;
 
 import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
@@ -6,6 +6,8 @@ import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitResponse;
+import com.dreamtracker.app.service.HabitService;
+import com.dreamtracker.app.service.HabitTrackService;
 import com.dreamtracker.app.utils.HabitStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
