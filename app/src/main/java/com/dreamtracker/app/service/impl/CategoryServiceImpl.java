@@ -26,6 +26,11 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
+    public Optional<Category> findById(UUID id) {
+        return categoryRepository.findById(id);
+    }
+
+    @Override
     public Optional<Category> save(Category category) {
         return Optional.of(categoryRepository.save(category));
     }
@@ -69,17 +74,26 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponse updateCategory(UUID id, CategoryRequest categoryRequest) {
-        return null;
+        var foundCategory = findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        Optional.ofNullable(categoryRequest.name()).ifPresent(foundCategory::setName);
+        var categorySaveToDB = save(foundCategory).orElseThrow(() -> new RuntimeException("Error saving category"));
+        return mapToResponse(categorySaveToDB);
     }
 
     @Override
     public Page<CategoryResponse> getAllUserCategories() {
-        return null;
+        var ownerOfCategories = userService.findById(currentUserProvider.getCurrentUser()).orElseThrow(() -> new RuntimeException("later"));
+        var listOfCategories = ownerOfCategories.getCategoriesCreatedByUser();
+        var listOfCategoryResponses = listOfCategories.stream().map(this::mapToResponse).toList();
+        Page<CategoryResponse> categoryResponsePage = new Page<>();
+        categoryResponsePage.setItems(listOfCategoryResponses);
+        return categoryResponsePage;
     }
 
 
     private CategoryResponse mapToResponse(Category category){
         return CategoryResponse.builder()
+                .id(category.getId())
                 .name(category.getName())
                 .build();
     }

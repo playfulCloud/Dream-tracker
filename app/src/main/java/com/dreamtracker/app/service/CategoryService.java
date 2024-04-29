@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CategoryService {
+   Optional<Category>findById(UUID id);
    Optional<Category>save(Category category);
    CategoryResponse createCategory(CategoryRequest categoryRequest);
    void deleteById(UUID id);
