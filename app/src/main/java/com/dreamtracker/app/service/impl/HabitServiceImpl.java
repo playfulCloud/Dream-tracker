@@ -3,11 +3,13 @@ package com.dreamtracker.app.service.impl;
 import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.repository.HabitRepository;
+import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
+import com.dreamtracker.app.service.CategoryService;
 import com.dreamtracker.app.service.HabitService;
 import com.dreamtracker.app.service.HabitTrackService;
 import com.dreamtracker.app.service.UserService;
@@ -29,6 +31,7 @@ public class HabitServiceImpl implements HabitService {
   private final HabitRepository habitRepository;
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
+  private final CategoryService categoryService;
 
   @Override
   public Optional<Habit> save(Habit habit) {
@@ -135,6 +138,18 @@ public class HabitServiceImpl implements HabitService {
         save(habitToUpdate).orElseThrow(() -> new RuntimeException("Error updating habit "));
 
     return mapToResponse(updatedHabit);
+  }
+
+  @Override
+  public void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
+    var habitToLinkCategory = findHabitById(habitId).orElseThrow(() -> new RuntimeException("Later"));
+    var categoryToBeLinked = categoryService.findById(categoryCreateRequest.id()).orElseThrow(() -> new RuntimeException("Category not found"));
+
+    habitToLinkCategory.getCategories().add(categoryToBeLinked);
+    categoryToBeLinked.getHabits().add(habitToLinkCategory);
+
+    save(habitToLinkCategory).orElseThrow(() -> new RuntimeException("Error during saving habits"));
+    categoryService.save(categoryToBeLinked).orElseThrow(() -> new RuntimeException("Error during saving habit"));
   }
 
   private HabitResponse mapToResponse(Habit habit) {
