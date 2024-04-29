@@ -19,4 +19,5 @@ public interface HabitService {
     Optional<List<HabitTrack>>getHabitTrack(UUID id);
     HabitResponse createHabit(HabitRequest habitRequest);
     Page<HabitResponse>getAllUserHabits();
+    HabitResponse updateHabit(UUID id,HabitRequest habitRequest);
 }
