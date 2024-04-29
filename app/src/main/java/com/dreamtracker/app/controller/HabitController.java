@@ -1,10 +1,14 @@
 package com.dreamtracker.app.controller;
 
 import com.dreamtracker.app.request.HabitRequest;
+import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitResponse;
+import com.dreamtracker.app.response.HabitTrackResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.service.HabitService;
 import java.util.UUID;
+
+import com.dreamtracker.app.service.HabitTrackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class HabitController {
 
   private final HabitService habitService;
+  private final HabitTrackService habitTrackService;
 
   @PostMapping("/habits")
   public ResponseEntity<HabitResponse> createHabit(@RequestBody HabitRequest habitRequest) {
@@ -38,5 +43,18 @@ public class HabitController {
     return habitService.delete(id)
         ? ResponseEntity.noContent().build()
         : ResponseEntity.notFound().build();
+  }
+
+  @PostMapping("/habits-tracking")
+  public ResponseEntity<HabitTrackResponse> trackTheHabit(
+      @RequestBody HabitTrackingRequest habitTrackingRequest) {
+    return new ResponseEntity<>(
+        habitTrackService.trackTheHabit(habitTrackingRequest), HttpStatus.CREATED);
+  }
+
+  @GetMapping("/habits-tracking/{habit-id}")
+  public ResponseEntity<Page<HabitTrackResponse>> getAllHabitTracks(
+      @PathVariable("habit-id") UUID id) {
+    return new ResponseEntity<>(habitTrackService.getAllTracksOfHabit(id), HttpStatus.OK);
   }
 }

@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 public class HabitServiceImpl implements HabitService {
 
   private final HabitRepository habitRepository;
-  private final HabitTrackService habitTrackService;
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
 
@@ -60,16 +59,6 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public boolean existsById(UUID id) {
     return habitRepository.existsById(id);
-  }
-
-  @Override
-  public Optional<HabitTrack> trackTheHabit(HabitTrackingRequest habitTrackingRequest) {
-    ZonedDateTime date = ZonedDateTime.now();
-    String formattedDate = date.format(DateTimeFormatter.ISO_DATE_TIME);
-    var track =
-        HabitTrack.builder().date(formattedDate).status(habitTrackingRequest.status()).build();
-
-    return habitTrackService.save(track);
   }
 
   @Override
