@@ -88,6 +88,7 @@ public class HabitServiceImpl implements HabitService {
             .status(HabitStatus.ACTIVE.toString())
             .habitTrackList(new ArrayList<HabitTrack>())
             .categories(new ArrayList<>())
+            .goals(new ArrayList<>())
             .user(ownerOfHabit)
             .build();
 
@@ -97,14 +98,7 @@ public class HabitServiceImpl implements HabitService {
     ownerOfHabit.getHabits().add(habitSavedToDB);
     userService.save(ownerOfHabit);
 
-    return HabitResponse.builder()
-        .id(habitSavedToDB.getId())
-        .action(habitSavedToDB.getAction())
-        .name(habitSavedToDB.getName())
-        .duration(habitSavedToDB.getDuration())
-        .difficulty(habitSavedToDB.getDifficulty())
-        .status(habitSavedToDB.getStatus())
-        .build();
+    return mapToResponse(habitSavedToDB);
   }
 
   @Override
