@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Data
@@ -45,5 +46,10 @@ public class UserServiceImpl implements UserService {
         .name(userSavedToDB.getName())
         .surname(userSavedToDB.getSurname())
         .build();
+  }
+
+  @Override
+  public Optional<User> findById(UUID uuid) {
+    return userRepository.findById(uuid);
   }
 }

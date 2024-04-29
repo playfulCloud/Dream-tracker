@@ -5,6 +5,7 @@ import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitResponse;
+import com.dreamtracker.app.response.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,4 +18,5 @@ public interface HabitService {
     Optional<HabitTrack>trackTheHabit(HabitTrackingRequest habitTrackingRequest);
     Optional<List<HabitTrack>>getHabitTrack(UUID id);
     HabitResponse createHabit(HabitRequest habitRequest);
+    Page<HabitResponse>getAllUserHabits();
 }
