@@ -1,5 +1,6 @@
 package com.dreamtracker.app.controller;
 
+import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitResponse;
@@ -57,4 +58,11 @@ public class HabitController {
       @PathVariable("habit-id") UUID id) {
     return new ResponseEntity<>(habitTrackService.getAllTracksOfHabit(id), HttpStatus.OK);
   }
+
+  @PostMapping("/habits/{habit-id}/categories")
+  public ResponseEntity<Void> linkHabitWithCategory(@PathVariable("habit-id") UUID id,@RequestBody HabitCategoryCreateRequest habitCategoryCreateRequest){
+    habitService.linkCategoryWithHabit(id,habitCategoryCreateRequest);
+    return ResponseEntity.noContent().build();
+  }
+
 }

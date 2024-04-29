@@ -2,6 +2,7 @@ package com.dreamtracker.app.service;
 
 import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
+import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.response.HabitResponse;
 import com.dreamtracker.app.response.Page;
@@ -19,4 +20,5 @@ public interface HabitService {
     HabitResponse createHabit(HabitRequest habitRequest);
     Page<HabitResponse>getAllUserHabits();
     HabitResponse updateHabit(UUID id,HabitRequest habitRequest);
+    void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest);
 }
