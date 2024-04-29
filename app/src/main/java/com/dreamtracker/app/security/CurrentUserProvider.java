@@ -1,4 +1,4 @@
-package com.dreamtracker.app.devTools;
+package com.dreamtracker.app.security;
 
 import java.util.UUID;
 
