@@ -115,6 +115,21 @@ public class HabitServiceImpl implements HabitService {
     return responsePage;
   }
 
+  @Override
+  public HabitResponse updateHabit(UUID id,HabitRequest habitRequest) {
+    var habitToUpdate = findHabitById(id).orElseThrow(() -> new RuntimeException("Request habit doesnt not exits"));
+
+    Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
+    Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
+    Optional.ofNullable(habitRequest.frequency()).ifPresent(habitToUpdate::setFrequency);
+    Optional.ofNullable(habitRequest.duration()).ifPresent(habitToUpdate::setDuration);
+    Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
+
+    var updatedHabit = save(habitToUpdate).orElseThrow(() -> new RuntimeException("Error updating habit "));
+
+    return mapToResponse(updatedHabit);
+  }
+
   private HabitResponse mapToResponse(Habit habit) {
     return HabitResponse.builder()
         .id(habit.getId())
@@ -126,3 +141,5 @@ public class HabitServiceImpl implements HabitService {
         .build();
   }
 }
+
+

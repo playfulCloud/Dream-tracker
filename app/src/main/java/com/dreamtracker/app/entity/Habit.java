@@ -19,6 +19,7 @@ public class Habit {
     private  UUID id;
     private String name;
     private String action;
+    private String frequency;
     private String duration;
     private String difficulty;
     private String status;

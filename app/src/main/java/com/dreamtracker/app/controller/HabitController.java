@@ -10,30 +10,28 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
 public class HabitController {
 
+  private final HabitService habitService;
 
-    private final HabitService habitService;
+  @PostMapping("/habits")
+  public ResponseEntity<HabitResponse> createHabit(@RequestBody HabitRequest habitRequest) {
+    return new ResponseEntity<>(habitService.createHabit(habitRequest), HttpStatus.CREATED);
+  }
 
-    @PostMapping("/habits")
-    public ResponseEntity<HabitResponse> createHabit(@RequestBody HabitRequest habitRequest){
-        return new ResponseEntity<>(habitService.createHabit(habitRequest), HttpStatus.CREATED);
-    }
+  @GetMapping("/habits")
+  public ResponseEntity<Page<HabitResponse>> getAllUserHabits() {
+    return new ResponseEntity<>(habitService.getAllUserHabits(), HttpStatus.OK);
+  }
 
-
-    @GetMapping("/habits")
-    public ResponseEntity<Page<HabitResponse>>getAllUserHabits(){
-        return new ResponseEntity<>(habitService.getAllUserHabits(), HttpStatus.ACCEPTED);
-    }
-
-
-
-
-
-
-
-
+  @PutMapping("/habits/{habit-id}")
+  public ResponseEntity<HabitResponse> updateHabit(
+      @PathVariable("habit-id") UUID id, @RequestBody HabitRequest habitRequest) {
+    return new ResponseEntity<>(habitService.updateHabit(id, habitRequest), HttpStatus.OK);
+  }
 }
