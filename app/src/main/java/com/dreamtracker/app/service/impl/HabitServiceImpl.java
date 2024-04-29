@@ -84,6 +84,7 @@ public class HabitServiceImpl implements HabitService {
             .difficulty(habitRequest.difficulty())
             .status(HabitStatus.ACTIVE.toString())
             .habitTrackList(new ArrayList<HabitTrack>())
+            .categories(new ArrayList<>())
             .user(ownerOfHabit)
             .build();
 

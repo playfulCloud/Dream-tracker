@@ -24,11 +24,20 @@ public class Habit {
     private String difficulty;
     private String status;
 
-    @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "habit", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH }, orphanRemoval = true)
     private List<HabitTrack>habitTrackList;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "habit_category",
+            joinColumns = @JoinColumn(name = "habit_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category>categories;
 
 }
