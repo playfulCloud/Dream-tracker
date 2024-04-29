@@ -40,4 +40,12 @@ public class Habit {
     )
     private List<Category>categories;
 
+    @ManyToMany
+    @JoinTable(
+            name = "habit_goal",
+            joinColumns = @JoinColumn(name = "habit_id"),
+            inverseJoinColumns = @JoinColumn(name = "goal_id")
+    )
+    private List<Goal>goals;
+
 }
