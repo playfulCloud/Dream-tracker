@@ -1,5 +1,7 @@
 package com.dreamtracker.app.service.impl;
 
+import com.dreamtracker.app.exception.EntitySaveException;
+import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.response.UserResponse;
 import com.dreamtracker.app.security.CurrentUserProvider;
 import com.dreamtracker.app.entity.User;
@@ -39,7 +41,7 @@ public class UserServiceImpl implements UserService {
             .build();
 
     var userSavedToDB =
-        save(sampleUser).orElseThrow(() -> new RuntimeException("Error saving user to database"));
+        save(sampleUser).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     return UserResponse.builder()
         .uuid(userSavedToDB.getUuid())

@@ -1,6 +1,9 @@
 package com.dreamtracker.app.service.impl;
 
 import com.dreamtracker.app.entity.Goal;
+import com.dreamtracker.app.exception.EntityNotFoundException;
+import com.dreamtracker.app.exception.EntitySaveException;
+import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.GoalRepository;
 import com.dreamtracker.app.request.GoalAssignHabitRequest;
 import com.dreamtracker.app.request.GoalRequest;
@@ -40,7 +43,7 @@ public class GoalServiceImpl implements GoalService {
     var ownerOfGoal =
         userService
             .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     var goalToCreate =
         Goal.builder()
@@ -51,7 +54,7 @@ public class GoalServiceImpl implements GoalService {
             .build();
 
     var goalSavedToDB =
-        save(goalToCreate).orElseThrow(() -> new RuntimeException("Error creating goal "));
+        save(goalToCreate).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
     ownerOfGoal.getGoals().add(goalSavedToDB);
 
     userService.save(ownerOfGoal);
@@ -80,13 +83,12 @@ public class GoalServiceImpl implements GoalService {
 
   @Override
   public GoalResponse updateGoal(UUID id, GoalRequest goalRequest) {
-    var goalToUpdate = findById(id).orElseThrow(() -> new RuntimeException("Goal not found"));
+    var goalToUpdate = findById(id).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     Optional.ofNullable(goalRequest.name()).ifPresent(goalToUpdate::setName);
     Optional.ofNullable(goalRequest.duration()).ifPresent(goalToUpdate::setDuration);
 
-    var updatedGoal =
-        save(goalToUpdate).orElseThrow(() -> new RuntimeException("Error during saving goal "));
+    var updatedGoal = save(goalToUpdate).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     return mapToResponse(updatedGoal);
   }
@@ -96,7 +98,7 @@ public class GoalServiceImpl implements GoalService {
     var ownerOfGoals =
         userService
             .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var goals = ownerOfGoals.getGoals();
     var listOfGoalResponses = goals.stream().map(this::mapToResponse).toList();
     Page<GoalResponse> goalResponsePage = new Page<>();
@@ -106,19 +108,20 @@ public class GoalServiceImpl implements GoalService {
 
   @Override
   public void AssociateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest) {
-    var goalToAddHabit = findById(goalId).orElseThrow(() -> new RuntimeException("Goal not found"));
-    var habitToBeAdded = habitService.findHabitById(goalAssignHabitRequest.habitId()).orElseThrow(() -> new RuntimeException("Goal not found"));
+    var goalToAddHabit =
+        findById(goalId).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var habitToBeAdded = habitService.findHabitById(goalAssignHabitRequest.habitId()).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     goalToAddHabit.getHabitList().add(habitToBeAdded);
     habitToBeAdded.getGoals().add(goalToAddHabit);
 
-    save(goalToAddHabit).orElseThrow(() -> new RuntimeException("Error saving goal"));
-    habitService.save(habitToBeAdded).orElseThrow(() -> new RuntimeException("Error saving habits"));
+    save(goalToAddHabit).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    habitService.save(habitToBeAdded).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
   }
 
   @Override
   public GoalResponse getGoalById(UUID id) {
-    var goal = findById(id).orElseThrow(() -> new RuntimeException("Goal not found"));
+    var goal = findById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
     return mapToResponse(goal);
   }
 

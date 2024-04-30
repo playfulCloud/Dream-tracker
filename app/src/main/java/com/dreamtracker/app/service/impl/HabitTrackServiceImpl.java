@@ -2,6 +2,8 @@ package com.dreamtracker.app.service.impl;
 
 import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
+import com.dreamtracker.app.exception.EntitySaveException;
+import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.HabitTrackRepository;
 import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitTrackResponse;
@@ -47,7 +49,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
     var habit =
         habitService
             .findHabitById(id)
-            .orElseThrow(() -> new RuntimeException("Habit with provided id does not exist"));
+            .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
     var listOfTracks = habit.getHabitTrackList();
     var listOfTracksResponses = listOfTracks.stream().map(this::mapToResponse).toList();
 
@@ -63,7 +65,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
     var habitToUpdateTracking =
         habitService
             .findHabitById(habitTrackingRequest.habitId())
-            .orElseThrow(() -> new RuntimeException("Tracking cannot be updated"));
+            .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     ZonedDateTime date = ZonedDateTime.now();
     String formattedDate = date.format(DateTimeFormatter.ISO_DATE_TIME);
@@ -75,12 +77,12 @@ public class HabitTrackServiceImpl implements HabitTrackService {
             .habit(habitToUpdateTracking)
             .build();
 
-    var trackSavedToDB = save(track).orElseThrow(() -> new RuntimeException("Error saving track"));
+    var trackSavedToDB = save(track).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     habitToUpdateTracking.getHabitTrackList().add(track);
     habitService
         .save(habitToUpdateTracking)
-        .orElseThrow(() -> new RuntimeException("Error saving habit"));
+        .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     return mapToResponse(trackSavedToDB);
   }
