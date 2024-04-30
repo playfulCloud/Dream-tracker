@@ -2,6 +2,8 @@ package com.dreamtracker.app.service.impl;
 
 import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
+import com.dreamtracker.app.exception.EntitySaveException;
+import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.request.HabitRequest;
@@ -67,7 +69,7 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public Optional<List<HabitTrack>> getHabitTrack(UUID id) {
     var habit =
-        habitRepository.findById(id).orElseThrow(() -> new RuntimeException("Habit not found"));
+        habitRepository.findById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
     return Optional.of(habit.getHabitTrackList());
   }
 
@@ -77,7 +79,7 @@ public class HabitServiceImpl implements HabitService {
     var ownerOfHabit =
         userService
             .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(() -> new RuntimeException("Error during finding owner of habit"));
+            .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     var habitToCreate =
         Habit.builder()
@@ -93,7 +95,7 @@ public class HabitServiceImpl implements HabitService {
             .build();
 
     var habitSavedToDB =
-        save(habitToCreate).orElseThrow(() -> new RuntimeException("Error during saving habit"));
+        save(habitToCreate).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     ownerOfHabit.getHabits().add(habitSavedToDB);
     userService.save(ownerOfHabit);
@@ -106,7 +108,7 @@ public class HabitServiceImpl implements HabitService {
     var ownerOfHabits =
         userService
             .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(() -> new RuntimeException("Error during finding owner of habit"));
+            .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
     var habits = ownerOfHabits.getHabits();
 
     var listOfHabitResponses = habits.stream().map(this::mapToResponse).toList();
@@ -120,7 +122,7 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public HabitResponse updateHabit(UUID id, HabitRequest habitRequest) {
     var habitToUpdate =
-        findHabitById(id).orElseThrow(() -> new RuntimeException("Request habit doesnt not exits"));
+        findHabitById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
     Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
@@ -129,21 +131,21 @@ public class HabitServiceImpl implements HabitService {
     Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
 
     var updatedHabit =
-        save(habitToUpdate).orElseThrow(() -> new RuntimeException("Error updating habit "));
+        save(habitToUpdate).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     return mapToResponse(updatedHabit);
   }
 
   @Override
   public void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
-    var habitToLinkCategory = findHabitById(habitId).orElseThrow(() -> new RuntimeException("Later"));
-    var categoryToBeLinked = categoryService.findById(categoryCreateRequest.id()).orElseThrow(() -> new RuntimeException("Category not found"));
+    var habitToLinkCategory = findHabitById(habitId).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var categoryToBeLinked = categoryService.findById(categoryCreateRequest.id()).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     habitToLinkCategory.getCategories().add(categoryToBeLinked);
     categoryToBeLinked.getHabits().add(habitToLinkCategory);
 
-    save(habitToLinkCategory).orElseThrow(() -> new RuntimeException("Error during saving habits"));
-    categoryService.save(categoryToBeLinked).orElseThrow(() -> new RuntimeException("Error during saving habit"));
+    save(habitToLinkCategory).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    categoryService.save(categoryToBeLinked).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
   }
 
   private HabitResponse mapToResponse(Habit habit) {

@@ -1,11 +1,11 @@
 package com.dreamtracker.app.exception;
 
 
+import lombok.Builder;
 import lombok.Data;
 
-@Data
-public class ErrorObject {
-    private Integer code;
-    private String message;
-    private String details;
+
+@Builder
+public record ErrorObject(Integer code,String message){
+
 }
