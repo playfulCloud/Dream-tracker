@@ -17,7 +17,6 @@ public class GlobalExceptionHandler {
         ErrorObject.builder()
             .code(HttpStatus.NOT_FOUND.value())
             .message(exception.getMessage())
-            .details(exception.getDetails())
             .build();
 
     return new ResponseEntity<>(errorObjectToReturn, HttpStatus.NOT_FOUND);
@@ -31,7 +30,6 @@ public class GlobalExceptionHandler {
         ErrorObject.builder()
             .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .message(exception.getMessage())
-            .details(exception.getDetails())
             .build();
 
     return new ResponseEntity<>(errorObjectToReturn, HttpStatus.INTERNAL_SERVER_ERROR);
