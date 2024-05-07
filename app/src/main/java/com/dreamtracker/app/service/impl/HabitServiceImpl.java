@@ -4,6 +4,7 @@ import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
+import com.dreamtracker.app.repository.CategoryRepository;
 import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.request.HabitRequest;
@@ -33,7 +34,7 @@ public class HabitServiceImpl implements HabitService {
   private final HabitRepository habitRepository;
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
-  private final CategoryService categoryService;
+  private final CategoryRepository categoryRepository;
 
   @Override
   public Optional<Habit> save(Habit habit) {
@@ -139,13 +140,13 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
     var habitToLinkCategory = findHabitById(habitId).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    var categoryToBeLinked = categoryService.findById(categoryCreateRequest.id()).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var categoryToBeLinked = categoryRepository.findById(categoryCreateRequest.id()).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     habitToLinkCategory.getCategories().add(categoryToBeLinked);
     categoryToBeLinked.getHabits().add(habitToLinkCategory);
 
-    save(habitToLinkCategory).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    categoryService.save(categoryToBeLinked).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    save(habitToLinkCategory);
+    categoryRepository.save(categoryToBeLinked);
   }
 
   private HabitResponse mapToResponse(Habit habit) {
