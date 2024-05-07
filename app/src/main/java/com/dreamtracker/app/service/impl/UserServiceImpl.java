@@ -25,8 +25,8 @@ public class UserServiceImpl implements UserService {
   private final CurrentUserProvider currentUserProvider;
 
   @Override
-  public Optional<User> save(User user) {
-    return Optional.of(userRepository.save(user));
+  public User save(User user) {
+    return userRepository.save(user);
   }
 
   @Override
@@ -40,8 +40,7 @@ public class UserServiceImpl implements UserService {
             .habits(new ArrayList<Habit>())
             .build();
 
-    var userSavedToDB =
-        save(sampleUser).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var userSavedToDB = save(sampleUser);
 
     return UserResponse.builder()
         .uuid(userSavedToDB.getUuid())

@@ -2,95 +2,79 @@ package com.dreamtracker.app.service.impl;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.entity.Category;
 import com.dreamtracker.app.entity.User;
 import com.dreamtracker.app.exception.EntityNotFoundException;
-import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
+import com.dreamtracker.app.fixtures.CategoryFixtures;
+import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.repository.CategoryRepository;
-import com.dreamtracker.app.request.CategoryRequest;
-import com.dreamtracker.app.response.CategoryResponse;
 import com.dreamtracker.app.security.CurrentUserProvider;
-import com.dreamtracker.app.service.CategoryService;
 import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
-class CategoryServiceImplTest {
+class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
 
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
+  private final CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
+  private final UserService userService = Mockito.mock(UserService.class);
+  private User sampleUser;
 
   @BeforeEach
   void setUp() {
+    sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
   }
 
   @Test
-  void findById() {}
-
-  @Test
-  void save() {}
-
-  @Test
   void createCategoryWithSuccess() {
-    CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
-    UserService userService = Mockito.mock(UserService.class);
-    CategoryService categoryService =
+    var sampleCategory = getSampleCategoryBuilder(sampleUser).build();
+    var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
+    var categoryService =
         new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
-    var sampleUser = createSampleUserForTest();
-    when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(sampleUser);
-    when(categoryRepository.save(any())).thenReturn(createSampleCategory(sampleUser.get()));
+    when(userService.findById(currentUserProvider.getCurrentUser()))
+        .thenReturn(Optional.of(sampleUser));
+    when(categoryRepository.save(
+            Category.builder()
+                .name(sampleCategoryRequest.name())
+                .user(sampleUser)
+                .habits(new ArrayList<>())
+                .build()))
+        .thenReturn(sampleCategory);
+    var actualCategoryResponse = categoryService.createCategory(sampleCategoryRequest);
 
-    CategoryResponse actualCategoryResponse =
-        categoryService.createCategory(createCategoryRequest());
-
-    assertThat(actualCategoryResponse.name()).isEqualTo("foo");
-    verify(categoryRepository).save(any(Category.class));
+    var expectedCategoryResponse = getExpectedCategoryResponseBuilder().build();
+    assertThat(actualCategoryResponse).isEqualTo(expectedCategoryResponse);
   }
 
   @Test
   void createCategoryEntityNotFoundExceptionTest() {
-      CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
-      UserService userService = Mockito.mock(UserService.class);
-      CategoryService categoryService =
-              new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
-      when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
-      when(categoryRepository.save(any())).thenReturn(Optional.empty());
-      assertThatThrownBy(() -> {
-          categoryService.createCategory(createCategoryRequest());
-      }).isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+    var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
+    var categoryService =
+        new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
+    when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
+    assertThatThrownBy(
+            () -> {
+              categoryService.createCategory(sampleCategoryRequest);
+            })
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }
 
-    @Test
-    void createCategoryEntitySaveExceptionTest() {
-        CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
-        UserService userService = Mockito.mock(UserService.class);
-        var sampleUser = createSampleUserForTest();
-        CategoryService categoryService =
-                new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
-        when(categoryRepository.save(any())).thenReturn(createSampleCategory(sampleUser.get()));
-        assertThatThrownBy(() -> {
-            categoryService.createCategory(createCategoryRequest());
-        }).isInstanceOf(EntitySaveException.class).hasMessage(ExceptionMessages.entitySaveExceptionMessage);
-    }
-
-
-
   @Test
-  void deleteById() {}
-
-  @Test
-  void delete() {}
-
-  @Test
-  void existsById() {}
+  void deleteTestPositiveCase() {
+    var categoryService =
+        new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
+    when(categoryRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
+    var expected = true;
+    var actual = categoryService.delete(currentUserProvider.getCurrentUser());
+    assertThat(actual).isEqualTo(expected);
+  }
 
   @Test
   void updateCategory() {}
@@ -100,30 +84,4 @@ class CategoryServiceImplTest {
 
   @Test
   void getCategoryRepository() {}
-
-  private Optional<User> createSampleUserForTest() {
-    var user =
-        User.builder()
-            .uuid(currentUserProvider.getCurrentUser())
-            .name("John")
-            .surname("Doe")
-            .categoriesCreatedByUser(new ArrayList<>())
-            .goals(new ArrayList<>())
-            .habits(new ArrayList<>())
-            .build();
-
-    return Optional.of(user);
-  }
-
-  private CategoryRequest createCategoryRequest() {
-    return CategoryRequest.builder().name("foo").build();
-  }
-
-  private CategoryResponse createExpectedCategoryOutput() {
-    return CategoryResponse.builder().name("foo").build();
-  }
-
-  private Category createSampleCategory(User owner) {
-    return Category.builder().name("foo").user(owner).build();
-  }
 }

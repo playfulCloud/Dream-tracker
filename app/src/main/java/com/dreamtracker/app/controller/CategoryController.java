@@ -5,13 +5,11 @@ import com.dreamtracker.app.request.CategoryRequest;
 import com.dreamtracker.app.response.CategoryResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.service.CategoryService;
+import java.util.UUID;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1")
