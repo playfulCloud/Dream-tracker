@@ -11,11 +11,16 @@ import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.fixtures.CategoryFixtures;
 import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.repository.CategoryRepository;
+import com.dreamtracker.app.response.CategoryResponse;
+import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
 import com.dreamtracker.app.service.CategoryService;
 import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,7 +40,7 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   }
 
   @Test
-  void createCategoryWithSuccess() {
+  void createCategoryPositiveTestCase() {
     var sampleCategory = getSampleCategoryBuilder(sampleUser).build();
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
     when(userService.findById(currentUserProvider.getCurrentUser()))
@@ -97,7 +102,6 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   @Test
   void updateCategoryEntityNotFoundException() {
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    var expectedCategoryOutput = getExpectedCategoryResponseBuilder().build();
     when(categoryRepository.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.empty());
     assertThatThrownBy(
@@ -109,5 +113,30 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   }
 
   @Test
-  void getAllUserCategories() {}
+  void getAllUserCategoriesPositiveTestCase() {
+      var sampleUser  = getSampleUserWithCategories(currentUserProvider.getCurrentUser())    .build();
+      var expectedPage = new Page<CategoryResponse>();
+      var expectedPageItems = List.of(
+       CategoryResponse.builder()
+               .id(UUID.fromString("f13c542a-9303-4bfd-bddb-ec32de5c0cc5"))
+               .name("bar")
+               .build()
+      );
+      expectedPage.setItems(expectedPageItems);
+      when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.of(sampleUser));
+      var actualPageResponse = categoryService.getAllUserCategories();
+      assertThat(actualPageResponse).isEqualTo(expectedPage);
+  }
+
+  @Test
+  void getAllUserCategoriesEntityNotFoundException(){
+    when(userService.findById(currentUserProvider.getCurrentUser()))
+            .thenReturn(Optional.empty());
+    assertThatThrownBy(
+            () ->
+                    categoryService.getAllUserCategories())
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
 }
