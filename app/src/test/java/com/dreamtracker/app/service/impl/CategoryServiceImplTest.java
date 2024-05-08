@@ -11,10 +11,16 @@ import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.fixtures.CategoryFixtures;
 import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.repository.CategoryRepository;
+import com.dreamtracker.app.response.CategoryResponse;
+import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
+import com.dreamtracker.app.service.CategoryService;
 import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,18 +31,18 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   private final CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
   private final UserService userService = Mockito.mock(UserService.class);
   private User sampleUser;
+  private CategoryService categoryService;
 
   @BeforeEach
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
+    categoryService = new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
   }
 
   @Test
-  void createCategoryWithSuccess() {
+  void createCategoryPositiveTestCase() {
     var sampleCategory = getSampleCategoryBuilder(sampleUser).build();
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    var categoryService =
-        new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
     when(userService.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
     when(categoryRepository.save(
@@ -55,8 +61,6 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   @Test
   void createCategoryEntityNotFoundExceptionTest() {
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    var categoryService =
-        new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
     when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
     assertThatThrownBy(
             () -> {
@@ -68,8 +72,6 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
 
   @Test
   void deleteTestPositiveCase() {
-    var categoryService =
-        new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
     when(categoryRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
     var expected = true;
     var actual = categoryService.delete(currentUserProvider.getCurrentUser());
@@ -77,11 +79,64 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   }
 
   @Test
-  void updateCategory() {}
+  void deleteTestNegativeCase() {
+    when(categoryRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(false);
+    var expected = false;
+    var actual = categoryService.delete(currentUserProvider.getCurrentUser());
+    assertThat(actual).isEqualTo(expected);
+  }
 
   @Test
-  void getAllUserCategories() {}
+  void updateCategoryPositiveTestCase() {
+    var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
+    var expectedCategoryOutput = getExpectedCategoryResponseBuilder().build();
+    var sampleCategory = getSampleCategoryBuilder(sampleUser).build();
+    when(categoryRepository.findById(sampleCategory.getId()))
+        .thenReturn(Optional.of(sampleCategory));
+    when(categoryRepository.save(sampleCategory)).thenReturn(sampleCategory);
+
+    var actual = categoryService.updateCategory(sampleCategory.getId(), sampleCategoryRequest);
+    assertThat(actual).isEqualTo(expectedCategoryOutput);
+  }
 
   @Test
-  void getCategoryRepository() {}
+  void updateCategoryEntityNotFoundException() {
+    var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
+    when(categoryRepository.findById(currentUserProvider.getCurrentUser()))
+        .thenReturn(Optional.empty());
+    assertThatThrownBy(
+            () ->
+                categoryService.updateCategory(
+                    currentUserProvider.getCurrentUser(), sampleCategoryRequest))
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
+  @Test
+  void getAllUserCategoriesPositiveTestCase() {
+      var sampleUser  = getSampleUserWithCategories(currentUserProvider.getCurrentUser())    .build();
+      var expectedPage = new Page<CategoryResponse>();
+      var expectedPageItems = List.of(
+       CategoryResponse.builder()
+               .id(UUID.fromString("f13c542a-9303-4bfd-bddb-ec32de5c0cc5"))
+               .name("bar")
+               .build()
+      );
+      expectedPage.setItems(expectedPageItems);
+      when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.of(sampleUser));
+      var actualPageResponse = categoryService.getAllUserCategories();
+      assertThat(actualPageResponse).isEqualTo(expectedPage);
+  }
+
+  @Test
+  void getAllUserCategoriesEntityNotFoundException(){
+    when(userService.findById(currentUserProvider.getCurrentUser()))
+            .thenReturn(Optional.empty());
+    assertThatThrownBy(
+            () ->
+                    categoryService.getAllUserCategories())
+            .isInstanceOf(EntityNotFoundException.class)
+            .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
 }
