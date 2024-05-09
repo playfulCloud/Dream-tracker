@@ -21,10 +21,6 @@ public class Category {
     @GeneratedValue
     private UUID id;
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    private User user;
-
+    private UUID userUUID;
     @ManyToMany(mappedBy = "categories")
     private List<Habit> habits;}

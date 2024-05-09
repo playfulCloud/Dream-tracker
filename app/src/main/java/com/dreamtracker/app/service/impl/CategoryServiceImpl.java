@@ -24,8 +24,6 @@ public class CategoryServiceImpl implements CategoryService {
   private final UserService userService;
   private final CurrentUserProvider currentUserProvider;
 
-
-
   @Override
   public CategoryResponse createCategory(CategoryRequest categoryRequest) {
     var ownerOfCategory =
@@ -38,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     var categoryToCreate =
         Category.builder()
             .name(categoryRequest.name())
-            .user(ownerOfCategory)
+            .userUUID(ownerOfCategory.getUuid())
             .habits(new ArrayList<>())
             .build();
 
@@ -50,7 +48,6 @@ public class CategoryServiceImpl implements CategoryService {
     return mapToResponse(categorySavedToDB);
   }
 
-
   @Override
   public boolean delete(UUID id) {
     if (categoryRepository.existsById(id)) {
@@ -60,16 +57,14 @@ public class CategoryServiceImpl implements CategoryService {
     return false;
   }
 
-
   @Override
   public CategoryResponse updateCategory(UUID id, CategoryRequest categoryRequest) {
     var foundCategory =
-        categoryRepository.findById(id)
+        categoryRepository
+            .findById(id)
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(
-                       ExceptionMessages.entityNotFoundExceptionMessage
-                    ));
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     Optional.ofNullable(categoryRequest.name()).ifPresent(foundCategory::setName);
     var categorySaveToDB = categoryRepository.save(foundCategory);
     return mapToResponse(categorySaveToDB);
@@ -77,17 +72,9 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public Page<CategoryResponse> getAllUserCategories() {
-    var ownerOfCategories =
-        userService
-            .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(
-                            ExceptionMessages.entityNotFoundExceptionMessage
-                    ));
-    var listOfCategories = ownerOfCategories.getCategoriesCreatedByUser();
-    var listOfCategoryResponses = listOfCategories.stream().map(this::mapToResponse).toList();
     var categoryResponsePage = new Page<CategoryResponse>();
+    var listOfCategories = categoryRepository.findByUserUUID(currentUserProvider.getCurrentUser());
+    var listOfCategoryResponses = listOfCategories.stream().map(this::mapToResponse).toList();
     categoryResponsePage.setItems(listOfCategoryResponses);
     return categoryResponsePage;
   }
