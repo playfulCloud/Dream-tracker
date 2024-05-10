@@ -210,12 +210,38 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
 
     assertThatThrownBy(
             () ->
-                    // when
-                    goalService.associateHabitWithGoal(
-                            sampleGoal.getUuid(), new GoalAssignHabitRequest(sampleHabit.getId(), 25))
+                // when
+                goalService.associateHabitWithGoal(
+                    sampleGoal.getUuid(), new GoalAssignHabitRequest(sampleHabit.getId(), 25))
             // then
-    )
-            .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage)
-            .isInstanceOf(EntityNotFoundException.class);
+            )
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage)
+        .isInstanceOf(EntityNotFoundException.class);
+  }
+
+  @Test
+  void getGoalByIdPositiveTestCase() {
+    // given
+    var sampleGoal = getSampleGoalBuilder(sampleUser).build();
+    var expectedGoalResponse = getExpectedGoalResponse().build();
+
+    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    // when
+    var actualGoalResponse = goalService.getGoalById(sampleGoal.getUuid());
+
+    // then
+    assertThat(actualGoalResponse).isEqualTo(expectedGoalResponse);
+  }
+
+  @Test
+  void getGoalByIdEntityNotFoundException() {
+    // given
+    var sampleGoal = getSampleGoalBuilder(sampleUser).build();
+    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
+    // when
+    assertThatThrownBy(() -> goalService.getGoalById(sampleGoal.getUuid()))
+        // then
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }
 }
