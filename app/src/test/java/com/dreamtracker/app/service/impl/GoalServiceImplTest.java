@@ -73,8 +73,28 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures {
         .isInstanceOf(EntityNotFoundException.class);
   }
 
+
   @Test
-  void delete() {}
+  void deleteTestPositiveCase() {
+    // given
+    when(goalRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
+    var expected = true;
+    // when
+    var actual = goalService.delete(currentUserProvider.getCurrentUser());
+    // then
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void deleteTestNegativeCase() {
+    // given
+    when(goalRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(false);
+    var expected = false;
+    // when
+    var actual = goalService.delete(currentUserProvider.getCurrentUser());
+    // then
+    assertThat(actual).isEqualTo(expected);
+  }
 
   @Test
   void updateGoal() {}
