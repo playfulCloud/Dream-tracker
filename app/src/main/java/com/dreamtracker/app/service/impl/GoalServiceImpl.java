@@ -86,14 +86,14 @@ public class GoalServiceImpl implements GoalService {
   public Page<GoalResponse> getAllUserGoals() {
     var ownerOfGoals =
         userService
-            .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-    var goals = ownerOfGoals.getGoals();
-    var listOfGoalResponses = goals.stream().map(this::mapToResponse).toList();
+            .findById(currentUserProvider.getCurrentUser());
     Page<GoalResponse> goalResponsePage = new Page<>();
-    goalResponsePage.setItems(listOfGoalResponses);
+    goalResponsePage.setItems(new ArrayList<>());
+    if(ownerOfGoals.isPresent()){
+      var goals = ownerOfGoals.get().getGoals();
+      var listOfGoalResponses = goals.stream().map(this::mapToResponse).toList();
+      goalResponsePage.setItems(listOfGoalResponses);
+    }
     return goalResponsePage;
   }
 

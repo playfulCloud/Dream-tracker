@@ -13,12 +13,18 @@ import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.fixtures.GoalFixtures;
 import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.repository.GoalRepository;
+import com.dreamtracker.app.response.CategoryResponse;
+import com.dreamtracker.app.response.GoalResponse;
+import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
 import com.dreamtracker.app.service.GoalService;
 import com.dreamtracker.app.service.HabitService;
 import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -121,6 +127,38 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures {
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }
+
+
+  @Test
+  void getAllGoalsPositiveTestCase(){
+    //given
+    var sampleGoalForPage = getSampleGoalForPageBuilder(sampleUser).build();
+    sampleUser.getGoals().add(sampleGoalForPage);
+    var expectedPage = new Page<GoalResponse>();
+    var expectedPageItems = List.of(
+            GoalResponse.builder()
+                    .id(UUID.fromString("336d8a9a-2464-41f2-8a8f-2d37a78c88ae"))
+                    .name(sampleGoalForPage.getName())
+                    .duration(sampleGoalForPage.getDuration()).build()
+    );
+    expectedPage.setItems(expectedPageItems);
+    when(userService.findById(currentUserProvider.getCurrentUser()))
+            .thenReturn(Optional.of(sampleUser));
+    //when
+    var actualPageResponse = goalService.getAllUserGoals();
+    //then
+    assertThat(actualPageResponse).isEqualTo(expectedPage);
+  }
+
+  @Test
+  void getAllUserGoalsEmptyPage() {
+    // given
+    when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
+    // when
+    var actualPageResponse = goalService.getAllUserGoals();
+    assertThat(actualPageResponse.getItems().size()).isEqualTo(0);
+  }
+
 
   @Test
   void associateHabitWithGoal() {}
