@@ -41,10 +41,6 @@ public class CategoryServiceImpl implements CategoryService {
             .build();
 
     var categorySavedToDB = categoryRepository.save(categoryToCreate);
-
-    ownerOfCategory.getCategoriesCreatedByUser().add(categorySavedToDB);
-    userService.save(ownerOfCategory);
-
     return mapToResponse(categorySavedToDB);
   }
 

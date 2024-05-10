@@ -9,10 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface GoalService {
-    Optional<Goal> findById(UUID id);
-    Optional<Goal>save(Goal goal);
     GoalResponse createGoal(GoalRequest goalRequest);
-    void deleteById(UUID id);
     boolean delete(UUID id);
     boolean existsById(UUID id);
     GoalResponse updateGoal(UUID id, GoalRequest goalRequest);

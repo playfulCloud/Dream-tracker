@@ -5,15 +5,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 class UserServiceImplTest {
 
-    @Test
-    void save() {
-      }
-
-    @Test
+       @Test
     void createSampleUser() {
       }
 
-    @Test
-    void findById() {
-      }
+
 }

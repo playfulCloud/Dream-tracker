@@ -14,7 +14,8 @@ public interface UserFixtures {
                 .uuid(uuid)
                 .name("John")
                 .surname("Doe")
-                .categoriesCreatedByUser(new ArrayList<>()
+                .habits(new ArrayList<>())
+                .goals(new ArrayList<>()
                 );
     }
 
@@ -23,13 +24,7 @@ public interface UserFixtures {
         return User.builder()
                 .uuid(uuid)
                 .name("John")
-                .surname("Doe")
-                .categoriesCreatedByUser(List.of(
-                        Category.builder()
-                                .id(UUID.fromString("f13c542a-9303-4bfd-bddb-ec32de5c0cc5"))
-                                .name("bar")
-                                .build()
-                ));
+                .surname("Doe");
     }
 
 }

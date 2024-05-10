@@ -29,21 +29,13 @@ public class GoalServiceImpl implements GoalService {
   private final HabitService habitService;
 
   @Override
-  public Optional<Goal> findById(UUID id) {
-    return goalRepository.findById(id);
-  }
-
-  @Override
-  public Optional<Goal> save(Goal goal) {
-    return Optional.of(goalRepository.save(goal));
-  }
-
-  @Override
   public GoalResponse createGoal(GoalRequest goalRequest) {
     var ownerOfGoal =
         userService
             .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     var goalToCreate =
         Goal.builder()
@@ -53,24 +45,16 @@ public class GoalServiceImpl implements GoalService {
             .user(ownerOfGoal)
             .build();
 
-    var goalSavedToDB =
-        save(goalToCreate).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var goalSavedToDB = goalRepository.save(goalToCreate);
     ownerOfGoal.getGoals().add(goalSavedToDB);
-
     userService.save(ownerOfGoal);
-
     return mapToResponse(goalSavedToDB);
-  }
-
-  @Override
-  public void deleteById(UUID id) {
-    goalRepository.deleteById(id);
   }
 
   @Override
   public boolean delete(UUID id) {
     if (existsById(id)) {
-      deleteById(id);
+      goalRepository.deleteById(id);
       return true;
     }
     return false;
@@ -83,12 +67,17 @@ public class GoalServiceImpl implements GoalService {
 
   @Override
   public GoalResponse updateGoal(UUID id, GoalRequest goalRequest) {
-    var goalToUpdate = findById(id).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    var goalToUpdate =
+        goalRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     Optional.ofNullable(goalRequest.name()).ifPresent(goalToUpdate::setName);
     Optional.ofNullable(goalRequest.duration()).ifPresent(goalToUpdate::setDuration);
 
-    var updatedGoal = save(goalToUpdate).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var updatedGoal = goalRepository.save(goalToUpdate);
 
     return mapToResponse(updatedGoal);
   }
@@ -98,7 +87,9 @@ public class GoalServiceImpl implements GoalService {
     var ownerOfGoals =
         userService
             .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var goals = ownerOfGoals.getGoals();
     var listOfGoalResponses = goals.stream().map(this::mapToResponse).toList();
     Page<GoalResponse> goalResponsePage = new Page<>();
@@ -109,27 +100,40 @@ public class GoalServiceImpl implements GoalService {
   @Override
   public void AssociateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest) {
     var goalToAddHabit =
-        findById(goalId).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    var habitToBeAdded = habitService.findHabitById(goalAssignHabitRequest.habitId()).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
+        goalRepository
+            .findById(goalId)
+            .orElseThrow(
+                () -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var habitToBeAdded =
+        habitService
+            .findHabitById(goalAssignHabitRequest.habitId())
+            .orElseThrow(
+                () -> new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     goalToAddHabit.getHabitList().add(habitToBeAdded);
     habitToBeAdded.getGoals().add(goalToAddHabit);
 
-    save(goalToAddHabit).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    habitService.save(habitToBeAdded).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    goalRepository.save(goalToAddHabit);
+    habitService
+        .save(habitToBeAdded)
+        .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
   }
 
   @Override
   public GoalResponse getGoalById(UUID id) {
-    var goal = findById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
+    var goal =
+        goalRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
     return mapToResponse(goal);
   }
 
   public GoalResponse mapToResponse(Goal goal) {
     return GoalResponse.builder()
         .id(goal.getUuid())
+        .name(goal.getName())
         .duration(goal.getDuration())
-        .habitList(goal.getHabitList())
         .build();
   }
 }
