@@ -14,6 +14,6 @@ public interface GoalService {
     boolean existsById(UUID id);
     GoalResponse updateGoal(UUID id, GoalRequest goalRequest);
     Page<GoalResponse> getAllUserGoals();
-    void AssociateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest);
+    void associateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest);
     GoalResponse getGoalById(UUID id);
 }

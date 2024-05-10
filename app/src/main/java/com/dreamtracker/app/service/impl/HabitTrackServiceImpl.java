@@ -4,6 +4,7 @@ import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
+import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.repository.HabitTrackRepository;
 import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitTrackResponse;
@@ -28,6 +29,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
   private final HabitService habitService;
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
+  private final HabitRepository habitRepository;
 
   @Override
   public Optional<HabitTrack> save(HabitTrack habitTrack) {
@@ -47,8 +49,8 @@ public class HabitTrackServiceImpl implements HabitTrackService {
   @Override
   public Page<HabitTrackResponse> getAllTracksOfHabit(UUID id) {
     var habit =
-        habitService
-            .findHabitById(id)
+        habitRepository
+            .findById(id)
             .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
     var listOfTracks = habit.getHabitTrackList();
     var listOfTracksResponses = listOfTracks.stream().map(this::mapToResponse).toList();
@@ -63,8 +65,8 @@ public class HabitTrackServiceImpl implements HabitTrackService {
   public HabitTrackResponse trackTheHabit(HabitTrackingRequest habitTrackingRequest) {
 
     var habitToUpdateTracking =
-        habitService
-            .findHabitById(habitTrackingRequest.habitId())
+        habitRepository
+            .findById(habitTrackingRequest.habitId())
             .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     ZonedDateTime date = ZonedDateTime.now();
@@ -80,9 +82,8 @@ public class HabitTrackServiceImpl implements HabitTrackService {
     var trackSavedToDB = save(track).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     habitToUpdateTracking.getHabitTrackList().add(track);
-    habitService
-        .save(habitToUpdateTracking)
-        .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    habitRepository
+        .save(habitToUpdateTracking);
 
     return mapToResponse(trackSavedToDB);
   }

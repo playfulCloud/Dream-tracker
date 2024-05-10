@@ -11,11 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface HabitService {
-    Optional<Habit> save(Habit habit);
-    Optional<Habit>findHabitById(UUID id);
-    void deleteById(UUID id);
     boolean delete(UUID id);
-    boolean existsById(UUID id);
     Optional<List<HabitTrack>>getHabitTrack(UUID id);
     HabitResponse createHabit(HabitRequest habitRequest);
     Page<HabitResponse>getAllUserHabits();
