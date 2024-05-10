@@ -5,13 +5,13 @@ import com.dreamtracker.app.exception.EntityNotFoundException;
 import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.GoalRepository;
+import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.request.GoalAssignHabitRequest;
 import com.dreamtracker.app.request.GoalRequest;
 import com.dreamtracker.app.response.GoalResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
 import com.dreamtracker.app.service.GoalService;
-import com.dreamtracker.app.service.HabitService;
 import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public class GoalServiceImpl implements GoalService {
   private final GoalRepository goalRepository;
   private final UserService userService;
   private final CurrentUserProvider currentUserProvider;
-  private final HabitService habitService;
+  private final HabitRepository habitRepository;
 
   @Override
   public GoalResponse createGoal(GoalRequest goalRequest) {
@@ -98,25 +98,25 @@ public class GoalServiceImpl implements GoalService {
   }
 
   @Override
-  public void AssociateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest) {
+  public void associateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest) {
     var goalToAddHabit =
         goalRepository
             .findById(goalId)
             .orElseThrow(
-                () -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var habitToBeAdded =
-        habitService
-            .findHabitById(goalAssignHabitRequest.habitId())
+        habitRepository
+            .findById(goalAssignHabitRequest.habitId())
             .orElseThrow(
-                () -> new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     goalToAddHabit.getHabitList().add(habitToBeAdded);
     habitToBeAdded.getGoals().add(goalToAddHabit);
 
     goalRepository.save(goalToAddHabit);
-    habitService
-        .save(habitToBeAdded)
-        .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    habitRepository
+        .save(habitToBeAdded);
   }
 
   @Override
@@ -125,7 +125,8 @@ public class GoalServiceImpl implements GoalService {
         goalRepository
             .findById(id)
             .orElseThrow(
-                () -> new EntitySaveException(ExceptionMessages.entityNotFoundExceptionMessage));
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     return mapToResponse(goal);
   }
 

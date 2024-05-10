@@ -49,7 +49,7 @@ public class GoalController {
   @PostMapping("/goals/{goal-id}/habits")
   public ResponseEntity<Void> associateHabitWithTheGoal(
       @PathVariable("goal-id") UUID id, GoalAssignHabitRequest goalAssignHabitRequest) {
-    goalService.AssociateHabitWithGoal(id, goalAssignHabitRequest);
+    goalService.associateHabitWithGoal(id, goalAssignHabitRequest);
     return ResponseEntity.noContent().build();
   }
 }

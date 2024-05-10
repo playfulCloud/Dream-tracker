@@ -8,7 +8,6 @@ import com.dreamtracker.app.repository.CategoryRepository;
 import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.request.HabitRequest;
-import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
@@ -37,35 +36,15 @@ public class HabitServiceImpl implements HabitService {
   private final CategoryRepository categoryRepository;
 
   @Override
-  public Optional<Habit> save(Habit habit) {
-    return Optional.of(habitRepository.save(habit));
-  }
-
-  @Override
-  public Optional<Habit> findHabitById(UUID id) {
-    return habitRepository.findById(id);
-  }
-
-  @Override
-  @Transactional
-  public void deleteById(UUID id) {
-    habitRepository.deleteById(id);
-  }
-
-  @Override
   @Transactional
   public boolean delete(UUID id) {
-    if (existsById(id)) {
-      deleteById(id);
+    if (habitRepository.existsById(id)) {
+      habitRepository.deleteById(id);
       return true;
     }
     return false;
   }
 
-  @Override
-  public boolean existsById(UUID id) {
-    return habitRepository.existsById(id);
-  }
 
   @Override
   public Optional<List<HabitTrack>> getHabitTrack(UUID id) {
@@ -96,7 +75,7 @@ public class HabitServiceImpl implements HabitService {
             .build();
 
     var habitSavedToDB =
-        save(habitToCreate).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+        habitRepository.save(habitToCreate);
 
     ownerOfHabit.getHabits().add(habitSavedToDB);
     userService.save(ownerOfHabit);
@@ -123,7 +102,7 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public HabitResponse updateHabit(UUID id, HabitRequest habitRequest) {
     var habitToUpdate =
-        findHabitById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+        habitRepository.findById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
     Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
@@ -132,20 +111,20 @@ public class HabitServiceImpl implements HabitService {
     Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
 
     var updatedHabit =
-        save(habitToUpdate).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+        habitRepository.save(habitToUpdate);
 
     return mapToResponse(updatedHabit);
   }
 
   @Override
   public void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
-    var habitToLinkCategory = findHabitById(habitId).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var habitToLinkCategory = habitRepository.findById(habitId).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
     var categoryToBeLinked = categoryRepository.findById(categoryCreateRequest.id()).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     habitToLinkCategory.getCategories().add(categoryToBeLinked);
     categoryToBeLinked.getHabits().add(habitToLinkCategory);
 
-    save(habitToLinkCategory);
+    habitRepository.save(habitToLinkCategory);
     categoryRepository.save(categoryToBeLinked);
   }
 
