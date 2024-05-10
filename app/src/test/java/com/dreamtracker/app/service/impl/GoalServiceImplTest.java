@@ -73,7 +73,6 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures {
         .isInstanceOf(EntityNotFoundException.class);
   }
 
-
   @Test
   void deleteTestPositiveCase() {
     // given
@@ -97,10 +96,31 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures {
   }
 
   @Test
-  void updateGoal() {}
+  void updateGoalPositiveTestCase() {
+    // given
+    var sampleGoal = getSampleGoalBuilder(sampleUser).build();
+    var sampleGoalRequest = getSampleGoalRequestBuilder().build();
+    var expectedGoalResponse = getExpectedGoalResponse().build();
+    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(goalRepository.save(sampleGoal)).thenReturn(sampleGoal);
+    // when
+    var actualGoalResponse = goalService.updateGoal(sampleGoal.getUuid(), sampleGoalRequest);
+    // then
+    assertThat(actualGoalResponse).isEqualTo(expectedGoalResponse);
+  }
 
   @Test
-  void getAllUserGoals() {}
+  void updateGoalEntityNotFoundException() {
+    // given
+    var sampleGoalRequest = getSampleGoalRequestBuilder().build();
+    var sampleGoal = getSampleGoalBuilder(sampleUser).build();
+    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
+    // when
+    assertThatThrownBy(() -> goalService.updateGoal(sampleGoal.getUuid(), sampleGoalRequest))
+        // then
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
 
   @Test
   void associateHabitWithGoal() {}
