@@ -33,8 +33,14 @@ public interface GoalFixtures {
              .duration("P30M");
   }
 //
-//  default Goal.GoalBuilder getSampleGoalForPageBuilder(){
-//
-//  }
+  default Goal.GoalBuilder getSampleGoalForPageBuilder(User user){
+      return Goal.builder()
+              .uuid(UUID.fromString("336d8a9a-2464-41f2-8a8f-2d37a78c88ae"))
+              .name("Running 25k")
+              .user(user)
+              .duration("P30M")
+              .habitList(new ArrayList<>()
+              );
+  }
 
 }

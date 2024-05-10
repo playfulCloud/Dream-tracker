@@ -131,7 +131,6 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
     // given
     var sampleCategoryForPage =
         getSampleCategoryForPageBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleUser = getSampleUserWithCategories(currentUserProvider.getCurrentUser()).build();
     var expectedPage = new Page<CategoryResponse>();
     var expectedPageItems =
         List.of(
