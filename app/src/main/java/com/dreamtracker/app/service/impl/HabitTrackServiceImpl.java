@@ -1,6 +1,5 @@
 package com.dreamtracker.app.service.impl;
 
-import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
@@ -9,15 +8,10 @@ import com.dreamtracker.app.repository.HabitTrackRepository;
 import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitTrackResponse;
 import com.dreamtracker.app.response.Page;
-import com.dreamtracker.app.security.CurrentUserProvider;
-import com.dreamtracker.app.service.HabitService;
 import com.dreamtracker.app.service.HabitTrackService;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 import java.util.UUID;
-
-import com.dreamtracker.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +21,6 @@ public class HabitTrackServiceImpl implements HabitTrackService {
 
   private final HabitTrackRepository habitTrackRepository;
   private final HabitRepository habitRepository;
-
 
   @Override
   public void deleteById(UUID id) {
@@ -39,7 +32,8 @@ public class HabitTrackServiceImpl implements HabitTrackService {
     var habit =
         habitRepository
             .findById(id)
-            .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+            .orElseThrow(
+                () -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
     var listOfTracks = habit.getHabitTrackList();
     var listOfTracksResponses = listOfTracks.stream().map(this::mapToResponse).toList();
 
@@ -54,7 +48,8 @@ public class HabitTrackServiceImpl implements HabitTrackService {
     var habitToUpdateTracking =
         habitRepository
             .findById(habitTrackingRequest.habitId())
-            .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+            .orElseThrow(
+                () -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
 
     ZonedDateTime date = ZonedDateTime.now();
     String formattedDate = date.format(DateTimeFormatter.ISO_DATE_TIME);
@@ -66,11 +61,10 @@ public class HabitTrackServiceImpl implements HabitTrackService {
             .habit(habitToUpdateTracking)
             .build();
 
-    var trackSavedToDB =  habitTrackRepository.save(track);
+    var trackSavedToDB = habitTrackRepository.save(track);
 
     habitToUpdateTracking.getHabitTrackList().add(track);
-    habitRepository
-        .save(habitToUpdateTracking);
+    habitRepository.save(habitToUpdateTracking);
 
     return mapToResponse(trackSavedToDB);
   }

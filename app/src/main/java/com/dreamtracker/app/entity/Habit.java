@@ -23,13 +23,10 @@ public class Habit {
     private String duration;
     private String difficulty;
     private String status;
+    private UUID userUUID;
 
     @OneToMany(mappedBy = "habit", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH }, orphanRemoval = true)
     private List<HabitTrack>habitTrackList;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 
 
     @ManyToMany
