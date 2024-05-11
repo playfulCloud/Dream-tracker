@@ -1,21 +1,23 @@
 package com.dreamtracker.app.service.impl;
 
+import com.dreamtracker.app.fixtures.HabitFixture;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-class HabitTrackServiceImplTest {
+class HabitTrackServiceImplTest implements HabitFixture {
 
-    @Test
-    void save() {
-      }
+
+
+
+
+    
 
     @Test
     void findHabitTrackById() {
-      }
 
-    @Test
-    void deleteById() {
-      }
+    }
+
+
 
     @Test
     void getAllTracksOfHabit() {

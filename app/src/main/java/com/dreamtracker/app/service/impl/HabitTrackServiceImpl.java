@@ -26,20 +26,8 @@ import org.springframework.stereotype.Service;
 public class HabitTrackServiceImpl implements HabitTrackService {
 
   private final HabitTrackRepository habitTrackRepository;
-  private final HabitService habitService;
-  private final CurrentUserProvider currentUserProvider;
-  private final UserService userService;
   private final HabitRepository habitRepository;
 
-  @Override
-  public Optional<HabitTrack> save(HabitTrack habitTrack) {
-    return Optional.of(habitTrackRepository.save(habitTrack));
-  }
-
-  @Override
-  public Optional<Habit> findHabitTrackById(UUID id) {
-    return Optional.empty();
-  }
 
   @Override
   public void deleteById(UUID id) {
@@ -79,7 +67,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
             .habit(habitToUpdateTracking)
             .build();
 
-    var trackSavedToDB = save(track).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+    var trackSavedToDB =  habitTrackRepository.save(track);
 
     habitToUpdateTracking.getHabitTrackList().add(track);
     habitRepository
