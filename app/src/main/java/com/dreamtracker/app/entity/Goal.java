@@ -23,11 +23,10 @@ public class Goal {
 
     private String name;
     private String duration;
+    private UUID userUUID;
 
     @ManyToMany(mappedBy = "goals")
     private List<Habit> habitList;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+
 }

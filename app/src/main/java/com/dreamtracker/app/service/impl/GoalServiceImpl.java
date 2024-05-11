@@ -41,11 +41,10 @@ public class GoalServiceImpl implements GoalService {
             .name(goalRequest.name())
             .duration(goalRequest.duration())
             .habitList(new ArrayList<>())
-            .user(ownerOfGoal)
+            .userUUID(ownerOfGoal.getUuid())
             .build();
 
     var goalSavedToDB = goalRepository.save(goalToCreate);
-    ownerOfGoal.getGoals().add(goalSavedToDB);
     userService.save(ownerOfGoal);
     return mapToResponse(goalSavedToDB);
   }
@@ -83,14 +82,10 @@ public class GoalServiceImpl implements GoalService {
 
   @Override
   public Page<GoalResponse> getAllUserGoals() {
-    var ownerOfGoals = userService.findById(currentUserProvider.getCurrentUser());
-    Page<GoalResponse> goalResponsePage = new Page<>();
-    goalResponsePage.setItems(new ArrayList<>());
-    if (ownerOfGoals.isPresent()) {
-      var goals = ownerOfGoals.get().getGoals();
-      var listOfGoalResponses = goals.stream().map(this::mapToResponse).toList();
-      goalResponsePage.setItems(listOfGoalResponses);
-    }
+    var goalResponsePage = new Page<GoalResponse>();
+    var listOfGoals = goalRepository.findByUserUUID(currentUserProvider.getCurrentUser());
+    var listOfGoalResponses = listOfGoals.stream().map(this::mapToResponse).toList();
+    goalResponsePage.setItems(listOfGoalResponses);
     return goalResponsePage;
   }
 

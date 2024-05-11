@@ -10,11 +10,11 @@ import java.util.UUID;
 
 public interface GoalFixtures {
 
-  default Goal.GoalBuilder getSampleGoalBuilder(User user) {
+  default Goal.GoalBuilder getSampleGoalBuilder(UUID userUUID) {
     return Goal.builder()
             .uuid(UUID.fromString("7b8696f7-dc0e-4741-8faf-b09d3fd71bef"))
         .name("Running 5k")
-        .user(user)
+        .userUUID(userUUID)
         .duration("P30M")
         .habitList(new ArrayList<>()
         );
@@ -33,11 +33,11 @@ public interface GoalFixtures {
              .duration("P30M");
   }
 //
-  default Goal.GoalBuilder getSampleGoalForPageBuilder(User user){
+  default Goal.GoalBuilder getSampleGoalForPageBuilder(UUID userUUID){
       return Goal.builder()
               .uuid(UUID.fromString("336d8a9a-2464-41f2-8a8f-2d37a78c88ae"))
               .name("Running 25k")
-              .user(user)
+              .userUUID(userUUID)
               .duration("P30M")
               .habitList(new ArrayList<>()
               );
