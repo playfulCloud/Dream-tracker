@@ -82,10 +82,9 @@ public class GoalServiceImpl implements GoalService {
 
   @Override
   public Page<GoalResponse> getAllUserGoals() {
-    var goalResponsePage = new Page<GoalResponse>();
     var listOfGoals = goalRepository.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfGoalResponses = listOfGoals.stream().map(this::mapToResponse).toList();
-    goalResponsePage.setItems(listOfGoalResponses);
+    var goalResponsePage = new Page<GoalResponse>(listOfGoalResponses);
     return goalResponsePage;
   }
 

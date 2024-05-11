@@ -93,8 +93,7 @@ public class HabitServiceImpl implements HabitService {
 
     var listOfHabitResponses = habits.stream().map(this::mapToResponse).toList();
 
-    Page<HabitResponse> responsePage = new Page<>();
-    responsePage.setItems(listOfHabitResponses);
+    Page<HabitResponse> responsePage = new Page<>(listOfHabitResponses);
 
     return responsePage;
   }
