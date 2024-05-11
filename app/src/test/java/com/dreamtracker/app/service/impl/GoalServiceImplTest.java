@@ -171,8 +171,8 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
     // when
     goalService.associateHabitWithGoal(
         sampleGoal.getUuid(), new GoalAssignHabitRequest(sampleHabit.getId(), 25));
-    var isGoalAssociated = sampleHabit.getGoals().contains(sampleGoal);
-    var isHabitAssociated = sampleGoal.getHabitList().contains(sampleHabit);
+    var isGoalAssociated = sampleHabit.getGoals().get(0).equals(sampleGoal);
+    var isHabitAssociated = sampleGoal.getHabitList().get(0).equals(sampleHabit);
 
     // then
     assertThat(isGoalAssociated).isEqualTo(true);

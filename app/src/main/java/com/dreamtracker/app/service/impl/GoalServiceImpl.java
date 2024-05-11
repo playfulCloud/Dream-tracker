@@ -2,7 +2,6 @@ package com.dreamtracker.app.service.impl;
 
 import com.dreamtracker.app.entity.Goal;
 import com.dreamtracker.app.exception.EntityNotFoundException;
-import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.GoalRepository;
 import com.dreamtracker.app.repository.HabitRepository;
@@ -84,12 +83,10 @@ public class GoalServiceImpl implements GoalService {
 
   @Override
   public Page<GoalResponse> getAllUserGoals() {
-    var ownerOfGoals =
-        userService
-            .findById(currentUserProvider.getCurrentUser());
+    var ownerOfGoals = userService.findById(currentUserProvider.getCurrentUser());
     Page<GoalResponse> goalResponsePage = new Page<>();
     goalResponsePage.setItems(new ArrayList<>());
-    if(ownerOfGoals.isPresent()){
+    if (ownerOfGoals.isPresent()) {
       var goals = ownerOfGoals.get().getGoals();
       var listOfGoalResponses = goals.stream().map(this::mapToResponse).toList();
       goalResponsePage.setItems(listOfGoalResponses);
@@ -103,7 +100,8 @@ public class GoalServiceImpl implements GoalService {
         goalRepository
             .findById(goalId)
             .orElseThrow(
-                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var habitToBeAdded =
         habitRepository
             .findById(goalAssignHabitRequest.habitId())
@@ -115,8 +113,7 @@ public class GoalServiceImpl implements GoalService {
     habitToBeAdded.getGoals().add(goalToAddHabit);
 
     goalRepository.save(goalToAddHabit);
-    habitRepository
-        .save(habitToBeAdded);
+    habitRepository.save(habitToBeAdded);
   }
 
   @Override
