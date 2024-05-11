@@ -131,7 +131,6 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
   void getAllGoalsPositiveTestCase() {
     // given
     var sampleGoalForPage = getSampleGoalForPageBuilder(currentUserProvider.getCurrentUser()).build();
-    var expectedPage = new Page<GoalResponse>();
     var expectedPageItems =
         List.of(
             GoalResponse.builder()
@@ -139,7 +138,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
                 .name(sampleGoalForPage.getName())
                 .duration(sampleGoalForPage.getDuration())
                 .build());
-    expectedPage.setItems(expectedPageItems);
+    var expectedPage = new Page<GoalResponse>(expectedPageItems);
     when(userService.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
     when(goalRepository.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(List.of(sampleGoalForPage));

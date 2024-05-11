@@ -68,10 +68,9 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public Page<CategoryResponse> getAllUserCategories() {
-    var categoryResponsePage = new Page<CategoryResponse>();
     var listOfCategories = categoryRepository.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfCategoryResponses = listOfCategories.stream().map(this::mapToResponse).toList();
-    categoryResponsePage.setItems(listOfCategoryResponses);
+    var categoryResponsePage = new Page<CategoryResponse>(listOfCategoryResponses);
     return categoryResponsePage;
   }
 

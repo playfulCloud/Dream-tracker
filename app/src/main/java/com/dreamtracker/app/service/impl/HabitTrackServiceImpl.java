@@ -43,8 +43,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
     var listOfTracks = habit.getHabitTrackList();
     var listOfTracksResponses = listOfTracks.stream().map(this::mapToResponse).toList();
 
-    Page<HabitTrackResponse> habitTrackResponsePage = new Page<>();
-    habitTrackResponsePage.setItems(listOfTracksResponses);
+    Page<HabitTrackResponse> habitTrackResponsePage = new Page<>(listOfTracksResponses);
 
     return habitTrackResponsePage;
   }

@@ -131,14 +131,13 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
     // given
     var sampleCategoryForPage =
         getSampleCategoryForPageBuilder(currentUserProvider.getCurrentUser()).build();
-    var expectedPage = new Page<CategoryResponse>();
     var expectedPageItems =
         List.of(
             CategoryResponse.builder()
                 .id(UUID.fromString("f13c542a-9303-4bfd-bddb-ec32de5c0cc5"))
                 .name("bar")
                 .build());
-    expectedPage.setItems(expectedPageItems);
+    var expectedPage = new Page<CategoryResponse>(expectedPageItems);
     when(userService.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
 
