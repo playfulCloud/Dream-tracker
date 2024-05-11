@@ -29,8 +29,4 @@ public class User {
    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
    private List<Habit> habits;
 
-   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-   private List<Goal> goals;
-
-
 }

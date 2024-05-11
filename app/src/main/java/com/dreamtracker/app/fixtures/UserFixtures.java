@@ -14,8 +14,7 @@ public interface UserFixtures {
                 .uuid(uuid)
                 .name("John")
                 .surname("Doe")
-                .habits(new ArrayList<>())
-                .goals(new ArrayList<>()
+                .habits(new ArrayList<>()
                 );
     }
 
