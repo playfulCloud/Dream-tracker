@@ -26,7 +26,4 @@ public class User {
    private String name;
    private String surname;
 
-   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-   private List<Habit> habits;
-
 }

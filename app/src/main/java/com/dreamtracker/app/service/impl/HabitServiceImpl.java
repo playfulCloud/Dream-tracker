@@ -11,14 +11,10 @@ import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.response.HabitResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
-import com.dreamtracker.app.service.CategoryService;
 import com.dreamtracker.app.service.HabitService;
-import com.dreamtracker.app.service.HabitTrackService;
 import com.dreamtracker.app.service.UserService;
 import com.dreamtracker.app.utils.HabitStatus;
 import jakarta.transaction.Transactional;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,13 +67,12 @@ public class HabitServiceImpl implements HabitService {
             .habitTrackList(new ArrayList<HabitTrack>())
             .categories(new ArrayList<>())
             .goals(new ArrayList<>())
-            .user(ownerOfHabit)
+            .userUUID(ownerOfHabit.getUuid())
             .build();
 
     var habitSavedToDB =
         habitRepository.save(habitToCreate);
 
-    ownerOfHabit.getHabits().add(habitSavedToDB);
     userService.save(ownerOfHabit);
 
     return mapToResponse(habitSavedToDB);
@@ -89,7 +84,7 @@ public class HabitServiceImpl implements HabitService {
         userService
             .findById(currentUserProvider.getCurrentUser())
             .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    var habits = ownerOfHabits.getHabits();
+    var habits = habitRepository.findByUserUUID(ownerOfHabits.getUuid());
 
     var listOfHabitResponses = habits.stream().map(this::mapToResponse).toList();
 

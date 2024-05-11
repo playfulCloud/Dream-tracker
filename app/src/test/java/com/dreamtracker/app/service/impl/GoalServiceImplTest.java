@@ -161,7 +161,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
   @Test
   void associateHabitWithGoalPositiveTestCase() {
     // given
-    var sampleHabit = getSampleHabitBuilder(sampleUser).build();
+    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
     when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
@@ -181,7 +181,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
   @Test
   void associateHabitWithGoalGoalNotFoundException() {
     // given
-    var sampleHabit = getSampleHabitBuilder(sampleUser).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
     when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
@@ -201,7 +201,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
   @Test
   void associateHabitWithGoalHabitNotFoundException() {
     // given
-    var sampleHabit = getSampleHabitBuilder(sampleUser).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
     when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());

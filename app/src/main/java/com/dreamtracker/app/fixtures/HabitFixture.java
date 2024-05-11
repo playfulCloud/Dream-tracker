@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface HabitFixture {
 
-  default Habit.HabitBuilder getSampleHabitBuilder(User user) {
+  default Habit.HabitBuilder getSampleHabitBuilder(UUID userUUID) {
     return Habit.builder()
         .id(UUID.fromString("8fbb366d-64bb-4e2a-8527-93085885270e"))
         .name("exercising")
@@ -23,6 +23,6 @@ public interface HabitFixture {
         .categories(new ArrayList<>())
         .goals(new ArrayList<>())
         .habitTrackList(new ArrayList<>())
-        .user(user);
+        .userUUID(userUUID);
     }
 }
