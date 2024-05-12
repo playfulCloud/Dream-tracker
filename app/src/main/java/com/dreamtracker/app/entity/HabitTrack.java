@@ -22,8 +22,5 @@ public class HabitTrack {
     private UUID id;
     private String date;
     private String status;
-    @ManyToOne
-    @JoinColumn(name="habit_id")
-    @JsonIgnore
-    private Habit habit;
+    private UUID habitUUID;
 }

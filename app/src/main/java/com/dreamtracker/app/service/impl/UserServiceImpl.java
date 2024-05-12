@@ -31,7 +31,6 @@ public class UserServiceImpl implements UserService {
             .uuid(currentUserProvider.getCurrentUser())
             .name("John")
             .surname("Doe")
-            .habits(new ArrayList<Habit>())
             .build();
 
     var userSavedToDB = save(sampleUser);

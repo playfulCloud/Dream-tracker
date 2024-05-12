@@ -22,23 +22,12 @@ public class HabitTrackServiceImpl implements HabitTrackService {
   private final HabitTrackRepository habitTrackRepository;
   private final HabitRepository habitRepository;
 
-  @Override
-  public void deleteById(UUID id) {
-    habitTrackRepository.deleteById(id);
-  }
 
   @Override
   public Page<HabitTrackResponse> getAllTracksOfHabit(UUID id) {
-    var habit =
-        habitRepository
-            .findById(id)
-            .orElseThrow(
-                () -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    var listOfTracks = habit.getHabitTrackList();
+    var listOfTracks = habitTrackRepository.findByHabitUUID(id);
     var listOfTracksResponses = listOfTracks.stream().map(this::mapToResponse).toList();
-
     Page<HabitTrackResponse> habitTrackResponsePage = new Page<>(listOfTracksResponses);
-
     return habitTrackResponsePage;
   }
 
@@ -58,12 +47,11 @@ public class HabitTrackServiceImpl implements HabitTrackService {
         HabitTrack.builder()
             .date(formattedDate)
             .status(habitTrackingRequest.status())
-            .habit(habitToUpdateTracking)
+            .habitUUID(habitToUpdateTracking.getId())
             .build();
 
     var trackSavedToDB = habitTrackRepository.save(track);
 
-    habitToUpdateTracking.getHabitTrackList().add(track);
     habitRepository.save(habitToUpdateTracking);
 
     return mapToResponse(trackSavedToDB);

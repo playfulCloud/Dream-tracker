@@ -11,6 +11,5 @@ import java.util.UUID;
 
 public interface HabitTrackService {
     HabitTrackResponse trackTheHabit(HabitTrackingRequest habitTrackingRequest);
-    void deleteById(UUID id);
     Page<HabitTrackResponse> getAllTracksOfHabit(UUID id);
 }

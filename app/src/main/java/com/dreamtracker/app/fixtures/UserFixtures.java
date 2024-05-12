@@ -13,9 +13,8 @@ public interface UserFixtures {
         return User.builder()
                 .uuid(uuid)
                 .name("John")
-                .surname("Doe")
-                .habits(new ArrayList<>()
-                );
+                .surname("Doe");
+
     }
 
 
