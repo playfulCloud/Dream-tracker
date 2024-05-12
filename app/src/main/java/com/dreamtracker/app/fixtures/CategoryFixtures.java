@@ -1,10 +1,8 @@
 package com.dreamtracker.app.fixtures;
 
 import com.dreamtracker.app.entity.Category;
-import com.dreamtracker.app.entity.User;
 import com.dreamtracker.app.request.CategoryRequest;
 import com.dreamtracker.app.response.CategoryResponse;
-
 import java.util.UUID;
 
 public interface CategoryFixtures {
