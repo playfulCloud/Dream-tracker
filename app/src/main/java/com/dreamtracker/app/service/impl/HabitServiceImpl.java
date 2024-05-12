@@ -6,6 +6,7 @@ import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.CategoryRepository;
 import com.dreamtracker.app.repository.HabitRepository;
+import com.dreamtracker.app.repository.HabitTrackRepository;
 import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.response.HabitResponse;
@@ -30,6 +31,7 @@ public class HabitServiceImpl implements HabitService {
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
   private final CategoryRepository categoryRepository;
+  private final HabitTrackRepository habitTrackRepository;
 
   @Override
   @Transactional
@@ -43,10 +45,8 @@ public class HabitServiceImpl implements HabitService {
 
 
   @Override
-  public Optional<List<HabitTrack>> getHabitTrack(UUID id) {
-    var habit =
-        habitRepository.findById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    return Optional.of(habit.getHabitTrackList());
+  public List<HabitTrack> getHabitTrack(UUID id) {
+    return habitTrackRepository.findByHabitUUID(id) ;
   }
 
   @Override
@@ -64,7 +64,6 @@ public class HabitServiceImpl implements HabitService {
             .duration(habitRequest.duration())
             .difficulty(habitRequest.difficulty())
             .status(HabitStatus.ACTIVE.toString())
-            .habitTrackList(new ArrayList<HabitTrack>())
             .categories(new ArrayList<>())
             .goals(new ArrayList<>())
             .userUUID(ownerOfHabit.getUuid())

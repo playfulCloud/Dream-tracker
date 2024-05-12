@@ -1,11 +1,9 @@
 package com.dreamtracker.app.fixtures;
 
 import com.dreamtracker.app.entity.Habit;
-import com.dreamtracker.app.entity.User;
 import com.dreamtracker.app.utils.HabitDifficulty;
 import com.dreamtracker.app.utils.HabitFrequency;
 import com.dreamtracker.app.utils.HabitStatus;
-
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -22,7 +20,6 @@ public interface HabitFixture {
         .status(HabitStatus.ACTIVE.toString())
         .categories(new ArrayList<>())
         .goals(new ArrayList<>())
-        .habitTrackList(new ArrayList<>())
         .userUUID(userUUID);
-    }
+  }
 }

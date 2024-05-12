@@ -25,10 +25,6 @@ public class Habit {
     private String status;
     private UUID userUUID;
 
-    @OneToMany(mappedBy = "habit", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH }, orphanRemoval = true)
-    private List<HabitTrack>habitTrackList;
-
-
     @ManyToMany
     @JoinTable(
             name = "habit_category",
