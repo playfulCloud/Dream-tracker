@@ -2,6 +2,7 @@ package com.dreamtracker.app.service.impl;
 
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.repository.HabitTrackRepository;
 import com.dreamtracker.app.response.HabitTrackResponse;
@@ -26,7 +27,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-class HabitTrackServiceImplTest implements HabitFixture {
+class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
 
 
     private HabitTrackService habitTrackService ;
@@ -43,18 +44,15 @@ class HabitTrackServiceImplTest implements HabitFixture {
     @Test
     void getAllTracksOfHabitPositiveTestCase() {
         //given
+
+        var dateForTracks = ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
         var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-        var dateForHabitTrack =ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
-        var listOfTracks = List.of(HabitTrack.builder()
-                .id(UUID.fromString("511cc580-1828-46f7-81f3-57d67fecff48"))
-                .habitUUID(sampleHabit.getId())
-                .date(dateForHabitTrack)
-                .status(HabitTrackStatus.DONE.toString()).build()
+        var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(),dateForTracks).build();
+        var sampleHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
+        var listOfTracks = List.of(sampleHabitTrack
         );
         var expectedPageItems = List.of(
-                HabitTrackResponse.builder()
-                        .date(dateForHabitTrack)
-                        .status(HabitTrackStatus.DONE.toString()).build()
+               sampleHabitTrackResponse
         );
         var expectedPage = new Page<HabitTrackResponse>(expectedPageItems);
         when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
@@ -79,5 +77,6 @@ class HabitTrackServiceImplTest implements HabitFixture {
 
     @Test
     void trackTheHabit() {
+
       }
 }
