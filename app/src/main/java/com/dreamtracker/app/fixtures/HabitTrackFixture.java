@@ -1,6 +1,7 @@
 package com.dreamtracker.app.fixtures;
 
 import com.dreamtracker.app.entity.HabitTrack;
+import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitTrackResponse;
 import com.dreamtracker.app.utils.HabitTrackStatus;
 
@@ -22,4 +23,12 @@ public interface HabitTrackFixture {
         .date(date)
         .status(HabitTrackStatus.DONE.toString());
   }
+
+  default HabitTrackingRequest.HabitTrackingRequestBuilder getSampleHabitTrackRequest(UUID habitUUID){
+      return HabitTrackingRequest.builder()
+              .habitId(habitUUID)
+              .status(HabitTrackStatus.DONE.toString());
+  }
+
+
 }
