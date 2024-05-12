@@ -1,6 +1,7 @@
 package com.dreamtracker.app.service.impl;
 
 import com.dreamtracker.app.entity.HabitTrack;
+import com.dreamtracker.app.exception.EntityNotFoundException;
 import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.HabitRepository;
@@ -9,6 +10,8 @@ import com.dreamtracker.app.request.HabitTrackingRequest;
 import com.dreamtracker.app.response.HabitTrackResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.service.HabitTrackService;
+
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -21,6 +24,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
 
   private final HabitTrackRepository habitTrackRepository;
   private final HabitRepository habitRepository;
+  private final Clock clock;
 
 
   @Override
@@ -38,9 +42,9 @@ public class HabitTrackServiceImpl implements HabitTrackService {
         habitRepository
             .findById(habitTrackingRequest.habitId())
             .orElseThrow(
-                () -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
-    ZonedDateTime date = ZonedDateTime.now();
+    ZonedDateTime date = ZonedDateTime.now(clock);
     String formattedDate = date.format(DateTimeFormatter.ISO_DATE_TIME);
 
     var track =
@@ -51,9 +55,6 @@ public class HabitTrackServiceImpl implements HabitTrackService {
             .build();
 
     var trackSavedToDB = habitTrackRepository.save(track);
-
-    habitRepository.save(habitToUpdateTracking);
-
     return mapToResponse(trackSavedToDB);
   }
 
