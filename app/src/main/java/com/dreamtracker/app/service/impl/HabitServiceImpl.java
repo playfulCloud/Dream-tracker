@@ -44,10 +44,9 @@ public class HabitServiceImpl implements HabitService {
     return false;
   }
 
-
   @Override
   public List<HabitTrack> getHabitTrack(UUID id) {
-    return habitTrackRepository.findByHabitUUID(id) ;
+    return habitTrackRepository.findByHabitUUID(id);
   }
 
   @Override
@@ -57,7 +56,8 @@ public class HabitServiceImpl implements HabitService {
         userService
             .findById(currentUserProvider.getCurrentUser())
             .orElseThrow(
-                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     var habitToCreate =
         Habit.builder()
@@ -71,8 +71,7 @@ public class HabitServiceImpl implements HabitService {
             .userUUID(ownerOfHabit.getUuid())
             .build();
 
-    var habitSavedToDB =
-        habitRepository.save(habitToCreate);
+    var habitSavedToDB = habitRepository.save(habitToCreate);
 
     userService.save(ownerOfHabit);
 
@@ -93,7 +92,8 @@ public class HabitServiceImpl implements HabitService {
         habitRepository
             .findById(id)
             .orElseThrow(
-                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
     Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
@@ -101,16 +101,24 @@ public class HabitServiceImpl implements HabitService {
     Optional.ofNullable(habitRequest.duration()).ifPresent(habitToUpdate::setDuration);
     Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
 
-    var updatedHabit =
-        habitRepository.save(habitToUpdate);
+    var updatedHabit = habitRepository.save(habitToUpdate);
 
     return mapToResponse(updatedHabit);
   }
 
   @Override
-  public void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
-    var habitToLinkCategory = habitRepository.findById(habitId).orElseThrow(() ->new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    var categoryToBeLinked = categoryRepository.findById(categoryCreateRequest.id()).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+  public void linkCategoryWithHabit(
+      UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
+    var habitToLinkCategory =
+        habitRepository
+            .findById(habitId)
+            .orElseThrow(
+                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    var categoryToBeLinked =
+        categoryRepository
+            .findById(categoryCreateRequest.id())
+            .orElseThrow(
+                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     habitToLinkCategory.getCategories().add(categoryToBeLinked);
     categoryToBeLinked.getHabits().add(habitToLinkCategory);

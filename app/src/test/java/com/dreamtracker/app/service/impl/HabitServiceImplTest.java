@@ -1,26 +1,27 @@
 package com.dreamtracker.app.service.impl;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.entity.User;
 import com.dreamtracker.app.exception.EntityNotFoundException;
 import com.dreamtracker.app.exception.ExceptionMessages;
+import com.dreamtracker.app.fixtures.CategoryFixtures;
 import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.repository.CategoryRepository;
 import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.repository.HabitTrackRepository;
+import com.dreamtracker.app.request.HabitCategoryCreateRequest;
 import com.dreamtracker.app.response.HabitResponse;
 import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
 import com.dreamtracker.app.service.HabitService;
 import com.dreamtracker.app.service.UserService;
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import javax.swing.text.html.parser.Entity;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -29,14 +30,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
-class HabitServiceImplTest implements HabitFixture, HabitTrackFixture, UserFixtures {
+class HabitServiceImplTest
+    implements HabitFixture, HabitTrackFixture, UserFixtures, CategoryFixtures {
 
   private final HabitRepository habitRepository = Mockito.mock(HabitRepository.class);
   private final HabitTrackRepository habitTrackRepository =
@@ -50,7 +49,6 @@ class HabitServiceImplTest implements HabitFixture, HabitTrackFixture, UserFixtu
 
   @BeforeEach
   void setUp() {
-
     fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
     habitService =
@@ -168,11 +166,62 @@ class HabitServiceImplTest implements HabitFixture, HabitTrackFixture, UserFixtu
     when(habitRepository.save(updatedHabit)).thenReturn(updatedHabit);
     // when
     assertThatThrownBy(() -> habitService.updateHabit(sampleHabit.getId(), sampleUpdateRequest))
-            //then
+        // then
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage)
         .isInstanceOf(EntityNotFoundException.class);
   }
 
   @Test
-  void linkCategoryWithHabit() {}
+  void linkCategoryWithHabit() {
+    // given
+    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
+    var sampleCategory = getSampleCategoryBuilder(sampleUser.getUuid()).build();
+    var habitCategoryRequest =
+        HabitCategoryCreateRequest.builder().id(sampleCategory.getId()).build();
+
+    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(categoryRepository.findById(habitCategoryRequest.id()))
+        .thenReturn(Optional.of(sampleCategory));
+    // when
+    habitService.linkCategoryWithHabit(sampleHabit.getId(), habitCategoryRequest);
+
+    var isHabitLinked = sampleHabit.getCategories().get(0).equals(sampleCategory);
+    var isCategoryLinked = sampleCategory.getHabits().get(0).equals(sampleHabit);
+    // then
+    assertThat(isHabitLinked).isEqualTo(true);
+    assertThat(isCategoryLinked).isEqualTo(true);
+  }
+
+  @Test
+  void linkCategoryWithHabitHabitEntityNotFoundException() {
+    // given
+    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
+    var sampleCategory = getSampleCategoryBuilder(sampleUser.getUuid()).build();
+    var habitCategoryRequest =
+        HabitCategoryCreateRequest.builder().id(sampleCategory.getId()).build();
+
+    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    assertThatThrownBy(
+            // when
+            () -> habitService.linkCategoryWithHabit(sampleHabit.getId(), habitCategoryRequest))
+        // then
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
+  @Test
+  void linkCategoryWithHabitCategoryEntityNotFoundException() {
+    // given
+    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
+    var sampleCategory = getSampleCategoryBuilder(sampleUser.getUuid()).build();
+    var habitCategoryRequest =
+        HabitCategoryCreateRequest.builder().id(sampleCategory.getId()).build();
+    when(categoryRepository.findById(habitCategoryRequest.id())).thenReturn(Optional.empty());
+    assertThatThrownBy(
+            // when
+            () -> habitService.linkCategoryWithHabit(sampleHabit.getId(), habitCategoryRequest))
+        // then
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
 }

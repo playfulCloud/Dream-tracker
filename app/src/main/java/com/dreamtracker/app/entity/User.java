@@ -19,10 +19,8 @@ import java.util.UUID;
 @Table(name = "app_user")
 public class User {
 
-
    @Id
    private UUID uuid;
-
    private String name;
    private String surname;
 
