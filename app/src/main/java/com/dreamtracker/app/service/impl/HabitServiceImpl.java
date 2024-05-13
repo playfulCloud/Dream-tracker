@@ -79,16 +79,9 @@ public class HabitServiceImpl implements HabitService {
 
   @Override
   public Page<HabitResponse> getAllUserHabits() {
-    var ownerOfHabits =
-        userService
-            .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
-    var habits = habitRepository.findByUserUUID(ownerOfHabits.getUuid());
-
+    var habits = habitRepository.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfHabitResponses = habits.stream().map(this::mapToResponse).toList();
-
     Page<HabitResponse> responsePage = new Page<>(listOfHabitResponses);
-
     return responsePage;
   }
 
@@ -125,7 +118,7 @@ public class HabitServiceImpl implements HabitService {
     return HabitResponse.builder()
         .id(habit.getId())
         .name(habit.getName())
-        .action(habit.getName())
+        .action(habit.getAction())
         .duration(habit.getDuration())
         .difficulty(habit.getDifficulty())
         .status(habit.getStatus())

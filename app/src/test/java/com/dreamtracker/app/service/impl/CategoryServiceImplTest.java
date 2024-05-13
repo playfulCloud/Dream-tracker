@@ -152,7 +152,7 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   @Test
   void getAllUserCategoriesEmptyPage() {
     // given
-    when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
+    when(categoryRepository.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
     // when
     var actualPageResponse =  categoryService.getAllUserCategories();
     assertThat(actualPageResponse.getItems().size()).isEqualTo(0);
