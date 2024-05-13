@@ -1,5 +1,6 @@
 package com.dreamtracker.app.service.impl;
 
+import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.entity.User;
 import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.HabitTrackFixture;
@@ -10,15 +11,19 @@ import com.dreamtracker.app.repository.HabitTrackRepository;
 import com.dreamtracker.app.security.CurrentUserProvider;
 import com.dreamtracker.app.service.HabitService;
 import com.dreamtracker.app.service.UserService;
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import javax.swing.text.html.parser.Entity;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -57,36 +62,50 @@ class HabitServiceImplTest implements HabitFixture, HabitTrackFixture, UserFixtu
 
     @Test
     void deletePositiveTestCase() {
+        //given
         var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
         var expectedOutput = true;
         when(habitRepository.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
+        //when
         var actualOutput = habitService.delete(sampleHabit.getId());
+        //then
         assertThat(actualOutput).isEqualTo(expectedOutput);
     }
 
     @Test
     void deleteNegativeTestCase() {
+        //given
         var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
         var expectedOutput = false;
         when(habitRepository.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
+        //when
         var actualOutput = habitService.delete(sampleHabit.getId());
+        //then
         assertThat(actualOutput).isEqualTo(expectedOutput);
     }
 
-      @Test
-    void getHabitTrack() {
-      }
-
     @Test
-    void createHabitPositiveTestCase() {
+    void getHabitTrackPositiveTestCase() {
+        //given
         var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-        var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(),ZonedDateTime.now(fixedClock).format(DateTimeFormatter.ISO_DATE_TIME));
-       when()
+        var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(),ZonedDateTime.now(fixedClock).format(DateTimeFormatter.ISO_DATE_TIME)).build();
+        var listOfTracks = List.of(sampleHabitTrack);
+       when(habitTrackRepository.findByHabitUUID(sampleHabit.getId())).thenReturn(listOfTracks);
+       //when
+       var actualListOfTracks = habitService.getHabitTrack(sampleHabit.getId());
+       //then
+       assertThat(listOfTracks).isEqualTo(actualListOfTracks);
     }
 
     @Test
     void createHabitEmptyList() {
-
+        //given
+        var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
+    when(habitTrackRepository.findByHabitUUID(sampleHabit.getId())).thenReturn(new ArrayList<HabitTrack>());
+        //when
+        var actualListOfTracks = habitService.getHabitTrack(sampleHabit.getId());
+        //then
+        assertThat(actualListOfTracks.size()).isEqualTo(0);
     }
 
     @Test
