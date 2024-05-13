@@ -43,4 +43,27 @@ public interface GoalFixtures {
               );
   }
 
+    default Goal.GoalBuilder getSampleUpdatedGoalBuilder(UUID userUUID) {
+        return Goal.builder()
+                .uuid(UUID.fromString("7b8696f7-dc0e-4741-8faf-b09d3fd71bef"))
+                .name("Walking 1k")
+                .userUUID(userUUID)
+                .duration("P30M")
+                .habitList(new ArrayList<>()
+                );
+    }
+
+    default GoalRequest.GoalRequestBuilder getSampleUpdateGoalRequestBuilder() {
+        return GoalRequest.builder()
+                .name("Walking 1k")
+                .duration("P30M");
+    }
+
+    default GoalResponse.GoalResponseBuilder getUpdatedExpectedGoalResponse() {
+        return GoalResponse.builder()
+                .id(UUID.fromString("7b8696f7-dc0e-4741-8faf-b09d3fd71bef"))
+                .name("Walking 1k")
+                .duration("P30M");
+    }
+
 }

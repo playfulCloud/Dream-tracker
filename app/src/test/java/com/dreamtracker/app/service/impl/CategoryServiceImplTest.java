@@ -99,12 +99,13 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   @Test
   void updateCategoryPositiveTestCase() {
     // given
-    var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    var expectedCategoryOutput = getExpectedCategoryResponseBuilder().build();
+    var sampleCategoryRequest = getSampleUpdateCategoryRequestBuilder().build();
+    var expectedCategoryOutput = getExpectedUpdatedCategoryResponseBuilder().build();
     var sampleCategory = getSampleCategoryBuilder(sampleUser.getUuid()).build();
+    var sampleUpdatedCategory = getSampleUpdatedCategoryBuilder(sampleCategory.getId()).build();
     when(categoryRepository.findById(sampleCategory.getId()))
         .thenReturn(Optional.of(sampleCategory));
-    when(categoryRepository.save(sampleCategory)).thenReturn(sampleCategory);
+    when(categoryRepository.save(sampleCategory)).thenReturn(sampleUpdatedCategory);
     // when
     var actual = categoryService.updateCategory(sampleCategory.getId(), sampleCategoryRequest);
     // then
@@ -155,6 +156,8 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
     when(categoryRepository.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
     // when
     var actualPageResponse =  categoryService.getAllUserCategories();
+    //then
     assertThat(actualPageResponse.getItems().size()).isEqualTo(0);
   }
+
 }
