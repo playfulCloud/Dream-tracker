@@ -49,7 +49,7 @@ class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
   @Test
   void getAllTracksOfHabitPositiveTestCase() {
     // given
-    var dateForTracks = ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+    var dateForTracks = ZonedDateTime.now(fixedClock).format(DateTimeFormatter.ISO_DATE_TIME);
     var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).build();
     var sampleHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
     var listOfTracks = List.of(sampleHabitTrack);
