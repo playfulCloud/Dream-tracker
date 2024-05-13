@@ -105,9 +105,10 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
     // given
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoalRequest = getSampleGoalRequestBuilder().build();
-    var expectedGoalResponse = getExpectedGoalResponse().build();
+    var expectedGoalResponse = getUpdatedExpectedGoalResponse().build();
+    var updatedGoal = getSampleUpdatedGoalBuilder(currentUserProvider.getCurrentUser()).build();
     when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
-    when(goalRepository.save(sampleGoal)).thenReturn(sampleGoal);
+    when(goalRepository.save(sampleGoal)).thenReturn(updatedGoal);
     // when
     var actualGoalResponse = goalService.updateGoal(sampleGoal.getUuid(), sampleGoalRequest);
     // then
@@ -117,7 +118,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
   @Test
   void updateGoalEntityNotFoundException() {
     // given
-    var sampleGoalRequest = getSampleGoalRequestBuilder().build();
+    var sampleGoalRequest = getSampleUpdateGoalRequestBuilder().build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
     when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
     // when

@@ -57,7 +57,7 @@ public class HabitServiceImpl implements HabitService {
         userService
             .findById(currentUserProvider.getCurrentUser())
             .orElseThrow(
-                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage);
+                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     var habitToCreate =
         Habit.builder()
@@ -90,7 +90,10 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public HabitResponse updateHabit(UUID id, HabitRequest habitRequest) {
     var habitToUpdate =
-        habitRepository.findById(id).orElseThrow(() -> new EntitySaveException(ExceptionMessages.entitySaveExceptionMessage));
+        habitRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
     Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
