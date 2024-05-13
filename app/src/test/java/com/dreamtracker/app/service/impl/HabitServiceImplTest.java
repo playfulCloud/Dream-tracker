@@ -98,7 +98,7 @@ class HabitServiceImplTest implements HabitFixture, HabitTrackFixture, UserFixtu
     }
 
     @Test
-    void createHabitEmptyList() {
+    void getHabitTracksEmptyList() {
         //given
         var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     when(habitTrackRepository.findByHabitUUID(sampleHabit.getId())).thenReturn(new ArrayList<HabitTrack>());
