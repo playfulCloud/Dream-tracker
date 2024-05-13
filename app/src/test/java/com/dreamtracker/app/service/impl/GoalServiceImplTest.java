@@ -151,7 +151,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
   @Test
   void getAllUserGoalsEmptyPage() {
     // given
-    when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
+    when(goalRepository.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
     // when
     var actualPageResponse = goalService.getAllUserGoals();
     // then

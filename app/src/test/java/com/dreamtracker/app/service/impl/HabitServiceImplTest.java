@@ -8,6 +8,8 @@ import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.repository.CategoryRepository;
 import com.dreamtracker.app.repository.HabitRepository;
 import com.dreamtracker.app.repository.HabitTrackRepository;
+import com.dreamtracker.app.response.HabitResponse;
+import com.dreamtracker.app.response.Page;
 import com.dreamtracker.app.security.CurrentUserProvider;
 import com.dreamtracker.app.service.HabitService;
 import com.dreamtracker.app.service.UserService;
@@ -109,8 +111,29 @@ class HabitServiceImplTest implements HabitFixture, HabitTrackFixture, UserFixtu
     }
 
     @Test
-    void getAllUserHabits() {
-      }
+    void getAllUserHabitsPositiveTestCase() {
+        //given
+        var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
+        when(habitRepository.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(sampleHabit));
+        var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).build();
+        var expectedResponsePageItems = List.of(sampleHabitResponse);
+        var expectedResponsePage = new Page<HabitResponse>(expectedResponsePageItems);
+        //when
+        var actualResponsePage = habitService.getAllUserHabits();
+        //then
+        assertThat(actualResponsePage).isEqualTo(expectedResponsePage);
+    }
+
+    @Test
+    void getAllUserHabitsEmptyList() {
+        //given
+        var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
+        when(habitRepository.findByUserUUID(sampleHabit.getUserUUID())).thenReturn(new ArrayList<>());
+        //when
+        var actualResponsePage = habitService.getAllUserHabits();
+        //then
+        assertThat(actualResponsePage.getItems().size()).isEqualTo(0);
+    }
 
     @Test
     void updateHabit() {
