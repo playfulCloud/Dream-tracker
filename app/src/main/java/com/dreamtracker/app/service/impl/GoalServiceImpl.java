@@ -15,6 +15,8 @@ import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
+
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +91,7 @@ public class GoalServiceImpl implements GoalService {
   }
 
   @Override
+  @Transactional
   public void associateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest) {
     var goalToAddHabit =
         goalRepository

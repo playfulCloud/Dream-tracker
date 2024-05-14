@@ -3,7 +3,6 @@ package com.dreamtracker.app.service.impl;
 import com.dreamtracker.app.entity.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.exception.EntityNotFoundException;
-import com.dreamtracker.app.exception.EntitySaveException;
 import com.dreamtracker.app.exception.ExceptionMessages;
 import com.dreamtracker.app.repository.CategoryRepository;
 import com.dreamtracker.app.repository.HabitRepository;
@@ -52,13 +51,6 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public HabitResponse createHabit(HabitRequest habitRequest) {
 
-    var ownerOfHabit =
-        userService
-            .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-
     var habitToCreate =
         Habit.builder()
             .name(habitRequest.name())
@@ -68,12 +60,10 @@ public class HabitServiceImpl implements HabitService {
             .status(HabitStatus.ACTIVE.toString())
             .categories(new ArrayList<>())
             .goals(new ArrayList<>())
-            .userUUID(ownerOfHabit.getUuid())
+            .userUUID(currentUserProvider.getCurrentUser())
             .build();
 
     var habitSavedToDB = habitRepository.save(habitToCreate);
-
-    userService.save(ownerOfHabit);
 
     return mapToResponse(habitSavedToDB);
   }
@@ -107,6 +97,7 @@ public class HabitServiceImpl implements HabitService {
   }
 
   @Override
+  @Transactional
   public void linkCategoryWithHabit(
       UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
     var habitToLinkCategory =
