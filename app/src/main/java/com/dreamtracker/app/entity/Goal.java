@@ -1,5 +1,4 @@
 package com.dreamtracker.app.entity;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +18,6 @@ public class Goal {
     @Id
     @GeneratedValue
     private UUID uuid;
-
-
     private String name;
     private String duration;
     private UUID userUUID;
