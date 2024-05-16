@@ -184,12 +184,11 @@ class HabitServiceImplTest
         .thenReturn(Optional.of(sampleCategory));
     // when
     habitService.linkCategoryWithHabit(sampleHabit.getId(), habitCategoryRequest);
-
-    var isHabitLinked = sampleHabit.getCategories().get(0).equals(sampleCategory);
-    var isCategoryLinked = sampleCategory.getHabits().get(0).equals(sampleHabit);
     // then
-    assertThat(isHabitLinked).isEqualTo(true);
-    assertThat(isCategoryLinked).isEqualTo(true);
+    assertThat(sampleHabit)
+        .isEqualTo(getSampleHabitBuilder(sampleUser.getUuid()).categories(List.of(sampleCategory)));
+    assertThat(sampleCategory)
+        .isEqualTo(getSampleCategoryBuilder(sampleUser.getUuid()).habits(List.of(sampleHabit)));
   }
 
   @Test
