@@ -1,6 +1,6 @@
 package com.dreamtracker.app.response;
 
-import com.dreamtracker.app.entity.Habit;
+import com.dreamtracker.app.habit.domain.Habit;
 import lombok.Builder;
 
 import java.util.List;
