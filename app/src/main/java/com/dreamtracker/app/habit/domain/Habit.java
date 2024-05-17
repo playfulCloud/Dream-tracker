@@ -1,6 +1,9 @@
-package com.dreamtracker.app.entity;
+package com.dreamtracker.app.habit.domain;
 
 
+import com.dreamtracker.app.entity.Category;
+import com.dreamtracker.app.entity.Goal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +29,7 @@ public class Habit {
     private UUID userUUID;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "habit_category",
             joinColumns = @JoinColumn(name = "habit_id"),

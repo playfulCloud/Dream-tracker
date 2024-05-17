@@ -1,11 +1,10 @@
 package com.dreamtracker.app.entity;
 
 
+import com.dreamtracker.app.habit.domain.Habit;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,4 +22,6 @@ public class Category {
     private String name;
     private UUID userUUID;
     @ManyToMany(mappedBy = "categories")
+    @ToString.Exclude
+   @JsonIgnore
     private List<Habit> habits;}

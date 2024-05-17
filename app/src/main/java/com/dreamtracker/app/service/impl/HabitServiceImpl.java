@@ -1,6 +1,6 @@
 package com.dreamtracker.app.service.impl;
 
-import com.dreamtracker.app.entity.Habit;
+import com.dreamtracker.app.habit.domain.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.exception.EntityNotFoundException;
 import com.dreamtracker.app.exception.ExceptionMessages;

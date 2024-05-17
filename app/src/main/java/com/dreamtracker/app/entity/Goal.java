@@ -1,4 +1,5 @@
 package com.dreamtracker.app.entity;
+import com.dreamtracker.app.habit.domain.Habit;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

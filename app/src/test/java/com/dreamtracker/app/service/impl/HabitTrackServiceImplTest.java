@@ -2,10 +2,9 @@ package com.dreamtracker.app.service.impl;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-import com.dreamtracker.app.entity.Habit;
+import com.dreamtracker.app.habit.domain.Habit;
 import com.dreamtracker.app.entity.HabitTrack;
 import com.dreamtracker.app.exception.EntityNotFoundException;
 import com.dreamtracker.app.exception.ExceptionMessages;

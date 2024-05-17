@@ -1,6 +1,6 @@
 package com.dreamtracker.app.fixtures;
 
-import com.dreamtracker.app.entity.Habit;
+import com.dreamtracker.app.habit.domain.Habit;
 import com.dreamtracker.app.request.HabitRequest;
 import com.dreamtracker.app.response.HabitResponse;
 import com.dreamtracker.app.utils.HabitDifficulty;

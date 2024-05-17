@@ -186,9 +186,9 @@ class HabitServiceImplTest
     habitService.linkCategoryWithHabit(sampleHabit.getId(), habitCategoryRequest);
     // then
     assertThat(sampleHabit)
-        .isEqualTo(getSampleHabitBuilder(sampleUser.getUuid()).categories(List.of(sampleCategory)));
+        .isEqualTo(getSampleHabitBuilder(sampleUser.getUuid()).categories(List.of(sampleCategory)).build());
     assertThat(sampleCategory)
-        .isEqualTo(getSampleCategoryBuilder(sampleUser.getUuid()).habits(List.of(sampleHabit)));
+        .isEqualTo(getSampleCategoryBuilder(sampleUser.getUuid()).habits(List.of(sampleHabit)).build());
   }
 
   @Test
