@@ -1,11 +1,10 @@
 package com.dreamtracker.app.service;
 
-import com.dreamtracker.app.entity.Goal;
-import com.dreamtracker.app.request.GoalAssignHabitRequest;
-import com.dreamtracker.app.request.GoalRequest;
-import com.dreamtracker.app.response.GoalResponse;
-import com.dreamtracker.app.response.Page;
-import java.util.Optional;
+import com.dreamtracker.app.domain.request.GoalAssignHabitRequest;
+import com.dreamtracker.app.domain.request.GoalRequest;
+import com.dreamtracker.app.domain.response.GoalResponse;
+import com.dreamtracker.app.domain.response.Page;
+
 import java.util.UUID;
 
 public interface GoalService {

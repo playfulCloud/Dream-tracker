@@ -1,15 +1,15 @@
 package com.dreamtracker.app.service.impl;
 
-import com.dreamtracker.app.entity.Goal;
-import com.dreamtracker.app.exception.EntityNotFoundException;
-import com.dreamtracker.app.exception.ExceptionMessages;
-import com.dreamtracker.app.repository.GoalRepository;
-import com.dreamtracker.app.repository.HabitRepository;
-import com.dreamtracker.app.request.GoalAssignHabitRequest;
-import com.dreamtracker.app.request.GoalRequest;
-import com.dreamtracker.app.response.GoalResponse;
-import com.dreamtracker.app.response.Page;
-import com.dreamtracker.app.security.CurrentUserProvider;
+import com.dreamtracker.app.domain.entity.Goal;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
+import com.dreamtracker.app.domain.repository.GoalRepository;
+import com.dreamtracker.app.domain.repository.HabitRepository;
+import com.dreamtracker.app.domain.request.GoalAssignHabitRequest;
+import com.dreamtracker.app.domain.request.GoalRequest;
+import com.dreamtracker.app.domain.response.GoalResponse;
+import com.dreamtracker.app.domain.response.Page;
+import com.dreamtracker.app.infrastructure.security.CurrentUserProvider;
 import com.dreamtracker.app.service.GoalService;
 import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;

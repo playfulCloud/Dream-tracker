@@ -1,14 +1,13 @@
 package com.dreamtracker.app.service.impl;
 
-import com.dreamtracker.app.entity.HabitTrack;
-import com.dreamtracker.app.exception.EntityNotFoundException;
-import com.dreamtracker.app.exception.EntitySaveException;
-import com.dreamtracker.app.exception.ExceptionMessages;
-import com.dreamtracker.app.repository.HabitRepository;
-import com.dreamtracker.app.repository.HabitTrackRepository;
-import com.dreamtracker.app.request.HabitTrackingRequest;
-import com.dreamtracker.app.response.HabitTrackResponse;
-import com.dreamtracker.app.response.Page;
+import com.dreamtracker.app.domain.entity.HabitTrack;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
+import com.dreamtracker.app.domain.repository.HabitRepository;
+import com.dreamtracker.app.domain.repository.HabitTrackRepository;
+import com.dreamtracker.app.domain.request.HabitTrackingRequest;
+import com.dreamtracker.app.domain.response.HabitTrackResponse;
+import com.dreamtracker.app.domain.response.Page;
 import com.dreamtracker.app.service.HabitTrackService;
 
 import java.time.Clock;

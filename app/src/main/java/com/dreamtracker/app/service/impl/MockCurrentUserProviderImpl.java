@@ -1,6 +1,6 @@
 package com.dreamtracker.app.service.impl;
 
-import com.dreamtracker.app.security.CurrentUserProvider;
+import com.dreamtracker.app.infrastructure.security.CurrentUserProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
