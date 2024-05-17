@@ -1,9 +1,9 @@
 package com.dreamtracker.app.service.impl;
 
-import com.dreamtracker.app.entity.User;
-import com.dreamtracker.app.repository.UserRepository;
-import com.dreamtracker.app.response.UserResponse;
-import com.dreamtracker.app.security.CurrentUserProvider;
+import com.dreamtracker.app.domain.entity.User;
+import com.dreamtracker.app.domain.repository.UserRepository;
+import com.dreamtracker.app.domain.response.UserResponse;
+import com.dreamtracker.app.infrastructure.security.CurrentUserProvider;
 import com.dreamtracker.app.service.UserService;
 
 import java.util.Optional;

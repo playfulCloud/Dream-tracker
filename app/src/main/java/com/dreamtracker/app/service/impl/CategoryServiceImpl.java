@@ -1,13 +1,13 @@
 package com.dreamtracker.app.service.impl;
 
-import com.dreamtracker.app.entity.Category;
-import com.dreamtracker.app.exception.EntityNotFoundException;
-import com.dreamtracker.app.exception.ExceptionMessages;
-import com.dreamtracker.app.repository.CategoryRepository;
-import com.dreamtracker.app.request.CategoryRequest;
-import com.dreamtracker.app.response.CategoryResponse;
-import com.dreamtracker.app.response.Page;
-import com.dreamtracker.app.security.CurrentUserProvider;
+import com.dreamtracker.app.domain.entity.Category;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
+import com.dreamtracker.app.domain.repository.CategoryRepository;
+import com.dreamtracker.app.domain.request.CategoryRequest;
+import com.dreamtracker.app.domain.response.CategoryResponse;
+import com.dreamtracker.app.domain.response.Page;
+import com.dreamtracker.app.infrastructure.security.CurrentUserProvider;
 import com.dreamtracker.app.service.CategoryService;
 import com.dreamtracker.app.service.UserService;
 import java.util.ArrayList;

@@ -1,10 +1,10 @@
 package com.dreamtracker.app.service;
 
-import com.dreamtracker.app.entity.HabitTrack;
-import com.dreamtracker.app.request.HabitCategoryCreateRequest;
-import com.dreamtracker.app.request.HabitRequest;
-import com.dreamtracker.app.response.HabitResponse;
-import com.dreamtracker.app.response.Page;
+import com.dreamtracker.app.domain.entity.HabitTrack;
+import com.dreamtracker.app.domain.request.HabitCategoryCreateRequest;
+import com.dreamtracker.app.domain.request.HabitRequest;
+import com.dreamtracker.app.domain.response.HabitResponse;
+import com.dreamtracker.app.domain.response.Page;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,8 +1,8 @@
 package com.dreamtracker.app.service;
 
-import com.dreamtracker.app.request.HabitTrackingRequest;
-import com.dreamtracker.app.response.HabitTrackResponse;
-import com.dreamtracker.app.response.Page;
+import com.dreamtracker.app.domain.request.HabitTrackingRequest;
+import com.dreamtracker.app.domain.response.HabitTrackResponse;
+import com.dreamtracker.app.domain.response.Page;
 
 import java.util.UUID;
 

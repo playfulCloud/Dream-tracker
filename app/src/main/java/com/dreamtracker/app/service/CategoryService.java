@@ -1,11 +1,9 @@
 package com.dreamtracker.app.service;
 
-import com.dreamtracker.app.entity.Category;
-import com.dreamtracker.app.request.CategoryRequest;
-import com.dreamtracker.app.response.CategoryResponse;
-import com.dreamtracker.app.response.Page;
+import com.dreamtracker.app.domain.request.CategoryRequest;
+import com.dreamtracker.app.domain.response.CategoryResponse;
+import com.dreamtracker.app.domain.response.Page;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public interface CategoryService {
