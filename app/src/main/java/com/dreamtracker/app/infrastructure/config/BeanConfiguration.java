@@ -2,7 +2,6 @@ package com.dreamtracker.app.infrastructure.config;
 
 import com.dreamtracker.app.habit.domain.ports.*;
 import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
-import com.dreamtracker.app.infrastructure.repository.HabitTrackRepository;
 import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -18,12 +17,12 @@ public class BeanConfiguration {
       CurrentUserProvider currentUserProvider,
       UserService userService,
       CategoryRepository categoryRepository,
-      HabitTrackRepository habitTrackRepository) {
+      HabitTrackRepositoryPort habitTrackRepositoryPort) {
     return new DomainHabitService(
             habitRepositoryPort,
         currentUserProvider,
         userService,
         categoryRepository,
-        habitTrackRepository);
+        habitTrackRepositoryPort);
   }
 }

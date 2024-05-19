@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
+import com.dreamtracker.app.habit.domain.ports.HabitTrackRepositoryPort;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.habit.domain.ports.DomainHabitService;
@@ -16,8 +17,6 @@ import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
 import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
-import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
-import com.dreamtracker.app.infrastructure.repository.HabitTrackRepository;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -40,8 +39,8 @@ class DomainHabitServiceTest
     implements HabitFixture, HabitTrackFixture, UserFixtures, CategoryFixtures {
 
   private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
-  private final HabitTrackRepository habitTrackRepository =
-      Mockito.mock(HabitTrackRepository.class);
+  private final HabitTrackRepositoryPort habitTrackRepositoryPort =
+      Mockito.mock(HabitTrackRepositoryPort.class);
   private final UserService userService = Mockito.mock(UserService.class);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
@@ -59,7 +58,7 @@ class DomainHabitServiceTest
             currentUserProvider,
             userService,
             categoryRepository,
-            habitTrackRepository);
+                habitTrackRepositoryPort);
   }
 
   @Test
@@ -99,7 +98,7 @@ class DomainHabitServiceTest
                 ZonedDateTime.now(fixedClock).format(DateTimeFormatter.ISO_DATE_TIME))
             .build();
     var listOfTracks = List.of(sampleHabitTrack);
-    when(habitTrackRepository.findByHabitUUID(sampleHabit.getId())).thenReturn(listOfTracks);
+    when(habitTrackRepositoryPort.findByHabitUUID(sampleHabit.getId())).thenReturn(listOfTracks);
     // when
     var actualListOfTracks = habitService.getHabitTrack(sampleHabit.getId());
     // then
@@ -110,7 +109,7 @@ class DomainHabitServiceTest
   void getHabitTracksEmptyList() {
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-    when(habitTrackRepository.findByHabitUUID(sampleHabit.getId()))
+    when(habitTrackRepositoryPort.findByHabitUUID(sampleHabit.getId()))
         .thenReturn(new ArrayList<HabitTrack>());
     // when
     var actualListOfTracks = habitService.getHabitTrack(sampleHabit.getId());
