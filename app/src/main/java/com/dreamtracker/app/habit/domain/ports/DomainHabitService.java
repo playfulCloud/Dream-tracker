@@ -8,7 +8,6 @@ import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
-import com.dreamtracker.app.infrastructure.repository.HabitTrackRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -27,7 +26,7 @@ public class DomainHabitService implements HabitService {
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
   private final CategoryRepository categoryRepository;
-  private final HabitTrackRepository habitTrackRepository;
+  private final HabitTrackRepositoryPort habitTrackRepositoryPort;
 
   @Override
   @Transactional
@@ -41,7 +40,7 @@ public class DomainHabitService implements HabitService {
 
   @Override
   public List<HabitTrack> getHabitTrack(UUID id) {
-    return habitTrackRepository.findByHabitUUID(id);
+    return habitTrackRepositoryPort.findByHabitUUID(id);
   }
 
   @Override
