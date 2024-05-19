@@ -12,9 +12,9 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.goal.domain.fixtures.GoalFixtures;
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
-import com.dreamtracker.app.goal.domain.ports.GoalRepository;
-import com.dreamtracker.app.goal.domain.ports.GoalServiceImpl;
-import com.dreamtracker.app.habit.domain.ports.HabitRepository;
+import com.dreamtracker.app.infrastructure.repository.GoalRepository;
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
+import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -30,12 +30,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
+class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture {
 
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final GoalRepository goalRepository = Mockito.mock(GoalRepository.class);
   private final UserService userService = Mockito.mock(UserService.class);
-  private final HabitRepository habitRepository = Mockito.mock(HabitRepository.class);
+  private final SpringDataHabitRepository springDataHabitRepository = Mockito.mock(SpringDataHabitRepository.class);
   private User sampleUser;
   private GoalService goalService;
 
@@ -43,7 +43,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
     goalService =
-        new GoalServiceImpl(goalRepository, userService, currentUserProvider, habitRepository);
+        new DomainGoalService(goalRepository, userService, currentUserProvider, springDataHabitRepository);
   }
 
   @Test
@@ -167,7 +167,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
 
     // when
@@ -185,7 +185,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
     var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
 
     assertThatThrownBy(
@@ -205,7 +205,7 @@ class GoalServiceImplTest implements UserFixtures, GoalFixtures, HabitFixture {
     var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
     when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
 
     assertThatThrownBy(

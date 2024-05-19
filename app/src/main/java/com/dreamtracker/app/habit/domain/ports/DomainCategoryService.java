@@ -5,6 +5,7 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.adapters.api.CategoryRequest;
 import com.dreamtracker.app.habit.adapters.api.CategoryResponse;
+import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Data
-public class CategoryServiceImpl implements CategoryService {
+public class DomainCategoryService implements CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final UserService userService;

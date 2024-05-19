@@ -7,12 +7,12 @@ import static org.mockito.Mockito.when;
 import com.dreamtracker.app.habit.domain.model.Category;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
-import com.dreamtracker.app.habit.domain.ports.CategoryServiceImpl;
+import com.dreamtracker.app.habit.domain.ports.DomainCategoryService;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
-import com.dreamtracker.app.habit.domain.ports.CategoryRepository;
+import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
 import com.dreamtracker.app.habit.adapters.api.CategoryResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
+class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
 
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
@@ -38,7 +38,7 @@ class CategoryServiceImplTest implements CategoryFixtures, UserFixtures {
   @BeforeEach
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
-    categoryService = new CategoryServiceImpl(categoryRepository, userService, currentUserProvider);
+    categoryService = new DomainCategoryService(categoryRepository, userService, currentUserProvider);
   }
 
   @Test

@@ -7,6 +7,8 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
+import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
+import com.dreamtracker.app.infrastructure.repository.HabitTrackRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -17,13 +19,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
-public class HabitServiceImpl implements HabitService {
+public class DomainHabitService implements HabitService {
 
-  private final HabitRepository habitRepository;
+  private final HabitRepositoryPort habitRepositoryPort;
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
   private final CategoryRepository categoryRepository;
@@ -32,8 +32,8 @@ public class HabitServiceImpl implements HabitService {
   @Override
   @Transactional
   public boolean delete(UUID id) {
-    if (habitRepository.existsById(id)) {
-      habitRepository.deleteById(id);
+    if (habitRepositoryPort.existsById(id)) {
+      habitRepositoryPort.deleteById(id);
       return true;
     }
     return false;
@@ -59,14 +59,14 @@ public class HabitServiceImpl implements HabitService {
             .userUUID(currentUserProvider.getCurrentUser())
             .build();
 
-    var habitSavedToDB = habitRepository.save(habitToCreate);
+    var habitSavedToDB = habitRepositoryPort.save(habitToCreate);
 
     return mapToResponse(habitSavedToDB);
   }
 
   @Override
   public Page<HabitResponse> getAllUserHabits() {
-    var habits = habitRepository.findByUserUUID(currentUserProvider.getCurrentUser());
+    var habits = habitRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfHabitResponses = habits.stream().map(this::mapToResponse).toList();
     Page<HabitResponse> responsePage = new Page<>(listOfHabitResponses);
     return responsePage;
@@ -75,7 +75,7 @@ public class HabitServiceImpl implements HabitService {
   @Override
   public HabitResponse updateHabit(UUID id, HabitRequest habitRequest) {
     var habitToUpdate =
-        habitRepository
+        habitRepositoryPort
             .findById(id)
             .orElseThrow(
                 () ->
@@ -87,7 +87,7 @@ public class HabitServiceImpl implements HabitService {
     Optional.ofNullable(habitRequest.duration()).ifPresent(habitToUpdate::setDuration);
     Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
 
-    var updatedHabit = habitRepository.save(habitToUpdate);
+    var updatedHabit = habitRepositoryPort.save(habitToUpdate);
 
     return mapToResponse(updatedHabit);
   }
@@ -97,7 +97,7 @@ public class HabitServiceImpl implements HabitService {
   public void linkCategoryWithHabit(
       UUID habitId, HabitCategoryCreateRequest categoryCreateRequest) {
     var habitToLinkCategory =
-        habitRepository
+        habitRepositoryPort
             .findById(habitId)
             .orElseThrow(
                 () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
@@ -110,7 +110,7 @@ public class HabitServiceImpl implements HabitService {
     habitToLinkCategory.getCategories().add(categoryToBeLinked);
     categoryToBeLinked.getHabits().add(habitToLinkCategory);
 
-    habitRepository.save(habitToLinkCategory);
+    habitRepositoryPort.save(habitToLinkCategory);
     categoryRepository.save(categoryToBeLinked);
   }
 
