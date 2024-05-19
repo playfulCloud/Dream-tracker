@@ -5,6 +5,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.goal.domain.model.Goal;
+import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
+import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
@@ -12,7 +14,6 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.goal.domain.fixtures.GoalFixtures;
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
-import com.dreamtracker.app.infrastructure.repository.GoalRepository;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
@@ -33,9 +34,9 @@ import org.mockito.Mockito;
 class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture {
 
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
-  private final GoalRepository goalRepository = Mockito.mock(GoalRepository.class);
+  private final GoalRepositoryPort goalRepositoryPort = Mockito.mock(GoalRepositoryPort.class);
   private final UserService userService = Mockito.mock(UserService.class);
-  private final SpringDataHabitRepository springDataHabitRepository = Mockito.mock(SpringDataHabitRepository.class);
+  private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
   private User sampleUser;
   private GoalService goalService;
 
@@ -43,7 +44,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
     goalService =
-        new DomainGoalService(goalRepository, userService, currentUserProvider, springDataHabitRepository);
+        new DomainGoalService(goalRepositoryPort, userService, currentUserProvider, habitRepositoryPort);
   }
 
   @Test
@@ -53,7 +54,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var sampleGoalRequest = getSampleGoalRequestBuilder().build();
     when(userService.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
-    when(goalRepository.save(
+    when(goalRepositoryPort.save(
             Goal.builder()
                 .name(sampleGoalRequest.name())
                 .duration(sampleGoalRequest.duration())
@@ -83,7 +84,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void deleteTestPositiveCase() {
     // given
-    when(goalRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
+    when(goalRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
     var expected = true;
     // when
     var actual = goalService.delete(currentUserProvider.getCurrentUser());
@@ -94,7 +95,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void deleteTestNegativeCase() {
     // given
-    when(goalRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(false);
+    when(goalRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(false);
     var expected = false;
     // when
     var actual = goalService.delete(currentUserProvider.getCurrentUser());
@@ -109,8 +110,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var sampleGoalRequest = getSampleGoalRequestBuilder().build();
     var expectedGoalResponse = getUpdatedExpectedGoalResponse().build();
     var updatedGoal = getSampleUpdatedGoalBuilder(currentUserProvider.getCurrentUser()).build();
-    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
-    when(goalRepository.save(sampleGoal)).thenReturn(updatedGoal);
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(goalRepositoryPort.save(sampleGoal)).thenReturn(updatedGoal);
     // when
     var actualGoalResponse = goalService.updateGoal(sampleGoal.getUuid(), sampleGoalRequest);
     // then
@@ -122,7 +123,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     // given
     var sampleGoalRequest = getSampleUpdateGoalRequestBuilder().build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
-    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
     // when
     assertThatThrownBy(() -> goalService.updateGoal(sampleGoal.getUuid(), sampleGoalRequest))
         // then
@@ -144,7 +145,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var expectedPage = new Page<GoalResponse>(expectedPageItems);
     when(userService.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
-    when(goalRepository.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(List.of(sampleGoalForPage));
+    when(goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(List.of(sampleGoalForPage));
     // when
     var actualPageResponse = goalService.getAllUserGoals();
     // then
@@ -154,7 +155,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void getAllUserGoalsEmptyPage() {
     // given
-    when(goalRepository.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
+    when(goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
     // when
     var actualPageResponse = goalService.getAllUserGoals();
     // then
@@ -167,8 +168,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
-    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
-    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
 
     // when
     goalService.associateHabitWithGoal(
@@ -185,8 +186,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
-    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
-    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
 
     assertThatThrownBy(
             () ->
@@ -205,8 +206,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
 
-    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
-    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
 
     assertThatThrownBy(
             () ->
@@ -225,7 +226,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
     var expectedGoalResponse = getExpectedGoalResponse().build();
 
-    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
     // when
     var actualGoalResponse = goalService.getGoalById(sampleGoal.getUuid());
 
@@ -237,7 +238,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   void getGoalByIdEntityNotFoundException() {
     // given
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
-    when(goalRepository.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
     // when
     assertThatThrownBy(() -> goalService.getGoalById(sampleGoal.getUuid()))
         // then

@@ -1,10 +1,9 @@
 package com.dreamtracker.app.goal.domain.ports;
 
 import com.dreamtracker.app.goal.domain.model.Goal;
+import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
-import com.dreamtracker.app.infrastructure.repository.GoalRepository;
-import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
@@ -17,16 +16,14 @@ import java.util.UUID;
 
 import jakarta.transaction.Transactional;
 import lombok.Data;
-import org.springframework.stereotype.Service;
 
-@Service
 @Data
 public class DomainGoalService implements GoalService {
 
-  private final GoalRepository goalRepository;
+  private final GoalRepositoryPort goalRepositoryPort;
   private final UserService userService;
   private final CurrentUserProvider currentUserProvider;
-  private final SpringDataHabitRepository springDataHabitRepository;
+  private final HabitRepositoryPort habitRepositoryPort;
 
   @Override
   public GoalResponse createGoal(GoalRequest goalRequest) {
@@ -45,29 +42,26 @@ public class DomainGoalService implements GoalService {
             .userUUID(ownerOfGoal.getUuid())
             .build();
 
-    var goalSavedToDB = goalRepository.save(goalToCreate);
+    var goalSavedToDB = goalRepositoryPort.save(goalToCreate);
     userService.save(ownerOfGoal);
     return mapToResponse(goalSavedToDB);
   }
 
   @Override
   public boolean delete(UUID id) {
-    if (existsById(id)) {
-      goalRepository.deleteById(id);
+    if (goalRepositoryPort.existsById(id)) {
+      goalRepositoryPort.deleteById(id);
       return true;
     }
     return false;
   }
 
-  @Override
-  public boolean existsById(UUID id) {
-    return goalRepository.existsById(id);
-  }
+
 
   @Override
   public GoalResponse updateGoal(UUID id, GoalRequest goalRequest) {
     var goalToUpdate =
-        goalRepository
+        goalRepositoryPort
             .findById(id)
             .orElseThrow(
                 () ->
@@ -76,14 +70,14 @@ public class DomainGoalService implements GoalService {
     Optional.ofNullable(goalRequest.name()).ifPresent(goalToUpdate::setName);
     Optional.ofNullable(goalRequest.duration()).ifPresent(goalToUpdate::setDuration);
 
-    var updatedGoal = goalRepository.save(goalToUpdate);
+    var updatedGoal = goalRepositoryPort.save(goalToUpdate);
 
     return mapToResponse(updatedGoal);
   }
 
   @Override
   public Page<GoalResponse> getAllUserGoals() {
-    var listOfGoals = goalRepository.findByUserUUID(currentUserProvider.getCurrentUser());
+    var listOfGoals = goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfGoalResponses = listOfGoals.stream().map(this::mapToResponse).toList();
     var goalResponsePage = new Page<GoalResponse>(listOfGoalResponses);
     return goalResponsePage;
@@ -93,13 +87,13 @@ public class DomainGoalService implements GoalService {
   @Transactional
   public void associateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest) {
     var goalToAddHabit =
-        goalRepository
+        goalRepositoryPort
             .findById(goalId)
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var habitToBeAdded =
-        springDataHabitRepository
+        habitRepositoryPort
             .findById(goalAssignHabitRequest.habitId())
             .orElseThrow(
                 () ->
@@ -108,14 +102,14 @@ public class DomainGoalService implements GoalService {
     goalToAddHabit.getHabitList().add(habitToBeAdded);
     habitToBeAdded.getGoals().add(goalToAddHabit);
 
-    goalRepository.save(goalToAddHabit);
-    springDataHabitRepository.save(habitToBeAdded);
+    goalRepositoryPort.save(goalToAddHabit);
+    habitRepositoryPort.save(habitToBeAdded);
   }
 
   @Override
   public GoalResponse getGoalById(UUID id) {
     var goal =
-        goalRepository
+        goalRepositoryPort
             .findById(id)
             .orElseThrow(
                 () ->

@@ -7,7 +7,6 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
-import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -25,7 +24,7 @@ public class DomainHabitService implements HabitService {
   private final HabitRepositoryPort habitRepositoryPort;
   private final CurrentUserProvider currentUserProvider;
   private final UserService userService;
-  private final CategoryRepository categoryRepository;
+  private final CategoryRepositoryPort categoryRepositoryPort;
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
 
   @Override
@@ -101,7 +100,7 @@ public class DomainHabitService implements HabitService {
             .orElseThrow(
                 () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var categoryToBeLinked =
-        categoryRepository
+        categoryRepositoryPort
             .findById(categoryCreateRequest.id())
             .orElseThrow(
                 () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
@@ -110,7 +109,7 @@ public class DomainHabitService implements HabitService {
     categoryToBeLinked.getHabits().add(habitToLinkCategory);
 
     habitRepositoryPort.save(habitToLinkCategory);
-    categoryRepository.save(categoryToBeLinked);
+    categoryRepositoryPort.save(categoryToBeLinked);
   }
 
   private HabitResponse mapToResponse(Habit habit) {

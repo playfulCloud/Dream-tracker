@@ -10,7 +10,6 @@ import java.util.UUID;
 public interface GoalService {
     GoalResponse createGoal(GoalRequest goalRequest);
     boolean delete(UUID id);
-    boolean existsById(UUID id);
     GoalResponse updateGoal(UUID id, GoalRequest goalRequest);
     Page<GoalResponse> getAllUserGoals();
     void associateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest);
