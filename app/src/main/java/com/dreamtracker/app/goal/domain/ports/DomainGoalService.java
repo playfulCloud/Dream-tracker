@@ -3,7 +3,8 @@ package com.dreamtracker.app.goal.domain.ports;
 import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
-import com.dreamtracker.app.habit.domain.ports.HabitRepository;
+import com.dreamtracker.app.infrastructure.repository.GoalRepository;
+import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
@@ -20,12 +21,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Data
-public class GoalServiceImpl implements GoalService {
+public class DomainGoalService implements GoalService {
 
   private final GoalRepository goalRepository;
   private final UserService userService;
   private final CurrentUserProvider currentUserProvider;
-  private final HabitRepository habitRepository;
+  private final SpringDataHabitRepository springDataHabitRepository;
 
   @Override
   public GoalResponse createGoal(GoalRequest goalRequest) {
@@ -98,7 +99,7 @@ public class GoalServiceImpl implements GoalService {
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var habitToBeAdded =
-        habitRepository
+        springDataHabitRepository
             .findById(goalAssignHabitRequest.habitId())
             .orElseThrow(
                 () ->
@@ -108,7 +109,7 @@ public class GoalServiceImpl implements GoalService {
     habitToBeAdded.getGoals().add(goalToAddHabit);
 
     goalRepository.save(goalToAddHabit);
-    habitRepository.save(habitToBeAdded);
+    springDataHabitRepository.save(habitToBeAdded);
   }
 
   @Override

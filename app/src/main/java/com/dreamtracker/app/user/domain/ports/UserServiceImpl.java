@@ -1,5 +1,6 @@
 package com.dreamtracker.app.user.domain.ports;
 
+import com.dreamtracker.app.infrastructure.repository.UserRepository;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.config.CurrentUserProvider;

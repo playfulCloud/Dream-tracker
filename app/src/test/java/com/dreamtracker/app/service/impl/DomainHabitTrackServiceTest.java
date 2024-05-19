@@ -6,13 +6,13 @@ import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
-import com.dreamtracker.app.habit.domain.ports.HabitTrackServiceImpl;
+import com.dreamtracker.app.habit.domain.ports.DomainHabitTrackService;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
-import com.dreamtracker.app.habit.domain.ports.HabitRepository;
-import com.dreamtracker.app.habit.domain.ports.HabitTrackRepository;
+import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
+import com.dreamtracker.app.infrastructure.repository.HabitTrackRepository;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -30,12 +30,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
+class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
 
   private HabitTrackService habitTrackService;
   private final HabitTrackRepository habitTrackRepository =
       Mockito.mock(HabitTrackRepository.class);
-  private final HabitRepository habitRepository = Mockito.mock(HabitRepository.class);
+  private final SpringDataHabitRepository springDataHabitRepository = Mockito.mock(SpringDataHabitRepository.class);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private Clock fixedClock;
   private Habit sampleHabit;
@@ -45,7 +45,7 @@ class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
     sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     habitTrackService =
-        new HabitTrackServiceImpl(habitTrackRepository, habitRepository, fixedClock);
+        new DomainHabitTrackService(habitTrackRepository, springDataHabitRepository, fixedClock);
   }
 
   @Test
@@ -57,7 +57,7 @@ class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
     var listOfTracks = List.of(sampleHabitTrack);
     var expectedPageItems = List.of(sampleHabitTrackResponse);
     var expectedPage = new Page<HabitTrackResponse>(expectedPageItems);
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(habitTrackRepository.findByHabitUUID(sampleHabit.getId())).thenReturn(listOfTracks);
     // when
     var actualPageResponse = habitTrackService.getAllTracksOfHabit(sampleHabit.getId());
@@ -69,7 +69,7 @@ class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
   void getAllTracksOfHabitEmptyPage() {
     // given
     var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
     // when
     var actualPageResponse = habitTrackService.getAllTracksOfHabit(sampleHabit.getId());
     // then
@@ -83,7 +83,7 @@ class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
     var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).build();
     var expectedHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
     var sampleHabitTrackRequest = getSampleHabitTrackRequest(sampleHabit.getId()).build();
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(habitTrackRepository.save(
             HabitTrack.builder()
                 .habitUUID(sampleHabit.getId())
@@ -101,7 +101,7 @@ class HabitTrackServiceImplTest implements HabitFixture, HabitTrackFixture {
   void trackTheHabitEntityNotFoundException() {
     // given
     var sampleHabitTrackRequest = getSampleHabitTrackRequest(sampleHabit.getId()).build();
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    when(springDataHabitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
     // when
     assertThatThrownBy(() -> habitTrackService.trackTheHabit(sampleHabitTrackRequest))
         // then

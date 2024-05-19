@@ -5,18 +5,19 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
+import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
-import com.dreamtracker.app.habit.domain.ports.HabitServiceImpl;
+import com.dreamtracker.app.habit.domain.ports.DomainHabitService;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
-import com.dreamtracker.app.habit.domain.ports.CategoryRepository;
-import com.dreamtracker.app.habit.domain.ports.HabitRepository;
-import com.dreamtracker.app.habit.domain.ports.HabitTrackRepository;
+import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
+import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
+import com.dreamtracker.app.infrastructure.repository.HabitTrackRepository;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -35,10 +36,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class HabitServiceImplTest
+class DomainHabitServiceTest
     implements HabitFixture, HabitTrackFixture, UserFixtures, CategoryFixtures {
 
-  private final HabitRepository habitRepository = Mockito.mock(HabitRepository.class);
+  private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
   private final HabitTrackRepository habitTrackRepository =
       Mockito.mock(HabitTrackRepository.class);
   private final UserService userService = Mockito.mock(UserService.class);
@@ -53,8 +54,8 @@ class HabitServiceImplTest
     fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
     habitService =
-        new HabitServiceImpl(
-            habitRepository,
+        new DomainHabitService(
+                habitRepositoryPort,
             currentUserProvider,
             userService,
             categoryRepository,
@@ -69,7 +70,7 @@ class HabitServiceImplTest
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var expectedOutput = true;
-    when(habitRepository.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
+    when(habitRepositoryPort.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
     // when
     var actualOutput = habitService.delete(sampleHabit.getId());
     // then
@@ -81,7 +82,7 @@ class HabitServiceImplTest
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var expectedOutput = false;
-    when(habitRepository.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
+    when(habitRepositoryPort.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
     // when
     var actualOutput = habitService.delete(sampleHabit.getId());
     // then
@@ -121,7 +122,7 @@ class HabitServiceImplTest
   void getAllUserHabitsPositiveTestCase() {
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-    when(habitRepository.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(sampleHabit));
+    when(habitRepositoryPort.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(sampleHabit));
     var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).build();
     var expectedResponsePageItems = List.of(sampleHabitResponse);
     var expectedResponsePage = new Page<HabitResponse>(expectedResponsePageItems);
@@ -135,7 +136,7 @@ class HabitServiceImplTest
   void getAllUserHabitsEmptyList() {
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-    when(habitRepository.findByUserUUID(sampleHabit.getUserUUID())).thenReturn(new ArrayList<>());
+    when(habitRepositoryPort.findByUserUUID(sampleHabit.getUserUUID())).thenReturn(new ArrayList<>());
     // when
     var actualResponsePage = habitService.getAllUserHabits();
     // then
@@ -149,8 +150,8 @@ class HabitServiceImplTest
     var sampleUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
     var updatedHabit = getSampleUpdatedHabitBuilder(sampleUser.getUuid()).build();
     var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().build();
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
-    when(habitRepository.save(updatedHabit)).thenReturn(updatedHabit);
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(habitRepositoryPort.save(updatedHabit)).thenReturn(updatedHabit);
     // when
     var actualOutput = habitService.updateHabit(sampleHabit.getId(), sampleUpdateRequest);
     // then
@@ -163,8 +164,8 @@ class HabitServiceImplTest
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var sampleUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
     var updatedHabit = getSampleUpdatedHabitBuilder(sampleUser.getUuid()).build();
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
-    when(habitRepository.save(updatedHabit)).thenReturn(updatedHabit);
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    when(habitRepositoryPort.save(updatedHabit)).thenReturn(updatedHabit);
     // when
     assertThatThrownBy(() -> habitService.updateHabit(sampleHabit.getId(), sampleUpdateRequest))
         // then
@@ -180,7 +181,7 @@ class HabitServiceImplTest
     var habitCategoryRequest =
         HabitCategoryCreateRequest.builder().id(sampleCategory.getId()).build();
 
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(categoryRepository.findById(habitCategoryRequest.id()))
         .thenReturn(Optional.of(sampleCategory));
     // when
@@ -200,7 +201,7 @@ class HabitServiceImplTest
     var habitCategoryRequest =
         HabitCategoryCreateRequest.builder().id(sampleCategory.getId()).build();
 
-    when(habitRepository.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
     assertThatThrownBy(
             // when
             () -> habitService.linkCategoryWithHabit(sampleHabit.getId(), habitCategoryRequest))

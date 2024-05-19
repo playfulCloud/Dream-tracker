@@ -5,6 +5,8 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
+import com.dreamtracker.app.infrastructure.repository.HabitTrackRepository;
+import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 
 import java.time.Clock;
@@ -16,10 +18,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class HabitTrackServiceImpl implements HabitTrackService {
+public class DomainHabitTrackService implements HabitTrackService {
 
   private final HabitTrackRepository habitTrackRepository;
-  private final HabitRepository habitRepository;
+  private final SpringDataHabitRepository springDataHabitRepository;
   private final Clock clock;
 
 
@@ -35,7 +37,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
   public HabitTrackResponse trackTheHabit(HabitTrackingRequest habitTrackingRequest) {
 
     var habitToUpdateTracking =
-        habitRepository
+        springDataHabitRepository
             .findById(habitTrackingRequest.habitId())
             .orElseThrow(
                 () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));

@@ -1,4 +1,4 @@
-package com.dreamtracker.app.habit.domain.ports;
+package com.dreamtracker.app.infrastructure.repository;
 
 import com.dreamtracker.app.habit.domain.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
