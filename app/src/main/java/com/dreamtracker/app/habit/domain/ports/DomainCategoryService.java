@@ -5,7 +5,6 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.adapters.api.CategoryRequest;
 import com.dreamtracker.app.habit.adapters.api.CategoryResponse;
-import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Data
 public class DomainCategoryService implements CategoryService {
 
-  private final CategoryRepository categoryRepository;
+  private final CategoryRepositoryPort categoryRepositoryPort;
   private final UserService userService;
   private final CurrentUserProvider currentUserProvider;
 
@@ -39,14 +38,14 @@ public class DomainCategoryService implements CategoryService {
             .habits(new ArrayList<>())
             .build();
 
-    var categorySavedToDB = categoryRepository.save(categoryToCreate);
+    var categorySavedToDB = categoryRepositoryPort.save(categoryToCreate);
     return mapToResponse(categorySavedToDB);
   }
 
   @Override
   public boolean delete(UUID id) {
-    if (categoryRepository.existsById(id)) {
-      categoryRepository.deleteById(id);
+    if (categoryRepositoryPort.existsById(id)) {
+      categoryRepositoryPort.deleteById(id);
       return true;
     }
     return false;
@@ -55,19 +54,19 @@ public class DomainCategoryService implements CategoryService {
   @Override
   public CategoryResponse updateCategory(UUID id, CategoryRequest categoryRequest) {
     var foundCategory =
-        categoryRepository
+        categoryRepositoryPort
             .findById(id)
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     Optional.ofNullable(categoryRequest.name()).ifPresent(foundCategory::setName);
-    var categorySaveToDB = categoryRepository.save(foundCategory);
+    var categorySaveToDB = categoryRepositoryPort.save(foundCategory);
     return mapToResponse(categorySaveToDB);
   }
 
   @Override
   public Page<CategoryResponse> getAllUserCategories() {
-    var listOfCategories = categoryRepository.findByUserUUID(currentUserProvider.getCurrentUser());
+    var listOfCategories = categoryRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfCategoryResponses = listOfCategories.stream().map(this::mapToResponse).toList();
     var categoryResponsePage = new Page<CategoryResponse>(listOfCategoryResponses);
     return categoryResponsePage;

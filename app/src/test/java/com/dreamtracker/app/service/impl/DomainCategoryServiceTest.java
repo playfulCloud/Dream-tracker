@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.habit.domain.model.Category;
+import com.dreamtracker.app.habit.domain.ports.CategoryRepositoryPort;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.habit.domain.ports.DomainCategoryService;
@@ -12,7 +13,6 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
-import com.dreamtracker.app.infrastructure.repository.CategoryRepository;
 import com.dreamtracker.app.habit.adapters.api.CategoryResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -30,7 +30,7 @@ import org.mockito.Mockito;
 class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
 
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
-  private final CategoryRepository categoryRepository = Mockito.mock(CategoryRepository.class);
+  private final CategoryRepositoryPort categoryRepositoryPort = Mockito.mock(CategoryRepositoryPort.class);
   private final UserService userService = Mockito.mock(UserService.class);
   private User sampleUser;
   private CategoryService categoryService;
@@ -38,7 +38,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   @BeforeEach
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
-    categoryService = new DomainCategoryService(categoryRepository, userService, currentUserProvider);
+    categoryService = new DomainCategoryService(categoryRepositoryPort, userService, currentUserProvider);
   }
 
   @Test
@@ -48,7 +48,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
     when(userService.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
-    when(categoryRepository.save(
+    when(categoryRepositoryPort.save(
             Category.builder()
                 .name(sampleCategoryRequest.name())
                 .userUUID(sampleUser.getUuid())
@@ -79,7 +79,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   @Test
   void deleteTestPositiveCase() {
     // given
-    when(categoryRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
+    when(categoryRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
     var expected = true;
     // when
     var actual = categoryService.delete(currentUserProvider.getCurrentUser());
@@ -90,7 +90,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   @Test
   void deleteTestNegativeCase() {
     // given
-    when(categoryRepository.existsById(currentUserProvider.getCurrentUser())).thenReturn(false);
+    when(categoryRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(false);
     var expected = false;
     // when
     var actual = categoryService.delete(currentUserProvider.getCurrentUser());
@@ -105,9 +105,9 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
     var expectedCategoryOutput = getExpectedUpdatedCategoryResponseBuilder().build();
     var sampleCategory = getSampleCategoryBuilder(sampleUser.getUuid()).build();
     var sampleUpdatedCategory = getSampleUpdatedCategoryBuilder(sampleCategory.getId()).build();
-    when(categoryRepository.findById(sampleCategory.getId()))
+    when(categoryRepositoryPort.findById(sampleCategory.getId()))
         .thenReturn(Optional.of(sampleCategory));
-    when(categoryRepository.save(sampleCategory)).thenReturn(sampleUpdatedCategory);
+    when(categoryRepositoryPort.save(sampleCategory)).thenReturn(sampleUpdatedCategory);
     // when
     var actual = categoryService.updateCategory(sampleCategory.getId(), sampleCategoryRequest);
     // then
@@ -118,7 +118,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   void updateCategoryEntityNotFoundException() {
     // given
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    when(categoryRepository.findById(currentUserProvider.getCurrentUser()))
+    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.empty());
     assertThatThrownBy(
             () -> // when
@@ -144,7 +144,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
     when(userService.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
 
-    when(categoryRepository.findByUserUUID(sampleUser.getUuid()))
+    when(categoryRepositoryPort.findByUserUUID(sampleUser.getUuid()))
         .thenReturn(List.of(sampleCategoryForPage));
     // when
     var actualPageResponse = categoryService.getAllUserCategories();
@@ -155,7 +155,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   @Test
   void getAllUserCategoriesEmptyPage() {
     // given
-    when(categoryRepository.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
+    when(categoryRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
     // when
     var actualPageResponse =  categoryService.getAllUserCategories();
     //then
