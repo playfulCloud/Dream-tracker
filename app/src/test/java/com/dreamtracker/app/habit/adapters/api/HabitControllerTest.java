@@ -18,9 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -72,5 +70,22 @@ class HabitControllerTest implements UserFixtures, HabitFixture {
     );
     assertThat(actualPageResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(actualPageResponse.getBody().getItems().get(0)).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedHabitResponse);
+  }
+
+  @Test
+  void updateHabitPositiveTestCase(){
+    var habitToUpdated = restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class).getBody();
+    var habitUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
+    var updatedHabit = getSampleUpdatedHabitResponseBuilder().build();
+    HttpEntity<HabitRequest> requestEntity = new HttpEntity<>(habitUpdateRequest);
+    ResponseEntity<HabitResponse> updated = restTemplate.exchange(
+            BASE_URL + "/habits/" + habitToUpdated.id().toString(),
+            HttpMethod.PUT,
+            requestEntity,
+            HabitResponse.class);
+    System.out.println(updated);
+    assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(updated.getBody()).usingRecursiveComparison().ignoringFields("id").isEqualTo(updatedHabit);
   }
 }
