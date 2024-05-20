@@ -15,7 +15,7 @@ import java.util.UUID;
 @Component
 public class PostgresHabitRepository implements HabitRepositoryPort {
 
-   SpringDataHabitRepository springDataHabitRepository;
+   private final SpringDataHabitRepository springDataHabitRepository;
 
 
     @Override

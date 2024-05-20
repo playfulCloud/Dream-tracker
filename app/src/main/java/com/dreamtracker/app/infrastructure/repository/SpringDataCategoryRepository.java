@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 
-@Repository
 public interface SpringDataCategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findByUserUUID(UUID id);
 }
