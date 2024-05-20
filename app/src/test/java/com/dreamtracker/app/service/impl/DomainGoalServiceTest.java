@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
+import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
@@ -15,13 +16,12 @@ import com.dreamtracker.app.goal.domain.fixtures.GoalFixtures;
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
-import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
-import com.dreamtracker.app.user.domain.ports.UserService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +35,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
 
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final GoalRepositoryPort goalRepositoryPort = Mockito.mock(GoalRepositoryPort.class);
-  private final UserService userService = Mockito.mock(UserService.class);
+  private final SpringDataUserRepository springDataUserRepository = Mockito.mock(SpringDataUserRepository.class);
   private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
   private User sampleUser;
   private GoalService goalService;
@@ -44,7 +44,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
     goalService =
-        new DomainGoalService(goalRepositoryPort, userService, currentUserProvider, habitRepositoryPort);
+        new DomainGoalService(goalRepositoryPort, springDataUserRepository, currentUserProvider, habitRepositoryPort);
   }
 
   @Test
@@ -52,7 +52,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     // given
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
     var sampleGoalRequest = getSampleGoalRequestBuilder().build();
-    when(userService.findById(currentUserProvider.getCurrentUser()))
+    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
     when(goalRepositoryPort.save(
             Goal.builder()
@@ -73,7 +73,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   void createGoalEntityNotFoundException() {
     // given
     var sampleGoalRequest = getSampleGoalRequestBuilder().build();
-    when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
+    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
     // when
     assertThatThrownBy(() -> goalService.createGoal(sampleGoalRequest))
         // then
@@ -143,7 +143,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
                 .duration(sampleGoalForPage.getDuration())
                 .build());
     var expectedPage = new Page<GoalResponse>(expectedPageItems);
-    when(userService.findById(currentUserProvider.getCurrentUser()))
+    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
     when(goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(List.of(sampleGoalForPage));
     // when

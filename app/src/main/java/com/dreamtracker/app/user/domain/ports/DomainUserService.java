@@ -1,6 +1,6 @@
 package com.dreamtracker.app.user.domain.ports;
 
-import com.dreamtracker.app.infrastructure.repository.UserRepository;
+import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -10,17 +10,13 @@ import java.util.UUID;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
-@Service
 @Data
-public class UserServiceImpl implements UserService {
+public class DomainUserService implements UserService {
 
-  private final UserRepository userRepository;
+  private final UserRepositoryPort userRepositoryPort;
   private final CurrentUserProvider currentUserProvider;
 
-  @Override
-  public User save(User user) {
-    return userRepository.save(user);
-  }
+
 
   @Override
   public UserResponse createSampleUser() {
@@ -31,7 +27,7 @@ public class UserServiceImpl implements UserService {
             .surname("Doe")
             .build();
 
-    var userSavedToDB = save(sampleUser);
+    var userSavedToDB = userRepositoryPort.save(sampleUser);
 
     return UserResponse.builder()
         .uuid(userSavedToDB.getUuid())
@@ -42,6 +38,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Optional<User> findById(UUID uuid) {
-    return userRepository.findById(uuid);
+    return userRepositoryPort.findById(uuid);
   }
 }
