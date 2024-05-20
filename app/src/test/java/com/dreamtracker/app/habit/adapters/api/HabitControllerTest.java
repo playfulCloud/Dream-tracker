@@ -26,6 +26,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.List;
+
 
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
@@ -60,13 +62,15 @@ class HabitControllerTest implements UserFixtures, HabitFixture {
   void getAllUserHabitsPositiveTestCase() {
     restTemplate.postForEntity(
             BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class);
-    ResponseEntity<Page<HabitResponse>> userHabits = restTemplate.exchange(
+    var expectedHabitResponse =
+            getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser()).build();
+    ResponseEntity<Page<HabitResponse>> actualPageResponse = restTemplate.exchange(
             BASE_URL + "/habits",
             HttpMethod.GET,
             null,
             new ParameterizedTypeReference<Page<HabitResponse>>() {}
     );
-
-    System.out.println(userHabits);
+    assertThat(actualPageResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(actualPageResponse.getBody().getItems().get(0)).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedHabitResponse);
   }
 }
