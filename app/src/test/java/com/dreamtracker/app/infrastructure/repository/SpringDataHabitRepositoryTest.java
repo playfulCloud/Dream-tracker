@@ -1,5 +1,6 @@
 package com.dreamtracker.app.infrastructure.repository;
 
+import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.habit.adapters.habitDb.PostgresHabitRepository;
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -25,15 +27,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(classes = TestPostgresConfiguration.class)
 class SpringDataHabitRepositoryTest implements HabitFixture {
 
     CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
     @Autowired
     SpringDataHabitRepository springDataHabitRepository;
 
-   @Container
-   @ServiceConnection
-   static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:alpine");
+    @Autowired
+    PostgreSQLContainer<?> postgreSQLContainer;
 
    @Test
    void connectionEstablished(){
