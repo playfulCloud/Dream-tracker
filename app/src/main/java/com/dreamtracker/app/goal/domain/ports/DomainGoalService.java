@@ -7,9 +7,10 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
+import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
-import com.dreamtracker.app.user.domain.ports.UserService;
+
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,14 +22,14 @@ import lombok.Data;
 public class DomainGoalService implements GoalService {
 
   private final GoalRepositoryPort goalRepositoryPort;
-  private final UserService userService;
+  private final SpringDataUserRepository springDataUserRepository;
   private final CurrentUserProvider currentUserProvider;
   private final HabitRepositoryPort habitRepositoryPort;
 
   @Override
   public GoalResponse createGoal(GoalRequest goalRequest) {
     var ownerOfGoal =
-        userService
+        springDataUserRepository
             .findById(currentUserProvider.getCurrentUser())
             .orElseThrow(
                 () ->
@@ -43,7 +44,7 @@ public class DomainGoalService implements GoalService {
             .build();
 
     var goalSavedToDB = goalRepositoryPort.save(goalToCreate);
-    userService.save(ownerOfGoal);
+    springDataUserRepository.save(ownerOfGoal);
     return mapToResponse(goalSavedToDB);
   }
 
