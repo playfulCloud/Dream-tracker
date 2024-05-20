@@ -1,6 +1,10 @@
 package com.dreamtracker.app.infrastructure.repository;
 
 import com.dreamtracker.app.habit.adapters.habitDb.PostgresHabitRepository;
+import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
+import com.dreamtracker.app.user.config.CurrentUserProvider;
+import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.AutoConfigureDataJdbc;
@@ -19,10 +23,13 @@ import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
-@DataJdbcTest
+@DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class SpringDataHabitRepositoryTest {
+class SpringDataHabitRepositoryTest implements HabitFixture {
 
+    CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
+    @Autowired
+    SpringDataHabitRepository springDataHabitRepository;
 
    @Container
    @ServiceConnection
@@ -34,7 +41,19 @@ class SpringDataHabitRepositoryTest {
      assertThat(postgreSQLContainer.isRunning()).isTrue();
    }
 
+   @BeforeEach
+    void setUp(){
+       var habitWithUser = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+       springDataHabitRepository.save(habitWithUser);
+   }
 
+
+    @Test
+    void getListOfUserHabitPositiveTestCase(){
+       var userHabits = springDataHabitRepository.findByUserUUID(currentUserProvider.getCurrentUser());
+       assertThat(userHabits).isNotNull();
+       assertThat(userHabits.size()).isNotEqualTo(0);
+    }
 
 
 }
