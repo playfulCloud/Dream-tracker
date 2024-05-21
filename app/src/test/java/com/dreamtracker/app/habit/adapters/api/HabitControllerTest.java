@@ -88,4 +88,12 @@ class HabitControllerTest implements UserFixtures, HabitFixture {
     assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(updated.getBody()).usingRecursiveComparison().ignoringFields("id").isEqualTo(updatedHabit);
   }
+  @Test
+  void deletePositiveTestCase(){
+    var habitToUpdated = restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class).getBody();
+   restTemplate.delete(BASE_URL + "/habits/" + habitToUpdated.id().toString());
+    ResponseEntity<String> response = restTemplate.getForEntity(BASE_URL + "/habits/" + habitToUpdated.id(), String.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+  }
 }

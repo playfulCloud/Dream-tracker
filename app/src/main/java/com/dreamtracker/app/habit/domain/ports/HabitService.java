@@ -15,4 +15,5 @@ public interface HabitService {
     Page<HabitResponse>getAllUserHabits();
     HabitResponse updateHabit(UUID id,HabitRequest habitRequest);
     void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest);
+    HabitResponse getHabitById(UUID habitUUID);
 }
