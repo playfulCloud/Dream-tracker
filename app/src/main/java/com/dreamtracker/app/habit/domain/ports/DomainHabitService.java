@@ -112,6 +112,12 @@ public class DomainHabitService implements HabitService {
     categoryRepositoryPort.save(categoryToBeLinked);
   }
 
+  @Override
+  public HabitResponse getHabitById(UUID habitUUID) {
+    var foundHabit = habitRepositoryPort.findById(habitUUID).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    return mapToResponse(foundHabit);
+  }
+
   private HabitResponse mapToResponse(Habit habit) {
     return HabitResponse.builder()
         .id(habit.getId())

@@ -59,5 +59,8 @@ public class HabitController {
     habitService.linkCategoryWithHabit(id,habitCategoryCreateRequest);
     return ResponseEntity.noContent().build();
   }
-
+   @GetMapping("/habits/{habit-id}")
+  public ResponseEntity<HabitResponse>getHabitById(@PathVariable("habit-id") UUID id){
+      return new ResponseEntity<>(habitService.getHabitById(id),HttpStatus.OK);
+   }
 }
