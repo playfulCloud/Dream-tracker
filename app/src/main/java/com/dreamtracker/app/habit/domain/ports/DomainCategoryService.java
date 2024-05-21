@@ -24,17 +24,11 @@ public class DomainCategoryService implements CategoryService {
 
   @Override
   public CategoryResponse createCategory(CategoryRequest categoryRequest) {
-    var ownerOfCategory =
-        userService
-            .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     var categoryToCreate =
         Category.builder()
             .name(categoryRequest.name())
-            .userUUID(ownerOfCategory.getUuid())
+            .userUUID(currentUserProvider.getCurrentUser())
             .habits(new ArrayList<>())
             .build();
 
