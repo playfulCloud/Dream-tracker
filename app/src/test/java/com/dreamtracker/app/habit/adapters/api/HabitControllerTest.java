@@ -3,6 +3,7 @@ package com.dreamtracker.app.habit.adapters.api;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
+import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -30,7 +31,7 @@ import java.util.List;
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class HabitControllerTest implements UserFixtures, HabitFixture {
+class HabitControllerTest implements UserFixtures, HabitFixture, CategoryFixtures {
 
   @Autowired
   PostgreSQLContainer<?> postgreSQLContainer;
@@ -95,5 +96,19 @@ class HabitControllerTest implements UserFixtures, HabitFixture {
    restTemplate.delete(BASE_URL + "/habits/" + habitToUpdated.id().toString());
     ResponseEntity<String> response = restTemplate.getForEntity(BASE_URL + "/habits/" + habitToUpdated.id(), String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+  }
+
+  @Test
+  void linkHabitWithCategoryPositiveTestCase(){
+    var categoryToBeLinked = getSampleCategoryRequestBuilder().build();
+    var createdCategory = restTemplate.postForEntity(BASE_URL+"/category",categoryToBeLinked,CategoryResponse.class);
+    var habitToUpdated = restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class).getBody();
+    var test =
+        restTemplate.postForEntity(
+            BASE_URL + "/habits/" + habitToUpdated.id().toString() + "/categories",
+            HabitCategoryCreateRequest.builder().id(createdCategory.getBody().id()).build(),
+            null);
+    assertThat(test.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
   }
 }

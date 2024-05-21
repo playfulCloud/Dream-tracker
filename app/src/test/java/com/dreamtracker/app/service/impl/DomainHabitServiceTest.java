@@ -4,8 +4,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.domain.ports.*;
+import com.dreamtracker.app.habit.domain.utils.HabitStatus;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
@@ -57,8 +59,24 @@ class DomainHabitServiceTest
                 habitTrackRepositoryPort);
   }
 
-  @Test
-  void findHabitById() {}
+ @Test
+ void createHabitPositiveTestCase(){
+    var habitRequest = getSampleHabitRequestBuilder().build();
+    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var expectedHabitResponse = getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser()).build();
+    when(habitRepositoryPort.save(Habit.builder()
+            .name(habitRequest.name())
+            .action(habitRequest.action())
+            .duration(habitRequest.duration())
+            .difficulty(habitRequest.difficulty())
+            .status(HabitStatus.ACTIVE.toString())
+            .categories(new ArrayList<>())
+            .goals(new ArrayList<>())
+            .userUUID(currentUserProvider.getCurrentUser())
+            .build())).thenReturn(habit);
+    var actualHabitResponse = habitService.createHabit(habitRequest);
+    assertThat(expectedHabitResponse).isEqualTo(actualHabitResponse);
+ }
 
   @Test
   void deletePositiveTestCase() {
