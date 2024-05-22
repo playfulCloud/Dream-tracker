@@ -136,7 +136,7 @@ class HabitControllerTest
   @Test
   void deletePositiveTestCase(){
     // given
-    var habitToUpdated =
+    var habitToDelete =
         restTemplate
             .postForEntity(
                 BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class)
@@ -146,7 +146,7 @@ class HabitControllerTest
     // when
     var deleted =
         restTemplate.exchange(
-            BASE_URL + "/habits/" + habitToUpdated.id().toString(),
+            BASE_URL + "/habits/" + habitToDelete.id().toString(),
             HttpMethod.DELETE,
             entity,
             Void.class);
