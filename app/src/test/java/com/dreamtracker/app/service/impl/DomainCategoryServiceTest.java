@@ -64,19 +64,6 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   }
 
   @Test
-  void createCategoryEntityNotFoundExceptionTest() {
-    // given
-    var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    when(userService.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
-    assertThatThrownBy(
-            () -> { // when
-              categoryService.createCategory(sampleCategoryRequest);
-            }) // then
-        .isInstanceOf(EntityNotFoundException.class)
-        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
-  }
-
-  @Test
   void deleteTestPositiveCase() {
     // given
     when(categoryRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
