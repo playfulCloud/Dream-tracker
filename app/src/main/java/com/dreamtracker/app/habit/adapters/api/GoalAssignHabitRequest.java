@@ -1,5 +1,7 @@
 package com.dreamtracker.app.habit.adapters.api;
 
-import java.util.UUID;
+import lombok.Builder;
 
+import java.util.UUID;
+@Builder
 public record GoalAssignHabitRequest(UUID habitId, int completionCount) {}
