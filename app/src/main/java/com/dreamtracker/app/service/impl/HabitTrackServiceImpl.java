@@ -20,6 +20,7 @@ public class HabitTrackServiceImpl implements HabitTrackService {
 
     @Override
     public Optional<HabitTrack> save(HabitTrack habitTrack) {
+        System.out.println("tests");
         return Optional.of(habitTrackRepository.save(habitTrack));
     }
 
