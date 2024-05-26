@@ -11,8 +11,8 @@ import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.dreamtracker.app.user.domain.ports.UserService;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -24,6 +24,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,9 +33,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Autowired
   PostgreSQLContainer<?> postgreSQLContainer;
+  @Autowired
+  UserService userService;
   private final String BASE_URL = "/v1";
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final String wrongUUID = "134cc20c-5f9b-4942-9a13-e23513a26cbb";
@@ -43,9 +47,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
 
   @BeforeEach
   void setUp() {
-    // populating database with initial user need to performing habit operations
-    // in same test there is also call to create a goal it is also needed to perform testing
-    restTemplate.postForEntity(BASE_URL + "/seed", null, User.class);
+    userService.createSampleUser();
   }
 
   @Test
@@ -84,6 +86,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   }
 
   @Test
+  @Order(1)
   void getAllUserHabitsEmptyPage() {
     // given
     // when
@@ -95,7 +98,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
                     new ParameterizedTypeReference<Page<GoalResponse>>() {});
     // then
     assertThat(actualPageResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(actualPageResponse.getBody().getItems().size()).isEqualTo(0);
+    assertThat(actualPageResponse.getBody()).isEqualTo(new Page<GoalResponse>(new ArrayList<>()));
   }
 
 

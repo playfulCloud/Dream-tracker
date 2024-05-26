@@ -12,8 +12,9 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import com.dreamtracker.app.user.domain.ports.UserService;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -26,12 +27,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class HabitControllerTest
     implements UserFixtures, HabitFixture, CategoryFixtures, HabitTrackFixture {
 
   @Autowired
   PostgreSQLContainer<?> postgreSQLContainer;
-
+  @Autowired
+  UserService userService;
   private final String BASE_URL = "/v1";
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final String wrongUUID = "134cc20c-5f9b-4942-9a13-e23513a26cbb";
@@ -39,9 +42,7 @@ class HabitControllerTest
 
   @BeforeEach
   void setUp() {
-    // populating database with initial user need to performing habit operations
-    // in same test there is also call to create a habit it is also needed to perform testing
-    restTemplate.postForEntity(BASE_URL + "/seed", null, User.class);
+    userService.createSampleUser();
   }
 
   @Test
@@ -79,6 +80,7 @@ class HabitControllerTest
   }
 
   @Test
+  @Order(1)
   void getAllUserHabitsEmptyPage() {
     // given
     // when
@@ -176,7 +178,8 @@ class HabitControllerTest
   void linkHabitWithCategoryPositiveTestCase(){
     // given
     var categoryToBeLinked = getSampleCategoryRequestBuilder().build();
-    var createdCategory = restTemplate.postForEntity(BASE_URL+"/category",categoryToBeLinked,CategoryResponse.class);
+    var createdCategory = restTemplate.postForEntity(BASE_URL+"/categories",categoryToBeLinked,CategoryResponse.class);
+    System.out.println(createdCategory);
     var habitToLink =
         restTemplate
             .postForEntity(
@@ -198,7 +201,7 @@ class HabitControllerTest
     var categoryToBeLinked = getSampleCategoryRequestBuilder().build();
     var createdCategory =
         restTemplate.postForEntity(
-            BASE_URL + "/category", categoryToBeLinked, CategoryResponse.class);
+            BASE_URL + "/categories", categoryToBeLinked, CategoryResponse.class);
     var habitToLink =
         restTemplate
             .postForEntity(

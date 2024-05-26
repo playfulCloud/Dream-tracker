@@ -28,23 +28,16 @@ public class DomainGoalService implements GoalService {
 
   @Override
   public GoalResponse createGoal(GoalRequest goalRequest) {
-    var ownerOfGoal =
-        springDataUserRepository
-            .findById(currentUserProvider.getCurrentUser())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     var goalToCreate =
         Goal.builder()
             .name(goalRequest.name())
             .duration(goalRequest.duration())
             .habitList(new ArrayList<>())
-            .userUUID(ownerOfGoal.getUuid())
+            .userUUID(currentUserProvider.getCurrentUser())
             .build();
 
     var goalSavedToDB = goalRepositoryPort.save(goalToCreate);
-    springDataUserRepository.save(ownerOfGoal);
     return mapToResponse(goalSavedToDB);
   }
 

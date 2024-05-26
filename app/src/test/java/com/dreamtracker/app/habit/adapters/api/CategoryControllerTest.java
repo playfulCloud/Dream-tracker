@@ -5,12 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
+import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.dreamtracker.app.user.domain.ports.UserService;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -20,15 +21,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlGroup;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.ArrayList;
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CategoryControllerTest implements CategoryFixtures {
   @Autowired
   PostgreSQLContainer<?> postgreSQLContainer;
+  @Autowired
+  UserService userService;
   private final String BASE_URL = "/v1";
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final String wrongUUID = "134cc20c-5f9b-4942-9a13-e23513a26cbb";
@@ -36,9 +43,25 @@ class CategoryControllerTest implements CategoryFixtures {
 
   @BeforeEach
   void setUp() {
-    // populating database with initial user need to performing habit operations
-    // in some test there is also call to create a category it is also needed to perform testing
-    restTemplate.postForEntity(BASE_URL + "/seed", null, User.class);
+    userService.createSampleUser();
+  }
+
+  @Test
+  @Order(1)
+  void getAllUserCategoriesEmptyPage() {
+    // given
+    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentUser());
+    // when
+    var actualPageResponse =
+            restTemplate.exchange(
+                    BASE_URL + "/categories",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Page<CategoryResponse>>() {});
+    // then
+    assertThat(actualPageResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(actualPageResponse.getBody())
+            .isEqualTo(new Page<CategoryResponse>(new ArrayList<>()));
   }
 
   @Test
@@ -82,24 +105,7 @@ class CategoryControllerTest implements CategoryFixtures {
         .isEqualTo(expectedCategoryResponse);
   }
 
-  @Test
-  void getAllUserCategoriesEmptyPage() {
-    // given
-    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentUser());
-    // when
-    var actualPageResponse =
-        restTemplate.exchange(
-            BASE_URL + "/categories",
-            HttpMethod.GET,
-            null,
-            new ParameterizedTypeReference<Page<CategoryResponse>>() {});
-    // then
-    assertThat(actualPageResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(actualPageResponse.getBody().getItems().get(0))
-        .usingRecursiveComparison()
-        .ignoringFields("id")
-        .isEqualTo(expectedCategoryResponse);
-  }
+
 
   @Test
   void updateCategoryPositiveTestCase() {
