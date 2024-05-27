@@ -28,22 +28,29 @@ The main reason to implement that kind of architecture is to make view as respon
 *** 
 ### 5. Description:
 `Trend Indicator`: <br>
-**Input**: list of habit tracks <br> 
+**Input**: list of habit tracks. <br> 
 **Output**: TrendIndicator ENUM ex. RISING, FALLING, POSITIVE STAGNATION, NEGATIVE STAGNATION.
 
 `Streak`:<br>
-**Input**: list of habit tracks <br>
-**Output**: StreakResponse object  ex. StreakResponse: { longest: 10, actual: 2 }
+**Input**: list of habit tracks. <br>
+**Output**: StreakResponse object  ex. StreakResponse: { longest: 10, actual: 2 }.
 
 `Depending on day`: <br>
-**Input**: list of habit tracks <br>
-**Output**: DependingOnDayResponse ex.  DependingOnDayResponse: { monday: 10.0, tuesday: 29.9, wednesday: 0.9, thursday: 39.2, friday: 100.0, Saturday: 0.0, Sunday: 0.0}
+**Input**: list of habit tracks. <br>
+**Output**: DependingOnDayResponse ex.  DependingOnDayResponse: { monday: 10.0, tuesday: 29.9, wednesday: 0.9, thursday: 39.2, friday: 100.0, Saturday: 0.0, Sunday: 0.0}.
 
 `Average break duration`: <br>
-**Input**: list of habit tracks <br>
-**Output**: Double value ex. 5.91
+**Input**: list of habit tracks. <br>
+**Output**: Double value ex. 5.91.
 
 `Daily completion count`: <br>
-**Input**: list of habit tracks <br>
-**Output**: DayCompletionCountResponse 
+**Input**: list of habit tracks. <br>
+**Output**: DayCompletionCountResponse.
+
+* `Partial completion percent`: <br>
+**Input**: int of habit actual count.
+**Output**: double of percent of completion. 
+* `Goal Completion percent` - : <br>
+**Input**: int of sum of every actual completion count and completion count.
+**Output**: double of percent of completion for whole goal.
 
