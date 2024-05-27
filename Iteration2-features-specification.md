@@ -13,6 +13,7 @@
 ***
 ### 3. View: 
 
+
 ### 4. Justification:
 Iteration2 is the extension to already implemented entries like habit track and goal completion.  `Streak` and `Daily completion count` enhances user to continue to perform based on motivation factor in the other hand the rest of stats indicators giving the user information how he is performing
 in specified time interval which can be crucial in adjust optimal strategy for habit completion and achieving goals. 
@@ -37,3 +38,4 @@ in specified time interval which can be crucial in adjust optimal strategy for h
 `Daily completion count`: <br>
 **Input**: list of habit tracks <br>
 **Output**: DayCompletionCountResponse 
+
