@@ -11,12 +11,20 @@
 * `Partial completion percent` - percent of completion of habit associated with goal.
 * `Goal Completion percent` - percent of whole goal completion.
 ***
-### 3. View: 
-
+### 3. View:
+Mock architecture is located in observerTesting project directory. 
+![Hellera-26.jpg](Hellera-26.jpg)
+#### 3.1 Architecture description:
+Architecture is based on observer design pattern. The is view observable and Stats Components are observer.Whenever user tracks the habit it calls view 
+notifying process which creates separate thread to call update method on all descendants of StatsComponent. Update method generate  ComponentResponseContainer  which is parent class of all those reponses written in 5. Description part
+All those containers can be shipped straight into the fronted off the app through the some kind of page object.
 
 ### 4. Justification:
 Iteration2 is the extension to already implemented entries like habit track and goal completion.  `Streak` and `Daily completion count` enhances user to continue to perform based on motivation factor in the other hand the rest of stats indicators giving the user information how he is performing
 in specified time interval which can be crucial in adjust optimal strategy for habit completion and achieving goals. 
+
+#### 4.1 Architecture justification:
+The main reason to implement that kind of architecture is to make view as responsive as possible and lower the amount of db calls. This approach fetches really specified amount of data(only component added to view) on demand with saving anything to database. In theory the whole time of the operation is time need for the longest StatsComponent update operation.
 *** 
 ### 5. Description:
 `Trend Indicator`: <br>
