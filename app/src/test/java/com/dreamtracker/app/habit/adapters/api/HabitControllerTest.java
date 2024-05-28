@@ -10,10 +10,8 @@ import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
-import com.dreamtracker.app.user.domain.model.User;
-import java.util.UUID;
-
 import com.dreamtracker.app.user.domain.ports.UserService;
+import java.util.UUID;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

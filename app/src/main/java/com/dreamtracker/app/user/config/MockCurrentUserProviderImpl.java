@@ -1,8 +1,7 @@
 package com.dreamtracker.app.user.config;
 
-import org.springframework.stereotype.Service;
-
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MockCurrentUserProviderImpl implements CurrentUserProvider {

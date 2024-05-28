@@ -13,7 +13,7 @@
 ***
 ### 3. View:
 Mock architecture is located in observerTesting project directory. 
-![Hellera-26.jpg](Hellera-26.jpg)
+![Hellera-27.jpg](Hellera-27.jpg)
 #### 3.1 Architecture description:
 Architecture is based on observer design pattern. The is view observable and Stats Components are observer.Whenever user tracks the habit it calls view 
 notifying process which creates separate thread to call update method on all descendants of StatsComponent. Update method generate  ComponentResponseContainer  which is parent class of all those reponses written in 5. Description part

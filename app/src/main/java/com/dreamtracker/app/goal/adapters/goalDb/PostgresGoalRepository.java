@@ -3,13 +3,11 @@ package com.dreamtracker.app.goal.adapters.goalDb;
 import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.infrastructure.repository.SpringDataGoalRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

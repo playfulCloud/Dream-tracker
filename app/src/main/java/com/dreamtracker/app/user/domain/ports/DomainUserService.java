@@ -1,14 +1,11 @@
 package com.dreamtracker.app.user.domain.ports;
 
-import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
-import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
-
+import com.dreamtracker.app.user.domain.model.User;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.Data;
-import org.springframework.stereotype.Service;
 
 @Data
 public class DomainUserService implements UserService {
