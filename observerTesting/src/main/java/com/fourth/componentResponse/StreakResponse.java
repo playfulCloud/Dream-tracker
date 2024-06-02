@@ -1,5 +1,9 @@
 package com.fourth.componentResponse;
 
 public class StreakResponse extends ComponentResponseContainer {
-    boolean extra;
+    private String value;
+
+    public StreakResponse(String value){
+        this.value = value;
+    }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public class MockView implements Observable {
 
     List<StatsComponent>followedStats = new ArrayList<>();
-    List<ComponentResponseContainer> viewOfStats = new ArrayList<>();
+    final List<ComponentResponseContainer> viewOfStats = new ArrayList<>();
 
     @Override
     public boolean addObserver(StatsComponent statsComponent) {
@@ -33,6 +33,8 @@ public class MockView implements Observable {
                 }
             }).start();
         }
+        // this would page sent to api as response
+        viewOfStats.forEach(x -> System.out.println(x.getClass()));
         return true;
     }
 
