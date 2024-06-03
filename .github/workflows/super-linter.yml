@@ -25,12 +25,11 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
+          LINTER_RULES_PATH: .github/workflows
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_JAVA: true
-          LINTER_RULES_PATH: .github/workflows
-          # Disable other linters
           VALIDATE_BASH: false
           VALIDATE_JAVASCRIPT: false
           VALIDATE_PYTHON: false
