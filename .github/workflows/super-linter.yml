@@ -29,6 +29,7 @@ jobs:
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_JAVA: true
+          LINTER_RULES_PATH: .github/workflows
           # Disable other linters
           VALIDATE_BASH: false
           VALIDATE_JAVASCRIPT: false
@@ -60,3 +61,4 @@ jobs:
           VALIDATE_TYPESCRIPT: false
           VALIDATE_XML: false
           VALIDATE_YAML: false
+
