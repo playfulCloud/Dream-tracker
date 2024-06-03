@@ -68,9 +68,6 @@ sequenceDiagram
     actor User
     participant ViewController
     participant ViewService
-    participant ComponentServices
-    participant ComponentAggregatesRepository
-    participant DB
 
     User->>ViewController: POST /views AddToViewRequest
     ViewController->>ViewService: addToView(addToViewRequest)
