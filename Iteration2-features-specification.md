@@ -13,12 +13,43 @@
 ***
 ### 3. View:
 Mock architecture is located in observerTesting project directory. 
-![Hellera-27.jpg](Hellera-27.jpg)
 #### 3.1 Architecture description:
-Architecture is based on observer design pattern. The is view observable and Stats Components are observer.Whenever user tracks the habit it calls view 
-notifying process which creates separate thread to call update method on all descendants of StatsComponent. Update method generate  ComponentResponseContainer  which is parent class of all those reponses written in 5. Description part
-All those containers can be shipped straight into the fronted off the app through the some kind of page object.
+Architecture is based on observer design pattern. The is ViewService observable and ComponentServices are observers.Whenever user tracks the habit it calls view 
+notifying process which creates separate thread to call update method on all descendants of ComponentServices. 
 
+```mermaid
+sequenceDiagram
+    actor User
+    participant HabitController
+    participant HabitService
+    participant ViewService
+    participant ComponentServices
+    participant ComponentAggregatesRepository
+    participant DB
+    
+
+    
+
+
+    User->>HabitController: POST /habits-tracking HabitTrackRequest
+    HabitController->>HabitService: trackTheHabit(HabitTrackRequest)
+    HabitService->>ViewService: notify(HabitTrackRequest)
+    ViewService->>ComponentServices: updateStats(HabitTrackRequest)
+    par Every Component thread: 
+        ComponentServices->>ComponentAggregatesRepository: getCurrrentAggregate()
+        DB-->>ComponentAggregatesRepository: Current data associated with each Component
+        ComponentServices->>ComponentAggregatesRepository: updateCurrentAggreagate()
+        DB-->>ComponentAggregatesRepository: Boolean answer based on success of update operation
+        ComponentAggregatesRepository-->>ComponentServices: ComponentsResponse
+        ComponentServices-->>ViewService: ComponentsResponse
+    end
+    HabitService-->>HabitController: HabitTrackResponse
+    HabitController-->>User: HabitTrackResponse
+    
+
+    
+   
+```
 ### 4. Justification:
 Iteration2 is the extension to already implemented entries like habit track and goal completion.  `Streak` and `Daily completion count` enhances user to continue to perform based on motivation factor in the other hand the rest of stats indicators giving the user information how he is performing
 in specified time interval which can be crucial in adjust optimal strategy for habit completion and achieving goals. 
