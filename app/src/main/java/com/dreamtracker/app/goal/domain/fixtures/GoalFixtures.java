@@ -1,8 +1,8 @@
 package com.dreamtracker.app.goal.domain.fixtures;
 
-import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.goal.adapters.api.GoalRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
+import com.dreamtracker.app.goal.domain.model.Goal;
 import java.util.ArrayList;
 import java.util.UUID;
 

@@ -1,8 +1,8 @@
 package com.dreamtracker.app.goal.adapters.api;
 
+import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.infrastructure.response.Page;
-import com.dreamtracker.app.goal.domain.ports.GoalService;
 import java.util.UUID;
 import lombok.Data;
 import org.springframework.http.HttpStatus;

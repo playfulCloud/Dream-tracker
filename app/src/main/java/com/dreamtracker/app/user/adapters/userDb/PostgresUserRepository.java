@@ -3,12 +3,10 @@ package com.dreamtracker.app.user.adapters.userDb;
 import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

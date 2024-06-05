@@ -5,12 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
-import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
-import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserService;
+import java.util.ArrayList;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,12 +20,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
