@@ -1,38 +1,42 @@
 package com.dreamtracker.app.view.adapters.aggregatesDB;
 
-import com.dreamtracker.app.infrastructure.repository.SpringDataBreaksAggregateRepository;
-import com.dreamtracker.app.view.domain.model.BreaksAggregate;
+import com.dreamtracker.app.infrastructure.repository.SpringDataStreakAggregateRepository;
+import com.dreamtracker.app.view.domain.model.aggregate.StreakAggregate;
 import com.dreamtracker.app.view.domain.ports.StreakAggregateRepositoryPort;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+@RequiredArgsConstructor
+@Component
 public class PostgresStreakAggregateRepository implements StreakAggregateRepositoryPort {
-    private final SpringDataBreaksAggregateRepository springDataBreaksAggregateRepository;
 
-    @Override
-    public BreaksAggregate save(BreaksAggregate breaksAggregate) {
-        return springDataBreaksAggregateRepository.save(breaksAggregate);
+  private final SpringDataStreakAggregateRepository springDataStreakAggregateRepository;
+
+  @Override
+  public StreakAggregate save(StreakAggregate streakAggregate) {
+    return springDataStreakAggregateRepository.save(streakAggregate);
     }
 
     @Override
     public Boolean existsById(UUID id) {
-        return springDataBreaksAggregateRepository.existsById(id);
+    return springDataStreakAggregateRepository.existsById(id);
     }
 
     @Override
     public void deleteById(UUID id) {
-        springDataBreaksAggregateRepository.deleteById(id);
+    springDataStreakAggregateRepository.deleteById(id);
     }
 
-    @Override
-    public Optional<BreaksAggregate> findById(UUID id) {
-        return springDataBreaksAggregateRepository.findById(id);
+  @Override
+  public Optional<StreakAggregate> findById(UUID id) {
+    return springDataStreakAggregateRepository.findById(id);
     }
 
-    @Override
-    public List<BreaksAggregate> findByHabitUUID(UUID habitUUID) {
-        return springDataBreaksAggregateRepository.findByHabitUUID(habitUUID);
+  @Override
+  public List<StreakAggregate> findByHabitUUID(UUID habitUUID) {
+    return springDataStreakAggregateRepository.findByHabitUUID(habitUUID);
     }
 }

@@ -1,17 +1,13 @@
 package com.dreamtracker.app.view.adapters.aggregatesDB;
 
-import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.infrastructure.repository.SpringDataBreaksAggregateRepository;
-import com.dreamtracker.app.infrastructure.repository.SpringDataGoalRepository;
-import com.dreamtracker.app.view.domain.model.BreaksAggregate;
+import com.dreamtracker.app.view.domain.model.aggregate.BreaksAggregate;
 import com.dreamtracker.app.view.domain.ports.BreaksAggregateRepositoryPort;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

@@ -12,5 +12,6 @@ public class View {
     @Id
     @GeneratedValue
     private UUID id;
+    private UUID userUUID;
 
 }

@@ -1,6 +1,6 @@
 package com.dreamtracker.app.view.domain.ports;
 
-import com.dreamtracker.app.view.domain.model.BreaksAggregate;
+import com.dreamtracker.app.view.domain.model.aggregate.BreaksAggregate;
 
 import java.util.List;
 import java.util.Optional;

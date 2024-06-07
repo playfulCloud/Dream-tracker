@@ -1,7 +1,7 @@
 package com.dreamtracker.app.view.domain.ports;
 
-import com.dreamtracker.app.view.domain.model.BreaksAggregate;
-import com.dreamtracker.app.view.domain.model.SingleDayAggregate;
+import com.dreamtracker.app.view.domain.model.aggregate.BreaksAggregate;
+import com.dreamtracker.app.view.domain.model.aggregate.SingleDayAggregate;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,5 +12,5 @@ public interface SingleDayAggregateRepositoryPort {
     Boolean existsById(UUID id);
     void deleteById(UUID id);
     Optional<SingleDayAggregate> findById(UUID id);
-    List<BreaksAggregate> findByHabitUUID(UUID habitUUID);
+    List<SingleDayAggregate> findByHabitUUID(UUID habitUUID);
 }

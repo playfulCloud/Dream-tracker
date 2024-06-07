@@ -11,6 +11,7 @@ import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import com.dreamtracker.app.habit.domain.utils.HabitStatus;
+import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class DomainHabitService implements HabitService {
   private final UserService userService;
   private final CategoryRepositoryPort categoryRepositoryPort;
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
+  private final StatsAggregator statsAggregator;
 
   @Override
   @Transactional
@@ -58,7 +60,7 @@ public class DomainHabitService implements HabitService {
             .build();
 
     var habitSavedToDB = habitRepositoryPort.save(habitToCreate);
-
+    statsAggregator.requestStatsUpdated(habitSavedToDB,null);
     return mapToResponse(habitSavedToDB);
   }
 
