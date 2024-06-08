@@ -3,6 +3,8 @@ package com.dreamtracker.app.view.config;
 import com.dreamtracker.app.view.domain.model.aggregateManagers.*;
 import com.dreamtracker.app.view.domain.ports.*;
 import java.util.List;
+
+import com.dreamtracker.app.view.domain.ports.statistics.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,46 +13,46 @@ public class AggregateManagerProvider {
 
   @Bean
   QuantityOfHabitsAggregateManager getQuantityOfHabitsAggregateUpdater(
-      QuantityOfHabitsAggregateRepositoryPort quantityOfHabitsAggregateRepositoryPort) {
-    return new QuantityOfHabitsAggregateManager(quantityOfHabitsAggregateRepositoryPort);
+       DomainQuantityOfHabitsService domainQuantityOfHabitsService) {
+    return new QuantityOfHabitsAggregateManager(domainQuantityOfHabitsService);
   }
 
   @Bean
   SingleDayAggregateManager getSingleDayAggregateUpdater(
-      SingleDayAggregateRepositoryPort singleDayAggregateRepositoryPort) {
-    return new SingleDayAggregateManager(singleDayAggregateRepositoryPort);
+      DomainSingleDayService domainSingleDayService) {
+    return new SingleDayAggregateManager(domainSingleDayService);
   }
 
   @Bean
   DependingOnDayAggregateManager getDependingOnDayAggregateUpdater(
-      DependingOnDayRepositoryPort dependingOnDayRepositoryPort) {
-    return new DependingOnDayAggregateManager(dependingOnDayRepositoryPort);
+      DomainDependingOnDayService domainDependingOnDayService) {
+    return new DependingOnDayAggregateManager(domainDependingOnDayService);
   }
 
   @Bean
   StreakAggregateManager getStreakAggregateUpdater(
-      StreakAggregateRepositoryPort streakAggregateRepositoryPort) {
-    return new StreakAggregateManager(streakAggregateRepositoryPort);
+      DomainStreakService domainStreakService) {
+    return new StreakAggregateManager(domainStreakService);
   }
 
   @Bean
   BreakAggregateManager getBreakAggregateUpdater(
-      BreaksAggregateRepositoryPort breaksAggregateRepositoryPort) {
-    return new BreakAggregateManager(breaksAggregateRepositoryPort);
+      DomainBreaksService domainBreaksService) {
+    return new BreakAggregateManager(domainBreaksService);
   }
 
   @Bean
   public List<StatsAggregatorObserver> getAllObservers(
-      BreaksAggregateRepositoryPort breaksAggregateRepositoryPort,
-      StreakAggregateRepositoryPort streakAggregateRepositoryPort,
-      DependingOnDayRepositoryPort dependingOnDayRepositoryPort,
-      SingleDayAggregateRepositoryPort singleDayAggregateRepositoryPort,
-      QuantityOfHabitsAggregateRepositoryPort quantityOfHabitsAggregateRepositoryPort) {
+      DomainBreaksService domainBreaksService,
+      DomainStreakService domainStreakService,
+      DomainDependingOnDayService domainDependingOnDayService,
+      DomainSingleDayService domainSingleDayService,
+      DomainQuantityOfHabitsService domainQuantityOfHabitsService) {
     return List.of(
-        getBreakAggregateUpdater(breaksAggregateRepositoryPort),
-        getStreakAggregateUpdater(streakAggregateRepositoryPort),
-        getDependingOnDayAggregateUpdater(dependingOnDayRepositoryPort),
-        getSingleDayAggregateUpdater(singleDayAggregateRepositoryPort),
-        getQuantityOfHabitsAggregateUpdater(quantityOfHabitsAggregateRepositoryPort));
+        getBreakAggregateUpdater(domainBreaksService),
+        getStreakAggregateUpdater(domainStreakService),
+        getDependingOnDayAggregateUpdater(domainDependingOnDayService),
+        getSingleDayAggregateUpdater(domainSingleDayService),
+        getQuantityOfHabitsAggregateUpdater(domainQuantityOfHabitsService));
   }
 }

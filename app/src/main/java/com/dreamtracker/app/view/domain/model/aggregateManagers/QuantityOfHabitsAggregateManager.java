@@ -1,8 +1,10 @@
 package com.dreamtracker.app.view.domain.model.aggregateManagers;
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.ports.QuantityOfHabitsAggregateRepositoryPort;
+import com.dreamtracker.app.view.domain.ports.statistics.DomainQuantityOfHabitsService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
@@ -11,21 +13,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QuantityOfHabitsAggregateManager implements StatsAggregatorObserver {
 
-    private final QuantityOfHabitsAggregateRepositoryPort quantityOfHabitsAggregateRepositoryPort;
+    private final DomainQuantityOfHabitsService quantityOfHabitsService;
 
 
     @Override
-    public boolean updateAggregate(UUID habitUUID, HabitTrackingRequest habitTrackingRequest) {
-        return false;
+    public StatsComponentResponse updateAggregate(UUID habitUUID, HabitTrackingRequest habitTrackingRequest) {
+        return null;
     }
 
     @Override
-    public boolean initializeAggregate(UUID habitUUID) {
-        return false;
+    public StatsComponentResponse initializeAggregate(UUID habitUUID) {
+        return quantityOfHabitsService.initializeAggregates(habitUUID);
     }
 
     @Override
-    public boolean getAggregate(UUID habitUUID) {
-        return false;
+    public StatsComponentResponse getAggregate(UUID habitUUID) {
+        return null;
     }
 }

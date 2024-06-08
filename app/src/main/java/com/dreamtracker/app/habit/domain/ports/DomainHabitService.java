@@ -60,7 +60,7 @@ public class DomainHabitService implements HabitService {
             .build();
 
     var habitSavedToDB = habitRepositoryPort.save(habitToCreate);
-    statsAggregator.requestStatsUpdated(habitSavedToDB,null);
+    statsAggregator.initializeAggregates(habitSavedToDB.getId());
     return mapToResponse(habitSavedToDB);
   }
 

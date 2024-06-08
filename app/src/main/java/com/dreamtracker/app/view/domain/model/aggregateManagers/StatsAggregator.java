@@ -25,7 +25,8 @@ public class StatsAggregator implements StatsAggregatorObservable {
 
     @Override
     public boolean initializeAggregates(UUID habitUUID) {
-       this.observers.forEach(aggregator -> aggregator);
+       this.observers.forEach(aggregator -> aggregator.initializeAggregate(habitUUID));
+       return true;
     }
 
     @Override
