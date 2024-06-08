@@ -6,12 +6,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class DependingOnDayAggregate {
@@ -20,27 +22,27 @@ public class DependingOnDayAggregate {
     private UUID id;
 
     private  UUID habitUUID;
-    private int MondayDoneCount;
-    private int MondayUnDoneCount;
+    private int mondayDoneCount;
+    private int mondayUnDoneCount;
 
-    private int TuesdayDoneCount;
-    private int TuesdayUnDoneCount;
+    private int tuesdayDoneCount;
+    private int tuesdayUnDoneCount;
 
-    private int WednesdayDoneCount;
-    private int WednesdayUnDoneCount;
+    private int wednesdayDoneCount;
+    private int wednesdayUnDoneCount;
 
-    private int ThursdayDoneCount;
-    private int ThursdayUnDoneCount;
+    private int thursdayDoneCount;
+    private int thursdayUnDoneCount;
 
-    private int FridayDoneCount;
-    private int FridayUnDoneCount;
+    private int fridayDoneCount;
+    private int fridayUnDoneCount;
 
 
-    private int SaturdayDoneCount;
-    private int SaturdayUnDoneCount;
+    private int saturdayDoneCount;
+    private int saturdayUnDoneCount;
 
-    private int SundayDoneCount;
-    private int SundayUnDoneCount;
+    private int sundayDoneCount;
+    private int sundayUnDoneCount;
 
 }
 
