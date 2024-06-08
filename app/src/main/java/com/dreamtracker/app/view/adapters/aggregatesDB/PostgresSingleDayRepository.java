@@ -36,7 +36,7 @@ public class PostgresSingleDayRepository implements SingleDayAggregateRepository
     }
 
   @Override
-  public List<SingleDayAggregate> findByHabitUUID(UUID habitUUID) {
+  public Optional<SingleDayAggregate> findByHabitUUID(UUID habitUUID) {
     return springDataSingleDayAggregateRepository.findByHabitUUID(habitUUID);
     }
 }

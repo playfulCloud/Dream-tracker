@@ -13,4 +13,5 @@ public interface ViewRepositoryPort {
     void deleteById(UUID id);
     Optional<View> findById(UUID id);
     List<View> findByUserUUID(UUID userUUID);
+    Optional<View>findByName(String name);
 }

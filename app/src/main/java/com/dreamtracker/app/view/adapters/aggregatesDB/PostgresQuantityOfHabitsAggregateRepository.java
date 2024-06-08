@@ -38,7 +38,7 @@ public class PostgresQuantityOfHabitsAggregateRepository
     }
 
   @Override
-  public List<QuantityOfHabitsAggregate> findByHabitUUID(UUID habitUUID) {
+  public Optional<QuantityOfHabitsAggregate> findByHabitUUID(UUID habitUUID) {
     return springDataQuantityOfHabitsAggregateRepository.findByHabitUUID(habitUUID);
     }
 }

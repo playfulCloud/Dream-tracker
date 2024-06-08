@@ -1,6 +1,8 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.view.adapters.api.SingleDayComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
@@ -32,7 +34,8 @@ public class DomainSingleDayService implements StatsTemplate {
 
   @Override
   public StatsComponentResponse getCalculateResponse(UUID habitId) {
-    return null;
+    var singleDayAggregate = singleDayAggregateRepositoryPort.findByHabitUUID(habitId).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    return mapToResponse(singleDayAggregate);
   }
 
   private StatsComponentResponse mapToResponse(SingleDayAggregate singleDayAggregate) {

@@ -12,5 +12,5 @@ public interface DependingOnDayRepositoryPort {
     Boolean existsById(UUID id);
     void deleteById(UUID id);
     Optional<DependingOnDayAggregate> findById(UUID id);
-    List<DependingOnDayAggregate> findByHabitUUID(UUID habitUUID);
+    Optional<DependingOnDayAggregate> findByHabitUUID(UUID habitUUID);
 }

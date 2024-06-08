@@ -12,5 +12,5 @@ public interface BreaksAggregateRepositoryPort {
     Boolean existsById(UUID id);
     void deleteById(UUID id);
     Optional<BreaksAggregate> findById(UUID id);
-    List<BreaksAggregate> findByHabitUUID(UUID habitUUID);
+    Optional<BreaksAggregate>findByHabitUUID(UUID habitUUID);
 }

@@ -29,6 +29,6 @@ public class DependingOnDayAggregateManager implements StatsAggregatorObserver {
 
     @Override
     public StatsComponentResponse getAggregate(UUID habitUUID) {
-        return null;
+        return domainDependingOnDayService.getCalculateResponse(habitUUID);
     }
 }

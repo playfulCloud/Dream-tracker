@@ -36,7 +36,7 @@ public class PostgresBreaksAggregateRepository implements BreaksAggregateReposit
     }
 
     @Override
-    public List<BreaksAggregate> findByHabitUUID(UUID habitUUID) {
+    public Optional<BreaksAggregate> findByHabitUUID(UUID habitUUID) {
         return springDataBreaksAggregateRepository.findByHabitUUID(habitUUID);
     }
 }

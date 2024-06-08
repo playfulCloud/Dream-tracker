@@ -28,6 +28,6 @@ public class QuantityOfHabitsAggregateManager implements StatsAggregatorObserver
 
     @Override
     public StatsComponentResponse getAggregate(UUID habitUUID) {
-        return null;
+        return quantityOfHabitsService.getCalculateResponse(habitUUID);
     }
 }

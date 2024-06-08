@@ -1,6 +1,8 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.BreakComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.domain.model.aggregate.BreaksAggregate;
@@ -33,7 +35,11 @@ public class DomainBreaksService implements StatsTemplate {
 
   @Override
   public StatsComponentResponse getCalculateResponse(UUID habitId) {
-    return null;
+    var aggregateFoundByHabitId =
+        breaksAggregateRepositoryPort
+            .findByHabitUUID(habitId)
+            .orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    return mapToResponse(aggregateFoundByHabitId);
   }
 
   private StatsComponentResponse mapToResponse(BreaksAggregate breaksAggregate) {
@@ -44,6 +50,6 @@ public class DomainBreaksService implements StatsTemplate {
 
   // TODO: Need to rethink convention for this.
   private double calculateAverageBreak(BreaksAggregate breaksAggregate) {
-    return 0.0;
+    return (double) breaksAggregate.getSumOfBreaks() /breaksAggregate.getBreaksQuantity();
   }
 }

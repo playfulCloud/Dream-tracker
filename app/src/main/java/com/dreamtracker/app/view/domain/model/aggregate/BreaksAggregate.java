@@ -6,12 +6,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class BreaksAggregate {
@@ -19,4 +21,7 @@ public class BreaksAggregate {
     @GeneratedValue
     private UUID id;
     private UUID habitUUID;
+    private int sumOfBreaks;
+    private int breaksQuantity;
+    private boolean isBreak;
 }

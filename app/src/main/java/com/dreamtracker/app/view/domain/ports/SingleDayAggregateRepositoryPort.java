@@ -12,5 +12,5 @@ public interface SingleDayAggregateRepositoryPort {
     Boolean existsById(UUID id);
     void deleteById(UUID id);
     Optional<SingleDayAggregate> findById(UUID id);
-    List<SingleDayAggregate> findByHabitUUID(UUID habitUUID);
+    Optional<SingleDayAggregate> findByHabitUUID(UUID habitUUID);
 }

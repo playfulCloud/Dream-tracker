@@ -12,6 +12,9 @@ import com.dreamtracker.app.user.domain.ports.UserService;
 import java.time.Clock;
 
 import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
+import com.dreamtracker.app.view.domain.ports.DomainViewService;
+import com.dreamtracker.app.view.domain.ports.ViewRepositoryPort;
+import com.dreamtracker.app.view.domain.ports.ViewService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +34,11 @@ public class BeanConfiguration {
         userService,
         categoryRepositoryPort,
         habitTrackRepositoryPort,statsAggregator);
+  }
+
+  @Bean
+  ViewService viewService(ViewRepositoryPort viewRepositoryPort,StatsAggregator statsAggregator){
+    return new DomainViewService(viewRepositoryPort,statsAggregator);
   }
 
   @Bean

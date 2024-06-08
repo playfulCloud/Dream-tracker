@@ -12,5 +12,5 @@ public interface QuantityOfHabitsAggregateRepositoryPort {
     Boolean existsById(UUID id);
     void deleteById(UUID id);
     Optional<QuantityOfHabitsAggregate> findById(UUID id);
-    List<QuantityOfHabitsAggregate> findByHabitUUID(UUID habitUUID);
+    Optional<QuantityOfHabitsAggregate> findByHabitUUID(UUID habitUUID);
 }

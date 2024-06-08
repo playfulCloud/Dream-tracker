@@ -36,7 +36,7 @@ public class PostgresStreakAggregateRepository implements StreakAggregateReposit
     }
 
   @Override
-  public List<StreakAggregate> findByHabitUUID(UUID habitUUID) {
+  public Optional<StreakAggregate> findByHabitUUID(UUID habitUUID) {
     return springDataStreakAggregateRepository.findByHabitUUID(habitUUID);
     }
 }

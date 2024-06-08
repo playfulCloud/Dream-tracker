@@ -41,4 +41,9 @@ public class PostgresViewRepository implements ViewRepositoryPort {
     public List<View> findByUserUUID(UUID userUUID) {
         return springDataViewRepository.findByUserUUID(userUUID);
     }
+
+    @Override
+    public Optional<View> findByName(String name) {
+        return springDataViewRepository.findByName(name);
+    }
 }

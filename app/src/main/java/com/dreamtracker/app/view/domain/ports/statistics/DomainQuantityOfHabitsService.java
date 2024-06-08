@@ -1,6 +1,8 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.QuantityOfHabitsComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.domain.model.aggregate.QuantityOfHabitsAggregate;
@@ -30,7 +32,8 @@ public class DomainQuantityOfHabitsService implements StatsTemplate {
 
   @Override
   public StatsComponentResponse getCalculateResponse(UUID habitId) {
-    return null;
+    var quantityOfHabits = quantityOfHabitsAggregateRepositoryPort.findByHabitUUID(habitId).orElseThrow(()->new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    return mapToResponse(quantityOfHabits);
   }
 
   private StatsComponentResponse mapToResponse(

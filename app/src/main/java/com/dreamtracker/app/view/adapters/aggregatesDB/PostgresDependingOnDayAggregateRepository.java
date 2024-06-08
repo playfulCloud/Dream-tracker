@@ -37,7 +37,7 @@ public class PostgresDependingOnDayAggregateRepository implements DependingOnDay
     }
 
   @Override
-  public List<DependingOnDayAggregate> findByHabitUUID(UUID habitUUID) {
+  public Optional<DependingOnDayAggregate> findByHabitUUID(UUID habitUUID) {
     return springDataDependingOnDayAggregateRepository.findByHabitUUID(habitUUID);
     }
 }
