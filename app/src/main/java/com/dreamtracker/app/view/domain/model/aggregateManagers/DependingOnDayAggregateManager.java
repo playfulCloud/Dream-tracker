@@ -1,5 +1,6 @@
 package com.dreamtracker.app.view.domain.model.aggregateManagers;
 
+import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
@@ -18,8 +19,8 @@ public class DependingOnDayAggregateManager implements StatsAggregatorObserver {
 
 
     @Override
-    public StatsComponentResponse updateAggregate(UUID habitUUID, HabitTrackingRequest habitTrackingRequest) {
-        return null;
+    public StatsComponentResponse updateAggregate(UUID habitUUID, HabitTrackResponse habitTrackResponse) {
+        return updateAggregate(habitUUID,habitTrackResponse);
     }
 
     @Override

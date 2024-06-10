@@ -1,12 +1,15 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
-import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.DependingOnDayComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.domain.model.aggregate.DependingOnDayAggregate;
 import com.dreamtracker.app.view.domain.ports.DependingOnDayRepositoryPort;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,8 +29,21 @@ public class DomainDependingOnDayService implements StatsTemplate {
 
   @Override
   public StatsComponentResponse updateAggregatesAndCalculateResponse(
-      UUID habitId, HabitTrackingRequest habitTrackingRequest) {
-    return null;
+      UUID habitId, HabitTrackResponse habitTrackResponse) {
+    var dependingOnDayAggregateFoundByHabitUUID = dependingOnDayRepositoryPort.findByHabitUUID(habitId).orElseThrow(()->new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    String status = habitTrackResponse.status();
+    LocalDate date = LocalDate.parse(habitTrackResponse.date(), formatter);
+    DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+    switch(status){
+      case "DONE" -> dependingOnDayAggregateFoundByHabitUUID.increaseDoneCountBasedOnDayOfWeek(dayOfWeek);
+      case "UNDONE"-> dependingOnDayAggregateFoundByHabitUUID.increaseUnDoneCountBasedOnDayOfWeek(dayOfWeek);
+    }
+
+    var dependingOnDayAggregateSavedToDB = dependingOnDayRepositoryPort.save(dependingOnDayAggregateFoundByHabitUUID);
+    return mapToResponse(dependingOnDayAggregateSavedToDB);
   }
 
   @Override
@@ -93,4 +109,5 @@ public class DomainDependingOnDayService implements StatsTemplate {
     var all = doneCount + undoneCount;
     return (doneCount / all) * 100;
   }
+
 }

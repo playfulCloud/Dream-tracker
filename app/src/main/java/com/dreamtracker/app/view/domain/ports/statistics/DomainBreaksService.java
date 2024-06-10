@@ -1,6 +1,6 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
-import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.BreakComponentResponse;
@@ -10,8 +10,6 @@ import com.dreamtracker.app.view.domain.ports.BreaksAggregateRepositoryPort;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-
 
 //TODO: redo
 @Service
@@ -29,8 +27,33 @@ public class DomainBreaksService implements StatsTemplate {
 
   @Override
   public StatsComponentResponse updateAggregatesAndCalculateResponse(
-      UUID habitId, HabitTrackingRequest habitTrackingRequest) {
-    return null;
+      UUID habitId, HabitTrackResponse habitTrackResponse) {
+    var aggregateFoundByHabitId =
+        breaksAggregateRepositoryPort
+            .findByHabitUUID(habitId)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+
+    String status = habitTrackResponse.status();
+    var currentSumOfBreaks = aggregateFoundByHabitId.getSumOfBreaks();
+    var currentBreakQuantity = aggregateFoundByHabitId.getBreaksQuantity();
+    switch (status){
+      case "DONE":
+        if(aggregateFoundByHabitId.isBreak()){
+          aggregateFoundByHabitId.setSumOfBreaks(currentSumOfBreaks+1);
+          aggregateFoundByHabitId.setBreak(false);
+        }
+        break;
+      case "UNDONE":
+        if(!aggregateFoundByHabitId.isBreak()){
+          aggregateFoundByHabitId.setBreaksQuantity(currentBreakQuantity+1);
+        }
+        aggregateFoundByHabitId.setSumOfBreaks(currentSumOfBreaks+1);
+        break;
+    }
+    var updatedAggregateSavedToDB = breaksAggregateRepositoryPort.save(aggregateFoundByHabitId);
+    return mapToResponse(updatedAggregateSavedToDB);
   }
 
   @Override
@@ -48,7 +71,6 @@ public class DomainBreaksService implements StatsTemplate {
         .build();
   }
 
-  // TODO: Need to rethink convention for this.
   private double calculateAverageBreak(BreaksAggregate breaksAggregate) {
     return (double) breaksAggregate.getSumOfBreaks() /breaksAggregate.getBreaksQuantity();
   }
