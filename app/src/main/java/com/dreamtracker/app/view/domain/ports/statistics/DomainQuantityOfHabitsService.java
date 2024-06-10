@@ -1,7 +1,6 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
-import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.QuantityOfHabitsComponentResponse;
@@ -28,7 +27,20 @@ public class DomainQuantityOfHabitsService implements StatsTemplate {
   @Override
   public StatsComponentResponse updateAggregatesAndCalculateResponse(
       UUID habitId, HabitTrackResponse habitTrackResponse) {
-    return null;
+    var quantityOfHabits =
+        quantityOfHabitsAggregateRepositoryPort
+            .findByHabitUUID(habitId)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    String status = habitTrackResponse.status();
+
+    switch (status) {
+      case "DONE" -> quantityOfHabits.increaseDoneHabitsCount();
+      case "UNDONE" -> quantityOfHabits.increaseUnDoneHabitsCount();
+    }
+    var quantityOfHabitsSavedToDB = quantityOfHabitsAggregateRepositoryPort.save(quantityOfHabits);
+    return mapToResponse(quantityOfHabitsSavedToDB);
   }
 
   @Override
@@ -39,11 +51,12 @@ public class DomainQuantityOfHabitsService implements StatsTemplate {
 
   private StatsComponentResponse mapToResponse(
       QuantityOfHabitsAggregate quantityOfHabitsAggregate) {
-    return QuantityOfHabitsComponentResponse.builder()
+            var showme =QuantityOfHabitsComponentResponse.builder()
         .done(quantityOfHabitsAggregate.getDoneHabits())
         .undone(quantityOfHabitsAggregate.getUnDoneHabits())
         .trend(calculateTrend(quantityOfHabitsAggregate))
         .build();
+    return showme;
   }
 
   private QuantityOfHabitsAggregate initialize(UUID habitUUID) {
@@ -51,20 +64,46 @@ public class DomainQuantityOfHabitsService implements StatsTemplate {
         .habitUUID(habitUUID)
         .doneHabits(0)
         .unDoneHabits(0)
-        .unDoneInRow(0)
-        .doneInRow(0)
+        .currentTrend(0)
         .build();
   }
 
   private enum TrendStatus {
     SLOW_RISING,
     SLOW_FALLING,
+    RISING,
+    FALLING,
+    FAST_FALLING,
+    FAST_RISING,
     POSITIVE_PLATEAU,
-    NEGATIVE,
-    CREATED,
+    NEGATIVE_PLATEAU,
+    STAGNATION,
   }
 
   private String calculateTrend(QuantityOfHabitsAggregate quantityOfHabitsAggregate) {
-    return TrendStatus.CREATED.toString();
+    String calculatedTrend = "";
+    var trendValue = quantityOfHabitsAggregate.getCurrentTrend();
+
+    if (trendValue >= 7) {
+      calculatedTrend = TrendStatus.POSITIVE_PLATEAU.toString();
+    } else if (trendValue >= 5) {
+      calculatedTrend = TrendStatus.FAST_RISING.toString();
+    } else if (trendValue >= 3) {
+      calculatedTrend = TrendStatus.RISING.toString();
+    } else if (trendValue >= 1) {
+      calculatedTrend = TrendStatus.SLOW_RISING.toString();
+    } else if (trendValue <= -7) {
+      calculatedTrend = TrendStatus.NEGATIVE_PLATEAU.toString();
+    } else if (trendValue <= -5) {
+      calculatedTrend = TrendStatus.FAST_FALLING.toString();
+    } else if (trendValue <= -3) {
+      calculatedTrend = TrendStatus.FALLING.toString();
+    } else if (trendValue == -1) {
+      calculatedTrend = TrendStatus.SLOW_FALLING.toString();
+    } else if (trendValue == 0) {
+      calculatedTrend = TrendStatus.STAGNATION.toString();
+    }
+
+    return calculatedTrend;
   }
 }

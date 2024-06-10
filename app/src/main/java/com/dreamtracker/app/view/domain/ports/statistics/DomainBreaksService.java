@@ -41,7 +41,6 @@ public class DomainBreaksService implements StatsTemplate {
     switch (status){
       case "DONE":
         if(aggregateFoundByHabitId.isBreak()){
-          aggregateFoundByHabitId.setSumOfBreaks(currentSumOfBreaks+1);
           aggregateFoundByHabitId.setBreak(false);
         }
         break;

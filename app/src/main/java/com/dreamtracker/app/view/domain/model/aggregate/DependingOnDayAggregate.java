@@ -69,6 +69,26 @@ public class DependingOnDayAggregate {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "DependingOnDayAggregate{" +
+                "id=" + id +
+                ", habitUUID=" + habitUUID +
+                ", mondayDoneCount=" + mondayDoneCount +
+                ", mondayUnDoneCount=" + mondayUnDoneCount +
+                ", tuesdayDoneCount=" + tuesdayDoneCount +
+                ", tuesdayUnDoneCount=" + tuesdayUnDoneCount +
+                ", wednesdayDoneCount=" + wednesdayDoneCount +
+                ", wednesdayUnDoneCount=" + wednesdayUnDoneCount +
+                ", thursdayDoneCount=" + thursdayDoneCount +
+                ", thursdayUnDoneCount=" + thursdayUnDoneCount +
+                ", fridayDoneCount=" + fridayDoneCount +
+                ", fridayUnDoneCount=" + fridayUnDoneCount +
+                ", saturdayDoneCount=" + saturdayDoneCount +
+                ", saturdayUnDoneCount=" + saturdayUnDoneCount +
+                ", sundayDoneCount=" + sundayDoneCount +
+                ", sundayUnDoneCount=" + sundayUnDoneCount +
+                '}';
+    }
 }
 

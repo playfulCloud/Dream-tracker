@@ -18,7 +18,7 @@ public class StreakAggregateManager implements StatsAggregatorObserver {
 
     @Override
     public StatsComponentResponse updateAggregate(UUID habitUUID, HabitTrackResponse habitTrackResponse) {
-        return null;
+        return domainStreakService.updateAggregatesAndCalculateResponse(habitUUID,habitTrackResponse);
     }
 
     @Override

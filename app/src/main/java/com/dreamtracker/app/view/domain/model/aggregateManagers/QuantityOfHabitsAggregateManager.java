@@ -19,7 +19,7 @@ public class QuantityOfHabitsAggregateManager implements StatsAggregatorObserver
 
     @Override
     public StatsComponentResponse updateAggregate(UUID habitUUID, HabitTrackResponse habitTrackResponse) {
-        return null;
+        return quantityOfHabitsService.updateAggregatesAndCalculateResponse(habitUUID,habitTrackResponse);
     }
 
     @Override

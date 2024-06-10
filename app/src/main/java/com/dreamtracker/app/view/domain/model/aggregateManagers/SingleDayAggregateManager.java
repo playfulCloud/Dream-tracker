@@ -15,7 +15,7 @@ public class SingleDayAggregateManager implements StatsAggregatorObserver {
   @Override
   public StatsComponentResponse updateAggregate(
       UUID habitUUID, HabitTrackResponse habitTrackResponse) {
-        return null;
+        return domainSingleDayService.updateAggregatesAndCalculateResponse(habitUUID,habitTrackResponse);
     }
 
     @Override

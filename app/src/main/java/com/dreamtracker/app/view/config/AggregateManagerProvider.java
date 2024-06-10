@@ -2,6 +2,8 @@ package com.dreamtracker.app.view.config;
 
 import com.dreamtracker.app.view.domain.model.aggregateManagers.*;
 import com.dreamtracker.app.view.domain.ports.*;
+
+import java.time.Clock;
 import java.util.List;
 
 import com.dreamtracker.app.view.domain.ports.statistics.*;
@@ -13,7 +15,7 @@ public class AggregateManagerProvider {
 
   @Bean
   QuantityOfHabitsAggregateManager getQuantityOfHabitsAggregateUpdater(
-       DomainQuantityOfHabitsService domainQuantityOfHabitsService) {
+          DomainQuantityOfHabitsService domainQuantityOfHabitsService) {
     return new QuantityOfHabitsAggregateManager(domainQuantityOfHabitsService);
   }
 

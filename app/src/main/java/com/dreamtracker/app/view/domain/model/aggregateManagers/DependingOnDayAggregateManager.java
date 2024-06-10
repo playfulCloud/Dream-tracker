@@ -20,7 +20,7 @@ public class DependingOnDayAggregateManager implements StatsAggregatorObserver {
 
     @Override
     public StatsComponentResponse updateAggregate(UUID habitUUID, HabitTrackResponse habitTrackResponse) {
-        return updateAggregate(habitUUID,habitTrackResponse);
+        return domainDependingOnDayService.updateAggregatesAndCalculateResponse(habitUUID,habitTrackResponse);
     }
 
     @Override

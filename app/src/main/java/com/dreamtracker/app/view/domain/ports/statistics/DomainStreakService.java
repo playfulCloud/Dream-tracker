@@ -1,7 +1,6 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
-import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
@@ -28,7 +27,22 @@ public class DomainStreakService implements StatsTemplate {
   @Override
   public StatsComponentResponse updateAggregatesAndCalculateResponse(
       UUID habitId,  HabitTrackResponse habitTrackResponse){
-    return null;
+    var streakAggregate =
+        streakAggregateRepositoryPort
+            .findByHabitUUID(habitId)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+
+    String status = habitTrackResponse.status();
+
+    if (status.equals("DONE")) {
+      streakAggregate.increaseCurrentStreak();
+    } else {
+      streakAggregate.setCurrentStreak(0);
+    }
+    var streakAggregateSavedToDB = streakAggregateRepositoryPort.save(streakAggregate);
+    return mapToResponse(streakAggregateSavedToDB);
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.dreamtracker.app.view.domain.model.aggregateManagers;
 
 
+import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -33,9 +34,9 @@ public class StatsAggregator implements StatsAggregatorObservable {
     }
 
     @Override
-    public Page<StatsComponentResponse> requestStatsUpdated(UUID habitUUID, HabitTrackingRequest habitTrackingRequest) {
-    this.observers.forEach(x -> System.out.println(x.getClass().getSimpleName()));
-        return null;
+    public Page<StatsComponentResponse> requestStatsUpdated(UUID habitUUID, HabitTrackResponse habitTrackResponse) {
+        var responsesToMap = triggerUpdateAndGetResponse(habitUUID,habitTrackResponse);
+        return mapToPageResponse(responsesToMap);
     }
 
     @Override
@@ -51,9 +52,19 @@ public class StatsAggregator implements StatsAggregatorObservable {
     private List<StatsComponentResponse> getResponsesFromAggregates(UUID habitUUID){
         var aggregatesResponses = new ArrayList<StatsComponentResponse>();
        for(StatsAggregatorObserver statsAggregatorObserver : observers){
+      System.out.println(statsAggregatorObserver.getClass().getSimpleName());
            aggregatesResponses.add(statsAggregatorObserver.getAggregate(habitUUID));
        }
        return aggregatesResponses;
+    }
+
+
+    private List<StatsComponentResponse>triggerUpdateAndGetResponse(UUID habitUUID,HabitTrackResponse trackResponse){
+        var aggregatesResponses = new ArrayList<StatsComponentResponse>();
+        for(StatsAggregatorObserver statsAggregatorObserver : observers){
+            aggregatesResponses.add(statsAggregatorObserver.updateAggregate(habitUUID,trackResponse));
+        }
+        return aggregatesResponses;
     }
 
 }

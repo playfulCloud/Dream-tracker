@@ -9,6 +9,7 @@ import com.dreamtracker.app.view.domain.model.aggregate.DependingOnDayAggregate;
 import com.dreamtracker.app.view.domain.ports.DependingOnDayRepositoryPort;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +32,14 @@ public class DomainDependingOnDayService implements StatsTemplate {
   public StatsComponentResponse updateAggregatesAndCalculateResponse(
       UUID habitId, HabitTrackResponse habitTrackResponse) {
     var dependingOnDayAggregateFoundByHabitUUID = dependingOnDayRepositoryPort.findByHabitUUID(habitId).orElseThrow(()->new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
+
+    DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME; // Use a formatter that includes the zone ID.
 
     String status = habitTrackResponse.status();
-    LocalDate date = LocalDate.parse(habitTrackResponse.date(), formatter);
+    ZonedDateTime dateTime = ZonedDateTime.parse(habitTrackResponse.date(), formatter);
+    LocalDate date = dateTime.toLocalDate();
     DayOfWeek dayOfWeek = date.getDayOfWeek();
 
     switch(status){

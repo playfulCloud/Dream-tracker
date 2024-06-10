@@ -22,4 +22,15 @@ public class BreaksAggregate {
     private int sumOfBreaks;
     private int breaksQuantity;
     private boolean isBreak;
+
+    @Override
+    public String toString() {
+        return "BreaksAggregate{" +
+                "id=" + id +
+                ", habitUUID=" + habitUUID +
+                ", sumOfBreaks=" + sumOfBreaks +
+                ", breaksQuantity=" + breaksQuantity +
+                ", isBreak=" + isBreak +
+                '}';
+    }
 }
