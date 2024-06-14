@@ -11,7 +11,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-//TODO: redo
 @Service
 @RequiredArgsConstructor
 public class DomainBreaksService implements StatsTemplate {
@@ -20,8 +19,11 @@ public class DomainBreaksService implements StatsTemplate {
 
   @Override
   public StatsComponentResponse initializeAggregates(UUID habitId) {
-    var breakAggregate = BreaksAggregate.builder().habitUUID(habitId).build();
-    var aggregateSavedToDb = breaksAggregateRepositoryPort.save(breakAggregate);
+    BreaksAggregate breakAggregate = BreaksAggregate.builder().habitUUID(habitId).build();
+    BreaksAggregate aggregateSavedToDb = breaksAggregateRepositoryPort.save(breakAggregate);
+
+    System.out.println(breakAggregate);
+
     return mapToResponse(aggregateSavedToDb);
   }
 

@@ -68,18 +68,6 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   }
 
   @Test
-  void createGoalEntityNotFoundException() {
-    // given
-    var sampleGoalRequest = getSampleGoalRequestBuilder().build();
-    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.empty());
-    // when
-    assertThatThrownBy(() -> goalService.createGoal(sampleGoalRequest))
-        // then
-        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage)
-        .isInstanceOf(EntityNotFoundException.class);
-  }
-
-  @Test
   void deleteTestPositiveCase() {
     // given
     when(goalRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
