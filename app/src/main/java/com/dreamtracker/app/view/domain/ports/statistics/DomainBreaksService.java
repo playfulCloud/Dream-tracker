@@ -19,11 +19,8 @@ public class DomainBreaksService implements StatsTemplate {
 
   @Override
   public StatsComponentResponse initializeAggregates(UUID habitId) {
-    BreaksAggregate breakAggregate = BreaksAggregate.builder().habitUUID(habitId).build();
-    BreaksAggregate aggregateSavedToDb = breaksAggregateRepositoryPort.save(breakAggregate);
-
-    System.out.println(breakAggregate);
-
+    var breakAggregate = BreaksAggregate.builder().habitUUID(habitId).build();
+    var aggregateSavedToDb = breaksAggregateRepositoryPort.save(breakAggregate);
     return mapToResponse(aggregateSavedToDb);
   }
 
@@ -67,9 +64,7 @@ public class DomainBreaksService implements StatsTemplate {
   }
 
   private StatsComponentResponse mapToResponse(BreaksAggregate breaksAggregate) {
-    return BreakComponentResponse.builder()
-        .averageBreak(calculateAverageBreak(breaksAggregate))
-        .build();
+    return BreakComponentResponse.builder().averageBreak(0).build();
   }
 
   private double calculateAverageBreak(BreaksAggregate breaksAggregate) {

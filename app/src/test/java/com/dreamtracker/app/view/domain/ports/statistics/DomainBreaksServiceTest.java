@@ -1,8 +1,7 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -13,8 +12,6 @@ import com.dreamtracker.app.view.domain.ports.BreaksAggregateRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.UUID;
 
 class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture {
 
@@ -28,17 +25,28 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture {
     domainBreaksService = new DomainBreaksService(breaksAggregateRepositoryPort);
   }
   @Test
-  void initializeAggregates() {
-    UUID habitUUID = UUID.randomUUID();
+  void initializeAggregatesPositiveTestCase() {
+    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var aggregate = getBreakAggregatePreSavedBuilder(habit.getId()).build();
+    var aggregateSavedToDB = getBreakAggregateSavedBuilder(habit.getId()).build();
+    var expectedComponentResponse = getBreakStatsComponentResponse().build();
 
-    BreaksAggregate breakAggregateSavedToDB = BreaksAggregate.builder()
-            .id(UUID.fromString("ccccb2ec-cf7a-4088-8109-d23d280e9379"))
-            .habitUUID(habitUUID)
-            .build();
-    when(breaksAggregateRepositoryPort.save(BreaksAggregate.builder().habitUUID(habitUUID).build())).thenReturn(breakAggregateSavedToDB);
+    when(breaksAggregateRepositoryPort.save(aggregate)).thenReturn(aggregateSavedToDB);
+    var actualComponentResponse = domainBreaksService.initializeAggregates(habit.getId());
 
-    var initResponse = domainBreaksService.initializeAggregates(habitUUID);
+    assertThat(actualComponentResponse).isEqualTo(expectedComponentResponse);
+  }
 
+  @Test
+  void testInitializeAggregates() {
+    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    BreaksAggregate breakAggregate = BreaksAggregate.builder().habitUUID(habit.getId()).build();
+    BreaksAggregate savedAggregate = BreaksAggregate.builder().habitUUID(habit.getId()).build();
+
+    when(breaksAggregateRepositoryPort.save(breakAggregate)).thenReturn(savedAggregate);
+
+    var response = domainBreaksService.initializeAggregates(habit.getId());
+    verify(breaksAggregateRepositoryPort).save(breakAggregate);
   }
 
   @Test

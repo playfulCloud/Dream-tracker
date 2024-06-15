@@ -1,18 +1,31 @@
 package com.dreamtracker.app.view.domain.model.aggregate;
 
+import com.dreamtracker.app.view.adapters.api.BreakComponentResponse;
+
 import java.util.UUID;
 
 public interface AggregatesFixtures {
 
-
-    default BreaksAggregate.BreaksAggregateBuilder defaultBreaksAggregate(UUID habitUUID) {
-        return BreaksAggregate.builder()
-                .id(UUID.fromString("ccccb2ec-cf7a-4088-8109-d23d280e9379"))
-                .habitUUID(habitUUID);
+  default BreaksAggregate.BreaksAggregateBuilder getBreakAggregateSavedBuilder(UUID habitUUID) {
+    return BreaksAggregate.builder()
+        .id(UUID.fromString("ccccb2ec-cf7a-4088-8109-d23d280e9379"))
+        .isBreak(false)
+        .breaksQuantity(0)
+        .sumOfBreaks(0)
+        .habitUUID(habitUUID);
     }
 
-    default BreaksAggregate.BreaksAggregateBuilder preSavedDefaultBreaksAggregate() {
-        return BreaksAggregate.builder();
+  default BreaksAggregate.BreaksAggregateBuilder getBreakAggregatePreSavedBuilder(UUID habitUUID) {
+    return BreaksAggregate.builder()
+        .isBreak(false)
+        .breaksQuantity(0)
+        .sumOfBreaks(0)
+        .habitUUID(habitUUID);
+    }
+
+    default BreakComponentResponse.BreakComponentResponseBuilder getBreakStatsComponentResponse() {
+       return BreakComponentResponse.builder()
+               .averageBreak(0);
     }
 
     default DependingOnDayAggregate.DependingOnDayAggregateBuilder defaultDependingOnDayAggregate() {
