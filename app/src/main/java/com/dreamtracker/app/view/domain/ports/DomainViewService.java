@@ -10,7 +10,7 @@ import com.dreamtracker.app.view.domain.model.View;
 import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
 import lombok.RequiredArgsConstructor;
 
-//TODO: this whole service will implemented in iteration 3
+//TODO: this whole service will implemented in iteration 4
 @RequiredArgsConstructor
 public class DomainViewService implements ViewService {
 

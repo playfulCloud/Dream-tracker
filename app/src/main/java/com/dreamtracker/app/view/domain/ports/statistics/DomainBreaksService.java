@@ -11,7 +11,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-//TODO: redo
 @Service
 @RequiredArgsConstructor
 public class DomainBreaksService implements StatsTemplate {
@@ -65,9 +64,7 @@ public class DomainBreaksService implements StatsTemplate {
   }
 
   private StatsComponentResponse mapToResponse(BreaksAggregate breaksAggregate) {
-    return BreakComponentResponse.builder()
-        .averageBreak(calculateAverageBreak(breaksAggregate))
-        .build();
+    return BreakComponentResponse.builder().averageBreak(0).build();
   }
 
   private double calculateAverageBreak(BreaksAggregate breaksAggregate) {

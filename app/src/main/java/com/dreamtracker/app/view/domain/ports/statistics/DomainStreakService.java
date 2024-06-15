@@ -20,6 +20,7 @@ public class DomainStreakService implements StatsTemplate {
   @Override
   public StatsComponentResponse initializeAggregates(UUID habitId) {
     var streakAggregate = initialize(habitId);
+    System.out.println(streakAggregate);
     var streakAggregateSaveToDB = streakAggregateRepositoryPort.save(streakAggregate);
     return mapToResponse(streakAggregateSaveToDB);
   }
