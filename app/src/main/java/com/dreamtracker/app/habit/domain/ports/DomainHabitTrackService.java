@@ -6,6 +6,8 @@ import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.infrastructure.utils.DateService;
+import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +19,7 @@ public class DomainHabitTrackService implements HabitTrackService {
 
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
   private final HabitRepositoryPort habitRepositoryPort;
+  private final StatsAggregator statsAggregator;
   private final Clock clock;
 
 
@@ -49,7 +52,9 @@ public class DomainHabitTrackService implements HabitTrackService {
             .build();
 
     var trackSavedToDB = habitTrackRepositoryPort.save(track);
-    return mapToResponse(trackSavedToDB);
+    var habitTrackResponse = mapToResponse(trackSavedToDB);
+    statsAggregator.requestStatsUpdated(habitToUpdateTracking.getId(), habitTrackResponse);
+    return habitTrackResponse;
   }
 
   private HabitTrackResponse mapToResponse(HabitTrack habitTrack) {

@@ -25,6 +25,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
+import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,6 +39,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
       Mockito.mock(HabitTrackRepositoryPort.class);
   private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
+  private final StatsAggregator statsAggregator = Mockito.mock(StatsAggregator.class);
   private Clock fixedClock;
   private Habit sampleHabit;
 
@@ -45,7 +48,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
     sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     habitTrackService =
-        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, fixedClock);
+        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock);
   }
 
   @Test

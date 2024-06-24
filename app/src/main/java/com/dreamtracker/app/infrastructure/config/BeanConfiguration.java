@@ -9,6 +9,10 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.DomainUserService;
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
 import com.dreamtracker.app.user.domain.ports.UserService;
+import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
+import com.dreamtracker.app.view.domain.ports.DomainViewService;
+import com.dreamtracker.app.view.domain.ports.ViewRepositoryPort;
+import com.dreamtracker.app.view.domain.ports.ViewService;
 import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,25 +22,32 @@ public class BeanConfiguration {
 
   @Bean
   HabitService habitService(
-      HabitRepositoryPort habitRepositoryPort,
-      CurrentUserProvider currentUserProvider,
-      UserService userService,
-      CategoryRepositoryPort categoryRepositoryPort,
-      HabitTrackRepositoryPort habitTrackRepositoryPort) {
+          HabitRepositoryPort habitRepositoryPort,
+          CurrentUserProvider currentUserProvider,
+          UserService userService,
+          CategoryRepositoryPort categoryRepositoryPort,
+          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator) {
     return new DomainHabitService(
         habitRepositoryPort,
         currentUserProvider,
         userService,
         categoryRepositoryPort,
-        habitTrackRepositoryPort);
+        habitTrackRepositoryPort,statsAggregator);
+  }
+
+  @Bean
+  ViewService viewService(ViewRepositoryPort viewRepositoryPort,StatsAggregator statsAggregator){
+    return new DomainViewService(viewRepositoryPort,statsAggregator);
   }
 
   @Bean
   HabitTrackService habitTrackService(
       HabitTrackRepositoryPort habitTrackRepositoryPort,
       HabitRepositoryPort habitRepositoryPort,
+      StatsAggregator statsAggregator,
       Clock clock) {
-    return new DomainHabitTrackService(habitTrackRepositoryPort, habitRepositoryPort, clock);
+    return new DomainHabitTrackService(
+        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock);
   }
 
   @Bean
