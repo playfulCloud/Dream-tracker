@@ -6,17 +6,9 @@ import java.util.UUID;
 
 public interface AggregatesFixtures {
 
-  default BreaksAggregate.BreaksAggregateBuilder getBreakAggregateSavedBuilder(UUID habitUUID) {
+  default BreaksAggregate.BreaksAggregateBuilder getBreakAggregateBuilder(UUID habitUUID) {
     return BreaksAggregate.builder()
         .id(UUID.fromString("ccccb2ec-cf7a-4088-8109-d23d280e9379"))
-        .isBreak(false)
-        .breaksQuantity(0)
-        .sumOfBreaks(0)
-        .habitUUID(habitUUID);
-    }
-
-  default BreaksAggregate.BreaksAggregateBuilder getBreakAggregatePreSavedBuilder(UUID habitUUID) {
-    return BreaksAggregate.builder()
         .isBreak(false)
         .breaksQuantity(0)
         .sumOfBreaks(0)

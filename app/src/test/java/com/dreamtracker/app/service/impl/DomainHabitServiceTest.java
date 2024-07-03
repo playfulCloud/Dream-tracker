@@ -21,6 +21,7 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserService;
+import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -29,8 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

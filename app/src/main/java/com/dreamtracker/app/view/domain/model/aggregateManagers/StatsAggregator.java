@@ -52,7 +52,6 @@ public class StatsAggregator implements StatsAggregatorObservable {
     private List<StatsComponentResponse> getResponsesFromAggregates(UUID habitUUID){
         var aggregatesResponses = new ArrayList<StatsComponentResponse>();
        for(StatsAggregatorObserver statsAggregatorObserver : observers){
-      System.out.println(statsAggregatorObserver.getClass().getSimpleName());
            aggregatesResponses.add(statsAggregatorObserver.getAggregate(habitUUID));
        }
        return aggregatesResponses;
