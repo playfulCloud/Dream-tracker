@@ -11,7 +11,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-//TODO: redo
 @Service
 @RequiredArgsConstructor
 public class DomainBreaksService implements StatsTemplate {
@@ -28,13 +27,14 @@ public class DomainBreaksService implements StatsTemplate {
   @Override
   public StatsComponentResponse updateAggregatesAndCalculateResponse(
       UUID habitId, HabitTrackResponse habitTrackResponse) {
-    var aggregateFoundByHabitId =
+    BreaksAggregate aggregateFoundByHabitId =
         breaksAggregateRepositoryPort
             .findByHabitUUID(habitId)
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
+    System.out.println(aggregateFoundByHabitId);
     String status = habitTrackResponse.status();
     var currentSumOfBreaks = aggregateFoundByHabitId.getSumOfBreaks();
     var currentBreakQuantity = aggregateFoundByHabitId.getBreaksQuantity();
@@ -65,12 +65,13 @@ public class DomainBreaksService implements StatsTemplate {
   }
 
   private StatsComponentResponse mapToResponse(BreaksAggregate breaksAggregate) {
-    return BreakComponentResponse.builder()
-        .averageBreak(calculateAverageBreak(breaksAggregate))
-        .build();
+    return BreakComponentResponse.builder().averageBreak(calculateAverageBreak(breaksAggregate)).build();
   }
 
   private double calculateAverageBreak(BreaksAggregate breaksAggregate) {
+    if(breaksAggregate.getBreaksQuantity() == 0){
+      return 0;
+    }
     return (double) breaksAggregate.getSumOfBreaks() /breaksAggregate.getBreaksQuantity();
   }
 }
