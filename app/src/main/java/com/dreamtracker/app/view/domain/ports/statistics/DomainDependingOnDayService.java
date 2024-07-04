@@ -48,6 +48,7 @@ public class DomainDependingOnDayService implements StatsTemplate {
     }
 
     var dependingOnDayAggregateSavedToDB = dependingOnDayRepositoryPort.save(dependingOnDayAggregateFoundByHabitUUID);
+    System.out.println(dependingOnDayAggregateSavedToDB);
     return mapToResponse(dependingOnDayAggregateSavedToDB);
   }
 
@@ -112,6 +113,9 @@ public class DomainDependingOnDayService implements StatsTemplate {
 
   private double calculateDailyRatio(double doneCount, double undoneCount) {
     var all = doneCount + undoneCount;
+    if(all == 0){
+      return 0;
+    }
     return (doneCount / all) * 100;
   }
 

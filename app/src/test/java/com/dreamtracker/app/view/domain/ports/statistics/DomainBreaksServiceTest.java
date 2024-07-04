@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
@@ -26,15 +27,16 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private DomainBreaksService domainBreaksService;
   private final DateService dateService = new DateService();
+  private Habit habit;
 
   @BeforeEach
   void setUp() {
+    habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     domainBreaksService = new DomainBreaksService(breaksAggregateRepositoryPort);
   }
   @Test
   void initializeAggregatesPositiveTestCase() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var aggregate = getBreakAggregateBuilder(habit.getId()).id(null).build();
     var aggregateSavedToDB = getBreakAggregateBuilder(habit.getId()).build();
     var expectedComponentResponse = getBreakStatsComponentResponse().build();
@@ -49,7 +51,6 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   @Test
   void updateAggregatesAndCalculateResponsePositiveTestCaseDone() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var breakAggregateSavedToDB = getBreakAggregateBuilder(habit.getId()).build();
     var habitTrackResponse =
         getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601()).build();
@@ -72,7 +73,6 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   @Test
   void updateAggregatesAndCalculateResponsePositiveTestCaseUndone() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var breakAggregate = getBreakAggregateBuilder(habit.getId()).build();
     var habitTrackResponse =
         getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601())
@@ -98,7 +98,6 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   @Test
   void updateAggregatesAndCalculateResponsePositiveTestCaseisBreakTrue() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var breakAggregateSavedToDB =
         getBreakAggregateBuilder(habit.getId())
             .breaksQuantity(10)
@@ -129,7 +128,6 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   @Test
   void updateAggregatesAndCalculateResponsePositiveTestCaseisBreakFalse() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var breakAggregateSavedToDB =
         getBreakAggregateBuilder(habit.getId())
             .breaksQuantity(9)
@@ -158,7 +156,6 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   @Test
   void updateAggregatesAndCalculateResponseEntityNotFoundException() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var habitTrackResponse =
         getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601()).build();
     when(breaksAggregateRepositoryPort.findByHabitUUID(habit.getId())).thenReturn(Optional.empty());
@@ -198,8 +195,6 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   @Test
   void getCalculateResponseEntityNotFoundException() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-
     when(breaksAggregateRepositoryPort.findByHabitUUID(habit.getId())).thenReturn(Optional.empty());
 
     assertThatThrownBy(
