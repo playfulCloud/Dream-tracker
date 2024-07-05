@@ -1,12 +1,15 @@
 package com.dreamtracker.app.view.domain.ports.statistics;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.view.adapters.api.DependingOnDayComponentResponse;
@@ -16,7 +19,6 @@ import com.dreamtracker.app.view.domain.ports.DependingOnDayRepositoryPort;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -72,19 +74,110 @@ class DomainDependingOnDayServiceTest
         );
     }
 
+  private static Stream<Arguments> increaseSuccessRateWithUnDoneValueArguments() {
+    return Stream.of(
+        Arguments.of(
+            MONDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(MONDAY_DATE, 0, 3),
+            getResponseComponentByDay(25, MONDAY_DATE)),
+        Arguments.of(
+            TUESDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(TUESDAY_DATE, 0, 3),
+            getResponseComponentByDay(25, TUESDAY_DATE)),
+        Arguments.of(
+            WEDNESDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(WEDNESDAY_DATE, 0, 3),
+            getResponseComponentByDay(25, WEDNESDAY_DATE)),
+        Arguments.of(
+            THURSDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(THURSDAY_DATE, 0, 3),
+            getResponseComponentByDay(25, THURSDAY_DATE)),
+        Arguments.of(
+            FRIDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(FRIDAY_DATE, 0, 3),
+            getResponseComponentByDay(25, FRIDAY_DATE)),
+        Arguments.of(
+            SATURDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(SATURDAY_DATE, 0, 3),
+            getResponseComponentByDay(25, SATURDAY_DATE)),
+        Arguments.of(
+            SUNDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(SUNDAY_DATE, 0, 3),
+            getResponseComponentByDay(25, SUNDAY_DATE)));
+  }
+
     private static Stream<Arguments>decreaseSuccessRateArguments () {
-        return Stream.of(
-                Arguments.of(MONDAY_DATE,getAggregateWithSpecifiedCountsBasedOnDay(MONDAY_DATE,1,0), getResponseComponentByDay(50,MONDAY_DATE)),
-                Arguments.of(TUESDAY_DATE,getAggregateWithSpecifiedCountsBasedOnDay(TUESDAY_DATE,1,0), getResponseComponentByDay(50,TUESDAY_DATE)),
-                Arguments.of(WEDNESDAY_DATE,getAggregateWithSpecifiedCountsBasedOnDay(WEDNESDAY_DATE,1,0), getResponseComponentByDay(50,WEDNESDAY_DATE)),
-                Arguments.of(THURSDAY_DATE,getAggregateWithSpecifiedCountsBasedOnDay(THURSDAY_DATE,1,0), getResponseComponentByDay(50,THURSDAY_DATE)),
-                Arguments.of(FRIDAY_DATE,getAggregateWithSpecifiedCountsBasedOnDay(FRIDAY_DATE,1,0), getResponseComponentByDay(50,FRIDAY_DATE)),
-                Arguments.of(SATURDAY_DATE,getAggregateWithSpecifiedCountsBasedOnDay(SATURDAY_DATE,1,0), getResponseComponentByDay(50,SATURDAY_DATE)),
-                Arguments.of(SUNDAY_DATE,getAggregateWithSpecifiedCountsBasedOnDay(SUNDAY_DATE,1,0), getResponseComponentByDay(50,SUNDAY_DATE))
-        );
+    return Stream.of(
+        Arguments.of(
+            MONDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(MONDAY_DATE, 1, 0),
+            getResponseComponentByDay(50, MONDAY_DATE)),
+        Arguments.of(
+            TUESDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(TUESDAY_DATE, 1, 0),
+            getResponseComponentByDay(50, TUESDAY_DATE)),
+        Arguments.of(
+            WEDNESDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(WEDNESDAY_DATE, 1, 0),
+            getResponseComponentByDay(50, WEDNESDAY_DATE)),
+        Arguments.of(
+            THURSDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(THURSDAY_DATE, 1, 0),
+            getResponseComponentByDay(50, THURSDAY_DATE)),
+        Arguments.of(
+            FRIDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(FRIDAY_DATE, 1, 0),
+            getResponseComponentByDay(50, FRIDAY_DATE)),
+        Arguments.of(
+            SATURDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(SATURDAY_DATE, 1, 0),
+            getResponseComponentByDay(50, SATURDAY_DATE)),
+        Arguments.of(
+            SUNDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(SUNDAY_DATE, 1, 0),
+            getResponseComponentByDay(50, SUNDAY_DATE)));
     }
 
+  private static Stream<Arguments> noChangeOfSuccessRateArguments() {
+    return Stream.of(
+        Arguments.of(
+            MONDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(MONDAY_DATE, 0, 0),
+            getResponseComponentByDay(0, MONDAY_DATE)),
+        Arguments.of(
+            TUESDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(TUESDAY_DATE, 0, 0),
+            getResponseComponentByDay(0, TUESDAY_DATE)),
+        Arguments.of(
+            WEDNESDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(WEDNESDAY_DATE, 0, 0),
+            getResponseComponentByDay(0, WEDNESDAY_DATE)),
+        Arguments.of(
+            THURSDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(THURSDAY_DATE, 0, 0),
+            getResponseComponentByDay(0, THURSDAY_DATE)),
+        Arguments.of(
+            FRIDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(FRIDAY_DATE, 0, 0),
+            getResponseComponentByDay(0, FRIDAY_DATE)),
+        Arguments.of(
+            SATURDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(SATURDAY_DATE, 0, 0),
+            getResponseComponentByDay(0, SATURDAY_DATE)),
+        Arguments.of(
+            SUNDAY_DATE,
+            getAggregateWithSpecifiedCountsBasedOnDay(SUNDAY_DATE, 0, 0),
+            getResponseComponentByDay(0, SUNDAY_DATE)));
+  }
 
+  private static Stream<Arguments> undoneArguments() {
+    return Stream.concat(noChangeOfSuccessRateArguments(), decreaseSuccessRateArguments());
+  }
+
+  private static Stream<Arguments> doneArguments() {
+    return Stream.concat(
+        increaseSuccessRateArguments(), increaseSuccessRateWithUnDoneValueArguments());
+  }
 
     private static DependingOnDayComponentResponse getResponseComponentByDay(int successRateOfDay, String date){
       DependingOnDayComponentResponse responseBasedOnDay = null;
@@ -121,13 +214,23 @@ class DomainDependingOnDayServiceTest
                 dependingOnDayAggregate = DependingOnDayAggregate.builder().habitUUID(habitUUID).mondayDoneCount(doneCount).mondayUnDoneCount(undoneCount).build();
                 break;
             case TUESDAY_DATE:
-                dependingOnDayAggregate = DependingOnDayAggregate.builder().habitUUID(habitUUID).tuesdayDoneCount(doneCount).mondayUnDoneCount(undoneCount).build();
+        dependingOnDayAggregate =
+            DependingOnDayAggregate.builder()
+                .habitUUID(habitUUID)
+                .tuesdayDoneCount(doneCount)
+                .tuesdayUnDoneCount(undoneCount)
+                .build();
                 break;
             case WEDNESDAY_DATE:
                 dependingOnDayAggregate = DependingOnDayAggregate.builder().habitUUID(habitUUID).wednesdayDoneCount(doneCount).wednesdayUnDoneCount(undoneCount).build();
                 break;
             case THURSDAY_DATE:
-                dependingOnDayAggregate = DependingOnDayAggregate.builder().habitUUID(habitUUID).thursdayDoneCount(doneCount).thursdayDoneCount(undoneCount).build();
+        dependingOnDayAggregate =
+            DependingOnDayAggregate.builder()
+                .habitUUID(habitUUID)
+                .thursdayDoneCount(doneCount)
+                .thursdayUnDoneCount(undoneCount)
+                .build();
                 break;
             case FRIDAY_DATE:
                 dependingOnDayAggregate = DependingOnDayAggregate.builder().habitUUID(habitUUID).fridayDoneCount(doneCount).fridayUnDoneCount(undoneCount).build();
@@ -142,11 +245,12 @@ class DomainDependingOnDayServiceTest
         return dependingOnDayAggregate;
     }
 
-
-
-    @ParameterizedTest
-    @MethodSource("increaseSuccessRateArguments")
-    void updateAggregatesAndCalculateResponsePositiveTestCaseDone(String date, DependingOnDayAggregate dependingOnDayAggregate, DependingOnDayComponentResponse expected) {
+  @ParameterizedTest
+  @MethodSource("doneArguments")
+  void updateAggregatesAndCalculateResponsePositiveTestCaseDone(
+      String date,
+      DependingOnDayAggregate dependingOnDayAggregate,
+      DependingOnDayComponentResponse expected) {
         // given
         var habitTrackResponse = getSampleHabitTrackResponse(date).status(HabitTrackStatus.DONE.toString()).build();
 
@@ -161,9 +265,12 @@ class DomainDependingOnDayServiceTest
         assertThat(actual).isEqualTo(expected);
     }
 
-    @ParameterizedTest
-    @MethodSource("decreaseSuccessRateArguments")
-    void updateAggregatesAndCalculateResponsePositiveTestCaseUndone(String date,DependingOnDayAggregate dependingOnDayAggregate, DependingOnDayComponentResponse expected) {
+  @ParameterizedTest
+  @MethodSource("undoneArguments")
+  void updateAggregatesAndCalculateResponsePositiveTestCaseUndone(
+      String date,
+      DependingOnDayAggregate dependingOnDayAggregate,
+      DependingOnDayComponentResponse expected) {
         // given
         var habitTrackResponse = getSampleHabitTrackResponse(date).status(HabitTrackStatus.UNDONE.toString()).build();
 
@@ -179,4 +286,41 @@ class DomainDependingOnDayServiceTest
         assertThat(actual).isEqualTo(expected);
     }
 
+  @Test
+  void getCalculateResponsePositiveTestCase() {
+   // given
+    var dependingOnDayAggregate = getDependingOnDayAggregateBuilder(habit.getId()).build();
+
+    when(dependingOnDayRepositoryPort.findByHabitUUID(habit.getId()))
+        .thenReturn(Optional.of(dependingOnDayAggregate));
+
+    var expectedResponse = getDependingOnDayStatsComponentReponse().build();
+
+
+    // when
+    var actual = domainDependingOnDayService.getCalculateResponse(habit.getId());
+
+    // then
+    assertThat(expectedResponse).isEqualTo(actual);
+
+  }
+
+
+    @Test
+    void getCalculateResponseEntityNotFoundException() {
+        // given
+        var dependingOnDayAggregate = getDependingOnDayAggregateBuilder(habit.getId()).build();
+
+        when(dependingOnDayRepositoryPort.findByHabitUUID(habit.getId()))
+                .thenReturn(Optional.empty());
+
+
+        assertThatThrownBy(() -> {
+            // when
+             domainDependingOnDayService.getCalculateResponse(habit.getId());
+            // then
+        }).isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+
+
+    }
 }
