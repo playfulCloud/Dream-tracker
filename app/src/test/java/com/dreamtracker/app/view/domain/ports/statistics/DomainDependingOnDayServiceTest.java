@@ -10,6 +10,7 @@ import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.view.adapters.api.DependingOnDayComponentResponse;
@@ -34,6 +35,7 @@ class DomainDependingOnDayServiceTest
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private DomainDependingOnDayService domainDependingOnDayService;
   private final Habit habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+  private final DateService dateService = new DateService();
   private static final UUID habitUUID = UUID.randomUUID();
   private static final String MONDAY_DATE = "2024-07-01T00:00:00Z";
   private static final String TUESDAY_DATE = "2024-07-02T00:00:00Z";
@@ -53,7 +55,7 @@ class DomainDependingOnDayServiceTest
     // given
     var aggregate = getDependingOnDayAggregateBuilder(habit.getId()).id(null).build();
     var aggregateSavedToDB = getDependingOnDayAggregateBuilder(habit.getId()).build();
-    var expectedComponentResponse = getDependingOnDayStatsComponentReponse().build();
+    var expectedComponentResponse = getDependingOnDayStatsComponentResponse().build();
 
     when(dependingOnDayRepositoryPort.save(aggregate)).thenReturn(aggregateSavedToDB);
     // when
@@ -294,7 +296,7 @@ class DomainDependingOnDayServiceTest
     when(dependingOnDayRepositoryPort.findByHabitUUID(habit.getId()))
         .thenReturn(Optional.of(dependingOnDayAggregate));
 
-    var expectedResponse = getDependingOnDayStatsComponentReponse().build();
+    var expectedResponse = getDependingOnDayStatsComponentResponse().build();
 
 
     // when
@@ -304,7 +306,25 @@ class DomainDependingOnDayServiceTest
     assertThat(expectedResponse).isEqualTo(actual);
 
   }
+    @Test
+    void updateAggregatesAndCalculateResponseEntityNotFoundException() {
+        // given
+        var dependingOnDayAggregate = getDependingOnDayAggregateBuilder(habit.getId()).build();
 
+        var habitTrackResponse = getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601()).status(HabitTrackStatus.UNDONE.toString()).build();
+
+        when(dependingOnDayRepositoryPort.findByHabitUUID(habit.getId()))
+                .thenReturn(Optional.empty());
+
+
+        assertThatThrownBy(() -> {
+            // when
+            domainDependingOnDayService.updateAggregatesAndCalculateResponse(habit.getId(),habitTrackResponse);
+            // then
+        }).isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+
+
+    }
 
     @Test
     void getCalculateResponseEntityNotFoundException() {

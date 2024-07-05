@@ -68,7 +68,7 @@ public class DomainQuantityOfHabitsService implements StatsTemplate {
         .build();
   }
 
-  private enum TrendStatus {
+  public enum TrendStatus {
     SLOW_RISING,
     SLOW_FALLING,
     RISING,

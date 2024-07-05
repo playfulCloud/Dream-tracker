@@ -2,6 +2,8 @@ package com.dreamtracker.app.view.domain.model.aggregate;
 
 import com.dreamtracker.app.view.adapters.api.BreakComponentResponse;
 import com.dreamtracker.app.view.adapters.api.DependingOnDayComponentResponse;
+import com.dreamtracker.app.view.adapters.api.QuantityOfHabitsComponentResponse;
+import com.dreamtracker.app.view.domain.ports.statistics.DomainQuantityOfHabitsService;
 
 import java.util.UUID;
 
@@ -41,7 +43,7 @@ public interface AggregatesFixtures {
                 .sundayUnDoneCount(0);
     }
 
-    default DependingOnDayComponentResponse.DependingOnDayComponentResponseBuilder getDependingOnDayStatsComponentReponse(){
+    default DependingOnDayComponentResponse.DependingOnDayComponentResponseBuilder getDependingOnDayStatsComponentResponse(){
       return DependingOnDayComponentResponse.builder()
               .mondayRateSuccessRate(0)
               .tuesdayRateSuccessRate(0)
@@ -50,6 +52,24 @@ public interface AggregatesFixtures {
               .fridayRateSuccessRate(0)
               .saturdayRateSuccessRate(0)
               .sundayRateSuccessRate(0);
+    }
+
+    default QuantityOfHabitsAggregate.QuantityOfHabitsAggregateBuilder getQuantityOfHabitsAggregateBuilder(UUID habitUUID){
+        return QuantityOfHabitsAggregate.builder()
+                .id(UUID.fromString("ccccb2ec-cf7a-4088-8109-d23d280e9379"))
+                .habitUUID(habitUUID)
+                .currentTrend(0)
+                .unDoneHabits(0)
+                .doneHabits(0);
+    }
+
+
+
+    default QuantityOfHabitsComponentResponse.QuantityOfHabitsComponentResponseBuilder getQuantityOfHabitsComponentResponse(){
+       return QuantityOfHabitsComponentResponse.builder()
+               .done(0)
+               .undone(0)
+               .trend(DomainQuantityOfHabitsService.TrendStatus.STAGNATION.toString());
     }
 
 
