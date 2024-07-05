@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -46,5 +47,17 @@ public class QuantityOfHabitsAggregate {
                 ", unDoneHabits=" + unDoneHabits +
                 ", currentTrend=" + currentTrend +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof QuantityOfHabitsAggregate that)) return false;
+        return doneHabits == that.doneHabits && unDoneHabits == that.unDoneHabits && currentTrend == that.currentTrend && Objects.equals(id, that.id) && Objects.equals(habitUUID, that.habitUUID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, habitUUID, doneHabits, unDoneHabits, currentTrend);
     }
 }
