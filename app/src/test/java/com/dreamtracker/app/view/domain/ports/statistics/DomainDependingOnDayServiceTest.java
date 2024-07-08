@@ -280,7 +280,6 @@ class DomainDependingOnDayServiceTest
                 .thenReturn(Optional.of(dependingOnDayAggregate));
         when(dependingOnDayRepositoryPort.save(dependingOnDayAggregate)).thenReturn(dependingOnDayAggregate);
 
-    System.out.println(dependingOnDayAggregate);
         // when
         var actual = domainDependingOnDayService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
 

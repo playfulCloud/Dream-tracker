@@ -34,7 +34,6 @@ public class DomainBreaksService implements StatsTemplate {
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
-    System.out.println(aggregateFoundByHabitId);
     String status = habitTrackResponse.status();
     var currentSumOfBreaks = aggregateFoundByHabitId.getSumOfBreaks();
     var currentBreakQuantity = aggregateFoundByHabitId.getBreaksQuantity();

@@ -190,7 +190,6 @@ class HabitControllerTest
     // given
     var categoryToBeLinked = getSampleCategoryRequestBuilder().build();
     var createdCategory = restTemplate.postForEntity(BASE_URL+"/categories",categoryToBeLinked,CategoryResponse.class);
-    System.out.println(createdCategory);
     var habitToLink =
         restTemplate
             .postForEntity(
