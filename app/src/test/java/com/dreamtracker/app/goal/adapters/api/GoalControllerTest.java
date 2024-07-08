@@ -24,10 +24,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import javax.sql.DataSource;
+
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Autowired
   PostgreSQLContainer<?> postgreSQLContainer;
@@ -38,11 +39,25 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   private final String wrongUUID = "134cc20c-5f9b-4942-9a13-e23513a26cbb";
   @Autowired
   TestRestTemplate restTemplate;
+  @Autowired
+  private DataSource dataSource;
+
 
   @BeforeEach
   void setUp() {
+    resetDatabase();
     userService.createSampleUser();
   }
+
+  private void resetDatabase() {
+    try (var connection = dataSource.getConnection();
+         var statement = connection.createStatement()) {
+      statement.execute("TRUNCATE TABLE Goal RESTART IDENTITY CASCADE");
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 
   @Test
   void createHabitPositiveTestCase() {
@@ -61,9 +76,10 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
 
   @Test
   void getAllUserGoalsPositiveTestCase() {
+    userService.createSampleUser();
     // given
     restTemplate.postForEntity(
-            BASE_URL + "/habits", getSampleGoalRequestBuilder().build(), GoalResponse.class);
+            BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), GoalResponse.class);
     var expectedGoalResponse =
             getExpectedGoalResponse().build();
 

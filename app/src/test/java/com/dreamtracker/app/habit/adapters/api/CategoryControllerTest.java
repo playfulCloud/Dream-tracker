@@ -23,10 +23,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import javax.sql.DataSource;
+
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class CategoryControllerTest implements CategoryFixtures {
   @Autowired
   PostgreSQLContainer<?> postgreSQLContainer;
@@ -36,14 +37,26 @@ class CategoryControllerTest implements CategoryFixtures {
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final String wrongUUID = "134cc20c-5f9b-4942-9a13-e23513a26cbb";
   @Autowired TestRestTemplate restTemplate;
+  @Autowired
+  private DataSource dataSource;
 
   @BeforeEach
   void setUp() {
+    resetDatabase();
     userService.createSampleUser();
+
+  }
+
+  private void resetDatabase() {
+    try (var connection = dataSource.getConnection();
+         var statement = connection.createStatement()) {
+      statement.execute("TRUNCATE TABLE category RESTART IDENTITY CASCADE");
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
-  @Order(1)
   void getAllUserCategoriesEmptyPage() {
     // given
     var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentUser());
