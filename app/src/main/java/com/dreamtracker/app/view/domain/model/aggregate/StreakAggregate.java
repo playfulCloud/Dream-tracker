@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -38,5 +39,18 @@ public class StreakAggregate {
                 ", longestStreak=" + longestStreak +
                 ", currentStreak=" + currentStreak +
                 '}';
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StreakAggregate that)) return false;
+        return longestStreak == that.longestStreak && currentStreak == that.currentStreak && Objects.equals(id, that.id) && Objects.equals(habitUUID, that.habitUUID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, habitUUID, longestStreak, currentStreak);
     }
 }
