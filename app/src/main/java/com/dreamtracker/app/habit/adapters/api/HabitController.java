@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import com.dreamtracker.app.habit.domain.ports.HabitTrackService;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +17,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HabitController {
 
+
+  Logger logger = LogManager.getLogger(HabitController.class);
   private final HabitService habitService;
   private final HabitTrackService habitTrackService;
 
   @PostMapping("/habits")
   public ResponseEntity<HabitResponse> createHabit(@RequestBody HabitRequest habitRequest) {
+    logger.error("DZIALA DZIALA");
     return new ResponseEntity<>(habitService.createHabit(habitRequest), HttpStatus.CREATED);
   }
 
