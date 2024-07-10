@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -43,5 +44,19 @@ public class SingleDayAggregate {
                 ", actualCount=" + actualCount +
                 ", date='" + date + '\'' +
                 '}';
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SingleDayAggregate that = (SingleDayAggregate) o;
+        return mostDone == that.mostDone && actualCount == that.actualCount && Objects.equals(id, that.id) && Objects.equals(habitUUID, that.habitUUID) && Objects.equals(date, that.date);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, habitUUID, mostDone, actualCount, date);
     }
 }
