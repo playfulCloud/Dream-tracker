@@ -107,7 +107,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestNoIncreaseDateChange() {
+  void updateAggregatesAndCalculateResponsePositiveTestNoIncreaseNoDateChange() {
     // given
     var aggregate =
         getSingleDayAggregateBuilder(habit.getId())
@@ -121,7 +121,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
         .thenReturn(Optional.of(aggregate));
     when(dateService.getCurrentDateInISO8601()).thenReturn(currentDate);
     when(singleDayAggregateRepositoryPort.save(aggregate)).thenReturn(aggregate);
-    var expected = getSingleDayComponentResponseBuilder(currentDate).most(5).actual(5).build();
+    var expected = getSingleDayComponentResponseBuilder(previousDate).most(5).actual(5).build();
     // when
     var actual =
         domainSingleDayService.updateAggregatesAndCalculateResponse(
