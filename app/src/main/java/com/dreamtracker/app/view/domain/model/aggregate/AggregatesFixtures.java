@@ -1,8 +1,6 @@
 package com.dreamtracker.app.view.domain.model.aggregate;
 
-import com.dreamtracker.app.view.adapters.api.BreakComponentResponse;
-import com.dreamtracker.app.view.adapters.api.DependingOnDayComponentResponse;
-import com.dreamtracker.app.view.adapters.api.QuantityOfHabitsComponentResponse;
+import com.dreamtracker.app.view.adapters.api.*;
 import com.dreamtracker.app.view.domain.ports.statistics.DomainQuantityOfHabitsService;
 
 import java.util.UUID;
@@ -72,5 +70,34 @@ public interface AggregatesFixtures {
                .trend(DomainQuantityOfHabitsService.TrendStatus.STAGNATION.toString());
     }
 
+    default StreakAggregate.StreakAggregateBuilder getStreakAggregateBuilder(UUID habitUUID){
+      return StreakAggregate.builder()
+              .habitUUID(habitUUID)
+              .id(UUID.fromString("ccccb2ec-cf7a-4088-8109-d23d280e9379"))
+              .longestStreak(0)
+              .currentStreak(0);
+    }
 
+    default StreakComponentResponse.StreakComponentResponseBuilder getStreakComponentResponseBuilder(){
+      return StreakComponentResponse.builder()
+              .actual(0)
+              .longest(0);
+    }
+
+
+    default SingleDayAggregate.SingleDayAggregateBuilder getSingleDayAggregateBuilder(UUID habitUUID){
+      return SingleDayAggregate.builder()
+              .id(UUID.fromString("ccccb2ec-cf7a-4088-8109-d23d280e9379"))
+              .habitUUID(habitUUID)
+              .actualCount(0)
+              .mostDone(0);
+    }
+
+
+    default SingleDayComponentResponse.SingleDayComponentResponseBuilder getSingleDayComponentResponseBuilder(String date){
+      return SingleDayComponentResponse.builder()
+              .actual(0)
+              .most(0)
+              .date(date);
+    }
 }

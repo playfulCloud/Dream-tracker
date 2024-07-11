@@ -9,7 +9,6 @@ import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.domain.model.aggregate.SingleDayAggregate;
 import com.dreamtracker.app.view.domain.ports.SingleDayAggregateRepositoryPort;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -38,25 +37,23 @@ public class DomainSingleDayService implements StatsTemplate {
                     .findByHabitUUID(habitId)
                     .orElseThrow(
                             () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-
-    String today = dateService.getCurrentDateInISO8601();
     DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     String status = habitTrackResponse.status();
     String dateOfHabitTrack = habitTrackResponse.date();
+    String aggregateDate = singleDayAggregate.getDate();
 
-    LocalDate todayDate = ZonedDateTime.parse(today, formatter).toLocalDate();
+    LocalDate parsedAggregateDate = ZonedDateTime.parse(aggregateDate, formatter).toLocalDate();
     LocalDate habitTrackDate = ZonedDateTime.parse(dateOfHabitTrack, formatter).toLocalDate();
-    boolean areDatesTheSame = todayDate.equals(habitTrackDate);
+    boolean areDatesTheSame = parsedAggregateDate.equals(habitTrackDate);
 
     if (status.equals("DONE")) {
       if (!areDatesTheSame) {
         singleDayAggregate.setActualCount(0);
-        singleDayAggregate.setDate(today);
+        singleDayAggregate.setDate(dateOfHabitTrack);
       }
       singleDayAggregate.increaseActualCount();
     }
-
     var singleDayAggregateSaveToDB = singleDayAggregateRepositoryPort.save(singleDayAggregate);
     return mapToResponse(singleDayAggregateSaveToDB);
   }
