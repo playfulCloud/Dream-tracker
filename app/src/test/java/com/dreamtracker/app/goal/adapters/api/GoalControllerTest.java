@@ -1,13 +1,12 @@
 package com.dreamtracker.app.goal.adapters.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
-import com.dreamtracker.app.goal.domain.fixtures.GoalFixtures;
+import com.dreamtracker.app.fixtures.GoalFixtures;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;

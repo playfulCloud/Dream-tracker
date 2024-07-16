@@ -4,10 +4,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.utils.DateService;

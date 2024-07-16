@@ -5,14 +5,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
-import com.dreamtracker.app.goal.domain.fixtures.GoalFixtures;
+import com.dreamtracker.app.fixtures.GoalFixtures;
 import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;

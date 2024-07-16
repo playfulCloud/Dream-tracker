@@ -1,9 +1,9 @@
 package com.dreamtracker.app.view.domain.model.aggregateManagers;
 
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -12,15 +12,12 @@ import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.AggregatesFixtures;
 import com.dreamtracker.app.view.domain.ports.statistics.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.Current;
 
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, AggregatesFixtures {
@@ -35,7 +32,6 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
     private final BreakAggregateManager breakAggregateManager = new BreakAggregateManager(domainBreaksService);
   private final SingleDayAggregateManager singleDayAggregateManager =
       new SingleDayAggregateManager(domainSingleDayService);
-    private final StreakAggregateManager streakAggregateManager = new StreakAggregateManager(domainStreakService);
   private final QuantityOfHabitsAggregateManager quantityOfHabitsAggregateManager =
       new QuantityOfHabitsAggregateManager(domainQuantityOfHabitsService);
   private final DependingOnDayAggregateManager dependingOnDayAggregateManager =

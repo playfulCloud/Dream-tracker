@@ -1,4 +1,4 @@
-package com.dreamtracker.app.habit.domain.fixtures;
+package com.dreamtracker.app.fixtures;
 
 import com.dreamtracker.app.user.domain.model.User;
 

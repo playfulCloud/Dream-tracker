@@ -1,4 +1,4 @@
-package com.dreamtracker.app.goal.domain.fixtures;
+package com.dreamtracker.app.fixtures;
 
 import com.dreamtracker.app.goal.adapters.api.GoalRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;

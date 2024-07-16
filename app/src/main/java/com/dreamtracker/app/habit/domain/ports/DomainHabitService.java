@@ -10,7 +10,7 @@ import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
-import com.dreamtracker.app.habit.domain.utils.HabitStatus;
+import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -45,6 +45,7 @@ public class DomainHabitService implements HabitService {
   }
 
   @Override
+  @Transactional
   public HabitResponse createHabit(HabitRequest habitRequest) {
 
     var habitToCreate =

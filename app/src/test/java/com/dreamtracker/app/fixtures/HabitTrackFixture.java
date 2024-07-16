@@ -1,9 +1,9 @@
-package com.dreamtracker.app.habit.domain.fixtures;
+package com.dreamtracker.app.fixtures;
 
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
-import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
 
 import java.util.UUID;
 

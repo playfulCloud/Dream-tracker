@@ -3,10 +3,10 @@ package com.dreamtracker.app.habit.adapters.api;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
-import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
-import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
+import com.dreamtracker.app.fixtures.CategoryFixtures;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;

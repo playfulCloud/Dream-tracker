@@ -4,10 +4,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.utils.DateService;
@@ -34,7 +34,7 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
       }
 
     @Test
-    void initializeAggregates() {
+    void initializeAggregate() {
     // given
     var aggregate = getStreakAggregateBuilder(habit.getId()).id(null).build();
     var aggregateSavedToDB = getStreakAggregateBuilder(habit.getId()).build();
@@ -43,14 +43,14 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
     var expected = getStreakComponentResponseBuilder().build();
 
     // when
-    var actual = domainStreakService.initializeAggregates(habit.getId());
+    var actual = domainStreakService.initializeAggregate(habit.getId());
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseDoneStreakIncrease() {
+  void updateAggregatePositiveTestCaseDoneStreakIncrease() {
     // given
     var aggregateSavedToDB = getStreakAggregateBuilder(habit.getId()).build();
     var habitTrackResponse =
@@ -65,14 +65,14 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
 
     // when
     var actual =
-        domainStreakService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainStreakService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseUnDoneStreakBreaks() {
+  void updateAggregatePositiveTestCaseUnDoneStreakBreaks() {
     // given
     var aggregateSavedToDB =
         getStreakAggregateBuilder(habit.getId()).currentStreak(10).longestStreak(10).build();
@@ -88,14 +88,14 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
 
     // when
     var actual =
-        domainStreakService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainStreakService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseUnDoneStreakStaysTheSame() {
+  void updateAggregatePositiveTestCaseUnDoneStreakStaysTheSame() {
     // given
     var aggregateSavedToDB =
         getStreakAggregateBuilder(habit.getId()).currentStreak(0).longestStreak(10).build();
@@ -111,14 +111,14 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
 
     // when
     var actual =
-        domainStreakService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainStreakService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseDoneStreakStaysTheSame() {
+  void updateAggregatePositiveTestCaseDoneStreakStaysTheSame() {
     // given
     var aggregateSavedToDB =
         getStreakAggregateBuilder(habit.getId()).currentStreak(0).longestStreak(10).build();
@@ -134,14 +134,14 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
 
     // when
     var actual =
-        domainStreakService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainStreakService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseDoneStreakChanges() {
+  void updateAggregatePositiveTestCaseDoneStreakChanges() {
     // given
     var aggregateSavedToDB =
         getStreakAggregateBuilder(habit.getId()).currentStreak(10).longestStreak(10).build();
@@ -157,14 +157,14 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
 
     // when
     var actual =
-        domainStreakService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainStreakService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponseEntityNotFoundEx() {
+  void updateAggregateEntityNotFoundEx() {
     // given
     var habitTrackResponse =
         getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601())
@@ -176,7 +176,7 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
     assertThatThrownBy(
             () -> {
               // when
-              domainStreakService.updateAggregatesAndCalculateResponse(
+              domainStreakService.updateAggregate(
                   habit.getId(), habitTrackResponse);
               // then
             })
@@ -185,7 +185,7 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
   }
 
     @Test
-    void getCalculateResponsePositiveTestCase() {
+    void getAggregatePositiveTestCase() {
         // given
         var aggregateSavedToDB =
                 getStreakAggregateBuilder(habit.getId()).build();
@@ -197,19 +197,19 @@ class DomainStreakServiceTest implements HabitFixture, AggregatesFixtures, Habit
 
         // when
         var actual =
-                domainStreakService.getCalculateResponse(habit.getId());
+                domainStreakService.getAggregate(habit.getId());
         // then
         assertThat(actual).isEqualTo(expected);
     }
 
     @Test
-    void getCalculateResponseEntityNotFoundException() {
+    void getAggregateEntityNotFoundException() {
 // given
         when(streakAggregateRepositoryPort.findByHabitUUID(habit.getId())).thenReturn(Optional.empty());
         assertThatThrownBy(
                 () -> {
                     // when
-                    domainStreakService.getCalculateResponse(
+                    domainStreakService.getAggregate(
                             habit.getId());
                     // then
                 })
