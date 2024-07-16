@@ -2,19 +2,16 @@ package com.dreamtracker.app.view.domain.model.aggregateManagers;
 
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
-import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
-import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
-import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.config.StatsAggregatorObservable;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
