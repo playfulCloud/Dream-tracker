@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -12,7 +13,7 @@ import java.util.Objects;
 public class SingleDayComponentResponse extends StatsComponentResponse{
     private final int most;
     private final int actual;
-    private final String date;
+    private final OffsetDateTime date;
 
 
     @Override

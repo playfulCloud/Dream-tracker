@@ -18,18 +18,20 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
+import com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.auth.AuthStateCacheable;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.logging.LoggerFactory;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 
 class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
 
@@ -43,10 +45,11 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   private Clock fixedClock;
   private Habit sampleHabit;
 
+
   @BeforeEach
   void setUp() {
     sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    fixedClock = Clock.fixed(Instant.parse("2024-07-17T00:00:00Z"), ZoneOffset.UTC);
     habitTrackService =
         new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock);
   }
@@ -54,7 +57,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   @Test
   void getAllTracksOfHabitPositiveTestCase() {
     // given
-    var dateForTracks = ZonedDateTime.now(fixedClock).format(DateTimeFormatter.ISO_DATE_TIME);
+    var dateForTracks = OffsetDateTime.now(fixedClock);
     var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).build();
     var sampleHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
     var listOfTracks = List.of(sampleHabitTrack);
@@ -82,8 +85,9 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   @Test
   void trackTheHabitPositiveTestCase() {
     // given
-    var dateForTracks = ZonedDateTime.now(fixedClock).format(DateTimeFormatter.ISO_DATE_TIME);
-    var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).build();
+
+    var dateForTracks = OffsetDateTime.now(fixedClock);
+    var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).id(null).build();
     var expectedHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
     var sampleHabitTrackRequest = getSampleHabitTrackRequest(sampleHabit.getId()).build();
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
@@ -94,6 +98,8 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
                 .status(sampleHabitTrackRequest.status())
                 .build()))
         .thenReturn(sampleHabitTrack);
+
+    System.out.println(sampleHabitTrack);
     // when
     var actualHabitTrackResponse = habitTrackService.trackTheHabit(sampleHabitTrackRequest);
     // then

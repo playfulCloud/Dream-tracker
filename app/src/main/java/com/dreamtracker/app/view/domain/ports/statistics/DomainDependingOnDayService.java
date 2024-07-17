@@ -10,6 +10,7 @@ import com.dreamtracker.app.view.domain.model.aggregate.DependingOnDayAggregate;
 import com.dreamtracker.app.view.domain.ports.DependingOnDayRepositoryPort;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -39,7 +40,7 @@ public class DomainDependingOnDayService implements StatsAggregatorObserver {
     DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME; // Use a formatter that includes the zone ID.
 
     String status = habitTrackResponse.status();
-    ZonedDateTime dateTime = ZonedDateTime.parse(habitTrackResponse.date(), formatter);
+    OffsetDateTime dateTime = habitTrackResponse.date();
     LocalDate date = dateTime.toLocalDate();
     DayOfWeek dayOfWeek = date.getDayOfWeek();
 

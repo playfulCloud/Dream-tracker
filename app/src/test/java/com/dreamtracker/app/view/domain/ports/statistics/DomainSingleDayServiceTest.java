@@ -15,6 +15,8 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.view.domain.model.aggregate.AggregatesFixtures;
 import com.dreamtracker.app.view.domain.ports.SingleDayAggregateRepositoryPort;
+
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -30,10 +32,8 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final DateService dateService = Mockito.mock(DateService.class);
   private Habit habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-  private final ZonedDateTime now = ZonedDateTime.now();
-  private final String currentDate = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-  private final ZonedDateTime yesterday = now.minusDays(1);
-  private final String previousDate = yesterday.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+  private final OffsetDateTime currentDate = OffsetDateTime.now();
+  private final  OffsetDateTime previousDate = currentDate.minusDays(1);
 
     @BeforeEach
     void setUp() {

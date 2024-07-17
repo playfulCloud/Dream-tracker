@@ -22,10 +22,8 @@ import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +109,7 @@ class DomainHabitServiceTest
     var sampleHabitTrack =
         getSampleHabitTrack(
                 sampleHabit.getId(),
-                ZonedDateTime.now(fixedClock).format(DateTimeFormatter.ISO_DATE_TIME))
+                OffsetDateTime.now(fixedClock))
             .build();
     var listOfTracks = List.of(sampleHabitTrack);
     when(habitTrackRepositoryPort.findByHabitUUID(sampleHabit.getId())).thenReturn(listOfTracks);

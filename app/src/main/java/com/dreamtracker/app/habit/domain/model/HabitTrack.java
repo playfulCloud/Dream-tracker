@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,7 @@ public class HabitTrack {
     @Id
     @GeneratedValue
     private UUID id;
-    private String date;
+    private OffsetDateTime date;
     private String status;
     private UUID habitUUID;
 }

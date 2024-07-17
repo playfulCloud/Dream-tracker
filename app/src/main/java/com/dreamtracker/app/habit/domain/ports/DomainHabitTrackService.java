@@ -8,9 +8,13 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import java.time.Clock;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ public class DomainHabitTrackService implements HabitTrackService {
   }
 
   @Override
+  @Transactional
   public HabitTrackResponse trackTheHabit(HabitTrackingRequest habitTrackingRequest) {
 
     var habitToUpdateTracking =
@@ -40,8 +45,7 @@ public class DomainHabitTrackService implements HabitTrackService {
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
-    ZonedDateTime date = ZonedDateTime.now(clock);
-    String formattedDate = date.format(DateTimeFormatter.ISO_DATE_TIME);
+    var formattedDate = OffsetDateTime.now(clock);
 
     var track =
         HabitTrack.builder()

@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class SingleDayAggregate {
 
     private int mostDone;
     private int actualCount;
-    private String date;
+    private OffsetDateTime date;
 
 
     public void increaseActualCount(){

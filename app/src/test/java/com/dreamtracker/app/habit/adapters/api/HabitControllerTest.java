@@ -8,6 +8,7 @@ import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -40,6 +41,8 @@ class HabitControllerTest
   @Autowired TestRestTemplate restTemplate;
   @Autowired
   private DataSource dataSource;
+  @Autowired
+  private DateService dateService;
 
 
   @BeforeEach
@@ -254,7 +257,7 @@ class HabitControllerTest
                 BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class)
             .getBody();
     var habitTrackRequest = getSampleHabitTrackRequest(habitToTrack.id()).build();
-    var expectedHabitTrackResponse = getSampleHabitTrackResponse("somedate");
+    var expectedHabitTrackResponse = getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601());
     // when
     var habitTrackResponse =
         restTemplate.postForEntity(
@@ -336,7 +339,7 @@ class HabitControllerTest
                     null,
                     new ParameterizedTypeReference<Page<HabitTrackResponse>>() {});
     // then
-    assertThat(actualPageResponse.getBody().getItems().get(0)).usingRecursiveComparison().ignoringFields("id").isEqualTo(habitTrackResponse.getBody());
+    assertThat(actualPageResponse.getBody().getItems().get(0)).usingRecursiveComparison().ignoringFields("id").ignoringFields("date").isEqualTo(habitTrackResponse.getBody());
   }
 
   @Test
