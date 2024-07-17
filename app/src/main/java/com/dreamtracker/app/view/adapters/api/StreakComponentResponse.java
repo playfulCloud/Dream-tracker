@@ -25,4 +25,10 @@ public class StreakComponentResponse extends StatsComponentResponse{
     public int hashCode() {
         return Objects.hash(longest, actual);
     }
+
+    @Override
+    public void combineResponse(CombinedComponentResponse response){
+        response.setLongest(this.getLongest());
+        response.setActual(this.getActual());
+    }
 }

@@ -15,7 +15,7 @@ public class ViewController {
   private final ViewService viewService;
 
   @GetMapping("/views/{view-name}")
-  public ResponseEntity<Page<StatsComponentResponse>> getView(
+  public ResponseEntity<CombinedComponentResponse> getView(
       @PathVariable("view-name") String viewName) {
     var pageResult = viewService.getStatsComponent(viewName);
     return new ResponseEntity<>(pageResult, HttpStatus.OK);

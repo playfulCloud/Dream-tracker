@@ -27,4 +27,11 @@ public class QuantityOfHabitsComponentResponse extends StatsComponentResponse {
     public int hashCode() {
         return Objects.hash(done, undone, trend);
     }
+
+    @Override
+    public void combineResponse(CombinedComponentResponse response){
+        response.setDone(this.getDone());
+        response.setUndone(this.getUndone());
+        response.setTrend(this.getTrend());
+    }
 }

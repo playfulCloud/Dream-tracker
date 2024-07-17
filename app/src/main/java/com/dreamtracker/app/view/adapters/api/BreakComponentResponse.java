@@ -33,4 +33,12 @@ public class BreakComponentResponse extends StatsComponentResponse {
     public int hashCode() {
         return Objects.hashCode(averageBreak);
     }
+
+
+    @Override
+    public void combineResponse(CombinedComponentResponse response){
+        response.setAverageBreak(this.getAverageBreak());
+    }
+
+
 }
