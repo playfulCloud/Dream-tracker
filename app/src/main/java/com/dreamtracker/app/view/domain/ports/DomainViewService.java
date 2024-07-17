@@ -7,7 +7,7 @@ import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.adapters.api.ViewRequest;
 import com.dreamtracker.app.view.adapters.api.ViewResponse;
 import com.dreamtracker.app.view.domain.model.View;
-import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
+import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import lombok.RequiredArgsConstructor;
 
 //TODO: this whole service will implemented in iteration 4

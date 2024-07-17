@@ -5,8 +5,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.domain.ports.DomainHabitTrackService;
@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
+import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

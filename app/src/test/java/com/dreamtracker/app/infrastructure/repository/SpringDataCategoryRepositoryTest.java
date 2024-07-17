@@ -3,7 +3,7 @@ package com.dreamtracker.app.infrastructure.repository;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
-import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
+import com.dreamtracker.app.fixtures.CategoryFixtures;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import org.junit.jupiter.api.BeforeEach;

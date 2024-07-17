@@ -4,10 +4,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.utils.DateService;
@@ -35,7 +35,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
     domainBreaksService = new DomainBreaksService(breaksAggregateRepositoryPort);
   }
   @Test
-  void initializeAggregatesPositiveTestCase() {
+  void initializeAggregatePositiveTestCase() {
     // given
     var aggregate = getBreakAggregateBuilder(habit.getId()).id(null).build();
     var aggregateSavedToDB = getBreakAggregateBuilder(habit.getId()).build();
@@ -43,13 +43,13 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
 
     when(breaksAggregateRepositoryPort.save(aggregate)).thenReturn(aggregateSavedToDB);
     // when
-    var actualComponentResponse = domainBreaksService.initializeAggregates(habit.getId());
+    var actualComponentResponse = domainBreaksService.initializeAggregate(habit.getId());
     // then
     assertThat(actualComponentResponse).isEqualTo(expectedComponentResponse);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseDone() {
+  void updateAggregatePositiveTestCaseDone() {
     // given
     var breakAggregateSavedToDB = getBreakAggregateBuilder(habit.getId()).build();
     var habitTrackResponse =
@@ -64,14 +64,14 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
 
     // when
     var actual =
-        domainBreaksService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainBreaksService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseUndone() {
+  void updateAggregatePositiveTestCaseUndone() {
     // given
     var breakAggregate = getBreakAggregateBuilder(habit.getId()).build();
     var habitTrackResponse =
@@ -87,7 +87,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
 
     // when
     var actual =
-        domainBreaksService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainBreaksService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
@@ -96,7 +96,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   // The main goal of these test is check proper calculation during break increment only of
   // sumOfBreaks
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseisBreakTrue() {
+  void updateAggregatePositiveTestCaseisBreakTrue() {
     // given
     var breakAggregateSavedToDB =
         getBreakAggregateBuilder(habit.getId())
@@ -117,7 +117,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
     var expected = getBreakStatsComponentResponse().averageBreak(5.0).build();
     // when
     var actual =
-        domainBreaksService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainBreaksService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
@@ -126,7 +126,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   // The main goal of these test is check proper calculation during break increment sumOfBreaks,
   // quantityOfBreaks;
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseisBreakFalse() {
+  void updateAggregatePositiveTestCaseisBreakFalse() {
     // given
     var breakAggregateSavedToDB =
         getBreakAggregateBuilder(habit.getId())
@@ -147,14 +147,14 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
     var expected = getBreakStatsComponentResponse().averageBreak(5.0).build();
     // when
     var actual =
-        domainBreaksService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        domainBreaksService.updateAggregate(habit.getId(), habitTrackResponse);
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponseEntityNotFoundException() {
+  void updateAggregateEntityNotFoundException() {
     // given
     var habitTrackResponse =
         getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601()).build();
@@ -162,7 +162,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
     assertThatThrownBy(
             () -> {
               // when
-              domainBreaksService.updateAggregatesAndCalculateResponse(
+              domainBreaksService.updateAggregate(
                   habit.getId(), habitTrackResponse);
               // then
             })
@@ -171,7 +171,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   }
 
   @Test
-  void getCalculateResponsePositiveTestCase() {
+  void getAggregatePositiveTestCase() {
     // given
     var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     var breakAggregateSavedToDB =
@@ -186,21 +186,21 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
 
     var expected = getBreakStatsComponentResponse().averageBreak(0).build();
     // when
-    var actual = domainBreaksService.getCalculateResponse(habit.getId());
+    var actual = domainBreaksService.getAggregate(habit.getId());
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void getCalculateResponseEntityNotFoundException() {
+  void getAggregateEntityNotFoundException() {
     // given
     when(breaksAggregateRepositoryPort.findByHabitUUID(habit.getId())).thenReturn(Optional.empty());
 
     assertThatThrownBy(
             () -> {
               // when
-              domainBreaksService.getCalculateResponse(habit.getId());
+              domainBreaksService.getAggregate(habit.getId());
               // then
             })
         .isInstanceOf(EntityNotFoundException.class)

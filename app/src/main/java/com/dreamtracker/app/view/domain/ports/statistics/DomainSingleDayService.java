@@ -6,6 +6,7 @@ import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.view.adapters.api.SingleDayComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
+import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.SingleDayAggregate;
 import com.dreamtracker.app.view.domain.ports.SingleDayAggregateRepositoryPort;
 import java.time.LocalDate;
@@ -17,24 +18,24 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class DomainSingleDayService implements StatsTemplate {
+public class DomainSingleDayService implements StatsAggregatorObserver {
 
   private final SingleDayAggregateRepositoryPort singleDayAggregateRepositoryPort;
   private final DateService dateService;
 
   @Override
-  public StatsComponentResponse initializeAggregates(UUID habitId) {
-    var singleDayAggregate = initialize(habitId);
+  public StatsComponentResponse initializeAggregate(UUID habitUUID) {
+    var singleDayAggregate = initialize(habitUUID);
     var singleDayAggregateSavedToSB = singleDayAggregateRepositoryPort.save(singleDayAggregate);
     return mapToResponse(singleDayAggregateSavedToSB);
   }
 
   @Override
-  public StatsComponentResponse updateAggregatesAndCalculateResponse(
-          UUID habitId, HabitTrackResponse habitTrackResponse) {
+  public StatsComponentResponse updateAggregate(
+          UUID habitUUID, HabitTrackResponse habitTrackResponse) {
     var singleDayAggregate =
             singleDayAggregateRepositoryPort
-                    .findByHabitUUID(habitId)
+                    .findByHabitUUID(habitUUID)
                     .orElseThrow(
                             () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
@@ -59,7 +60,7 @@ public class DomainSingleDayService implements StatsTemplate {
   }
 
   @Override
-  public StatsComponentResponse getCalculateResponse(UUID habitId) {
+  public StatsComponentResponse getAggregate(UUID habitId) {
     var singleDayAggregate = singleDayAggregateRepositoryPort.findByHabitUUID(habitId).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     return mapToResponse(singleDayAggregate);
   }
@@ -80,4 +81,5 @@ public class DomainSingleDayService implements StatsTemplate {
         .date(dateService.getCurrentDateInISO8601())
         .build();
   }
+
 }

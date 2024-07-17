@@ -5,6 +5,7 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.DependingOnDayComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
+import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.DependingOnDayAggregate;
 import com.dreamtracker.app.view.domain.ports.DependingOnDayRepositoryPort;
 import java.time.DayOfWeek;
@@ -17,19 +18,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class DomainDependingOnDayService implements StatsTemplate {
+public class DomainDependingOnDayService implements StatsAggregatorObserver {
 
   private final DependingOnDayRepositoryPort dependingOnDayRepositoryPort;
 
   @Override
-  public StatsComponentResponse initializeAggregates(UUID habitId) {
-    var dependingOnDay = initialize(habitId);
+  public StatsComponentResponse initializeAggregate(UUID habitUUID) {
+    var dependingOnDay = initialize(habitUUID);
     var dependingOnDayAggregateSavedToDB = dependingOnDayRepositoryPort.save(dependingOnDay);
     return mapToResponse(dependingOnDayAggregateSavedToDB);
   }
 
   @Override
-  public StatsComponentResponse updateAggregatesAndCalculateResponse(
+  public StatsComponentResponse updateAggregate(
       UUID habitId, HabitTrackResponse habitTrackResponse) {
     var dependingOnDayAggregateFoundByHabitUUID = dependingOnDayRepositoryPort.findByHabitUUID(habitId).orElseThrow(()->new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
@@ -52,7 +53,7 @@ public class DomainDependingOnDayService implements StatsTemplate {
   }
 
   @Override
-  public StatsComponentResponse getCalculateResponse(UUID habitId) {
+  public StatsComponentResponse getAggregate(UUID habitId) {
     var dependingOnDayAggregateFoundByHabitUUID = dependingOnDayRepositoryPort.findByHabitUUID(habitId).orElseThrow(()->new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     return mapToResponse(dependingOnDayAggregateFoundByHabitUUID);
   }

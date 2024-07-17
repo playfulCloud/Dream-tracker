@@ -2,13 +2,12 @@ package com.dreamtracker.app.view.domain.ports.statistics;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.utils.DateService;
@@ -43,7 +42,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   }
 
     @Test
-    void initializeAggregates() {
+    void initializeAggregate() {
     // given
     var aggregate = getSingleDayAggregateBuilder(habit.getId()).id(null).date(currentDate).build();
     var aggregateSavedToDB = getSingleDayAggregateBuilder(habit.getId()).date(currentDate).build();
@@ -53,14 +52,14 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
     var expected = getSingleDayComponentResponseBuilder(currentDate).build();
 
     // when
-    var actual = domainSingleDayService.initializeAggregates(habit.getId());
+    var actual = domainSingleDayService.initializeAggregate(habit.getId());
 
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseSameDate() {
+  void updateAggregatePositiveTestCaseSameDate() {
     // given
     var aggregate = getSingleDayAggregateBuilder(habit.getId()).date(currentDate).build();
     var habitTrackResponse =
@@ -73,7 +72,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
 
     // when
     var actual =
-        domainSingleDayService.updateAggregatesAndCalculateResponse(
+        domainSingleDayService.updateAggregate(
             habit.getId(), habitTrackResponse);
 
     // then
@@ -81,7 +80,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestCaseNewDay() {
+  void updateAggregatePositiveTestCaseNewDay() {
     // given
     var aggregate =
         getSingleDayAggregateBuilder(habit.getId())
@@ -99,7 +98,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
 
     // when
     var actual =
-        domainSingleDayService.updateAggregatesAndCalculateResponse(
+        domainSingleDayService.updateAggregate(
             habit.getId(), habitTrackResponse);
 
     // then
@@ -107,7 +106,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestNoIncreaseNoDateChange() {
+  void updateAggregatePositiveTestNoIncreaseNoDateChange() {
     // given
     var aggregate =
         getSingleDayAggregateBuilder(habit.getId())
@@ -124,7 +123,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
     var expected = getSingleDayComponentResponseBuilder(previousDate).most(5).actual(5).build();
     // when
     var actual =
-        domainSingleDayService.updateAggregatesAndCalculateResponse(
+        domainSingleDayService.updateAggregate(
             habit.getId(), habitTrackResponse);
 
     // then
@@ -132,7 +131,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   }
 
   @Test
-  void updateAggregatesAndCalculateResponsePositiveTestNewBest() {
+  void updateAggregatePositiveTestNewBest() {
     // given
     var aggregate =
         getSingleDayAggregateBuilder(habit.getId())
@@ -148,7 +147,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
     var expected = getSingleDayComponentResponseBuilder(currentDate).most(6).actual(6).build();
     // when
     var actual =
-        domainSingleDayService.updateAggregatesAndCalculateResponse(
+        domainSingleDayService.updateAggregate(
             habit.getId(), habitTrackResponse);
 
     // then
@@ -156,7 +155,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   }
 
   @Test
-  void updateAggregatesAndCalculateResponseEntityNotFoundException() {
+  void updateAggregateEntityNotFoundException() {
     // given
     var aggregate =
         getSingleDayAggregateBuilder(habit.getId())
@@ -172,7 +171,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
     // when
     assertThatThrownBy(
             () -> {
-              domainSingleDayService.updateAggregatesAndCalculateResponse(
+              domainSingleDayService.updateAggregate(
                   habit.getId(), habitTrackResponse);
             })
             // then
@@ -181,7 +180,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
   }
 
     @Test
-    void getCalculateResponsePositiveTestCase() {
+    void getAggregatePositiveTestCase() {
         // given
         var aggregate =
                 getSingleDayAggregateBuilder(habit.getId())
@@ -194,7 +193,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
         var expected = getSingleDayComponentResponseBuilder(currentDate).most(5).actual(5).build();
         // when
         var actual =
-                domainSingleDayService.getCalculateResponse(
+                domainSingleDayService.getAggregate(
                         habit.getId());
 
         // then
@@ -217,7 +216,7 @@ class DomainSingleDayServiceTest implements AggregatesFixtures, HabitFixture, Ha
         // when
         assertThatThrownBy(
                 () -> {
-                    domainSingleDayService.getCalculateResponse(
+                    domainSingleDayService.getAggregate(
                             habit.getId());
                 })
                 // then

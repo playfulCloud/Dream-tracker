@@ -4,10 +4,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.utils.HabitTrackStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.utils.DateService;
@@ -45,7 +45,7 @@ class DomainQuantityOfHabitsServiceTest
       }
 
     @Test
-    void initializeAggregates() {
+    void initializeAggregate() {
     // given
     var aggregate = getQuantityOfHabitsAggregateBuilder(habit.getId()).id(null).build();
     var aggregateSavedToDB = getQuantityOfHabitsAggregateBuilder(habit.getId()).build();
@@ -53,7 +53,7 @@ class DomainQuantityOfHabitsServiceTest
 
     when(quantityOfHabitsAggregateRepositoryPort.save(aggregate)).thenReturn(aggregateSavedToDB);
     // when
-    var actualComponentResponse = domainQuantityOfHabitsService.initializeAggregates(habit.getId());
+    var actualComponentResponse = domainQuantityOfHabitsService.initializeAggregate(habit.getId());
     // then
     assertThat(actualComponentResponse).isEqualTo(expectedComponentResponse);
       }
@@ -478,7 +478,7 @@ class DomainQuantityOfHabitsServiceTest
 
   @ParameterizedTest
   @MethodSource("argumentsBasedOnStatus")
-  void updateAggregatesAndCalculateResponsePositiveTestCaseDone(
+  void updateAggregatePositiveTestCaseDone(
       ArgumentHolder argumentHolder, String status) {
     // given
 
@@ -495,7 +495,7 @@ class DomainQuantityOfHabitsServiceTest
 
     // when
     var actual =
-        domainQuantityOfHabitsService.updateAggregatesAndCalculateResponse(
+        domainQuantityOfHabitsService.updateAggregate(
             habit.getId(), habitTrackResponse);
 
     // then
@@ -503,7 +503,7 @@ class DomainQuantityOfHabitsServiceTest
   }
 
   @Test
-  void updateAggregatesAndCalculateResponseEntityNotFoundException() {
+  void updateAggregateEntityNotFoundException() {
     // given
     var habitTrackResponse =
         getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601())
@@ -516,7 +516,7 @@ class DomainQuantityOfHabitsServiceTest
     assertThatThrownBy(
             () -> {
               // when
-              domainQuantityOfHabitsService.updateAggregatesAndCalculateResponse(
+              domainQuantityOfHabitsService.updateAggregate(
                   habit.getId(), habitTrackResponse);
               // then
             })
@@ -525,7 +525,7 @@ class DomainQuantityOfHabitsServiceTest
   }
 
   @Test
-  void getCalculateResponsePositiveTestCase() {
+  void getAggregatePositiveTestCase() {
     // given
     var quantityOfHabitsAggregate = getQuantityOfHabitsAggregateBuilder(habit.getId()).build();
 
@@ -535,13 +535,13 @@ class DomainQuantityOfHabitsServiceTest
     var expectedResponse = getQuantityOfHabitsComponentResponse().build();
 
     // when
-    var actual = domainQuantityOfHabitsService.getCalculateResponse(habit.getId());
+    var actual = domainQuantityOfHabitsService.getAggregate(habit.getId());
     // then
     assertThat(expectedResponse).isEqualTo(actual);
   }
 
   @Test
-  void getCalculateResponseEntityNotFoundException() {
+  void getAggregateEntityNotFoundException() {
     // given
     when(quantityOfHabitsAggregateRepositoryPort.findByHabitUUID(habit.getId()))
         .thenReturn(Optional.empty());
@@ -549,7 +549,7 @@ class DomainQuantityOfHabitsServiceTest
     assertThatThrownBy(
             () -> {
               // when
-              domainQuantityOfHabitsService.getCalculateResponse(habit.getId());
+              domainQuantityOfHabitsService.getAggregate(habit.getId());
               // then
             })
         .isInstanceOf(EntityNotFoundException.class)

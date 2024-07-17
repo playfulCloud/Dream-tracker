@@ -1,11 +1,11 @@
-package com.dreamtracker.app.habit.domain.fixtures;
+package com.dreamtracker.app.fixtures;
 
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
-import com.dreamtracker.app.habit.domain.utils.HabitDifficulty;
-import com.dreamtracker.app.habit.domain.utils.HabitFrequency;
-import com.dreamtracker.app.habit.domain.utils.HabitStatus;
+import com.dreamtracker.app.habit.domain.model.HabitDifficulty;
+import com.dreamtracker.app.habit.domain.model.HabitFrequency;
+import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import java.util.ArrayList;
 import java.util.UUID;
 

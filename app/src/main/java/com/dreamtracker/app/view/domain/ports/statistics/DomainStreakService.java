@@ -5,6 +5,7 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StreakComponentResponse;
+import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.StreakAggregate;
 import com.dreamtracker.app.view.domain.ports.StreakAggregateRepositoryPort;
 import java.util.UUID;
@@ -13,23 +14,22 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class DomainStreakService implements StatsTemplate {
+public class DomainStreakService implements StatsAggregatorObserver {
 
   private final StreakAggregateRepositoryPort streakAggregateRepositoryPort;
 
   @Override
-  public StatsComponentResponse initializeAggregates(UUID habitId) {
-    var streakAggregate = initialize(habitId);
+  public StatsComponentResponse initializeAggregate(UUID habitUUID) {
+    var streakAggregate = initialize(habitUUID);
     var streakAggregateSaveToDB = streakAggregateRepositoryPort.save(streakAggregate);
     return mapToResponse(streakAggregateSaveToDB);
   }
 
   @Override
-  public StatsComponentResponse updateAggregatesAndCalculateResponse(
-      UUID habitId,  HabitTrackResponse habitTrackResponse){
+  public StatsComponentResponse updateAggregate(UUID habitUUID, HabitTrackResponse habitTrackResponse){
     var streakAggregate =
         streakAggregateRepositoryPort
-            .findByHabitUUID(habitId)
+            .findByHabitUUID(habitUUID)
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
@@ -46,7 +46,7 @@ public class DomainStreakService implements StatsTemplate {
   }
 
   @Override
-  public StatsComponentResponse getCalculateResponse(UUID habitId) {
+  public StatsComponentResponse getAggregate(UUID habitId) {
     var streakAggregate =
         streakAggregateRepositoryPort
             .findByHabitUUID(habitId)
@@ -64,4 +64,8 @@ public class DomainStreakService implements StatsTemplate {
   private StreakAggregate initialize(UUID habitUUID) {
     return StreakAggregate.builder().habitUUID(habitUUID).currentStreak(0).longestStreak(0).build();
   }
+
+
+
+
 }

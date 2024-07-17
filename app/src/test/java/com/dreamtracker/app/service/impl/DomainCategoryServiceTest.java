@@ -5,8 +5,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.dreamtracker.app.habit.adapters.api.CategoryResponse;
-import com.dreamtracker.app.habit.domain.fixtures.CategoryFixtures;
-import com.dreamtracker.app.habit.domain.fixtures.UserFixtures;
+import com.dreamtracker.app.fixtures.CategoryFixtures;
+import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.habit.domain.model.Category;
 import com.dreamtracker.app.habit.domain.ports.CategoryRepositoryPort;
 import com.dreamtracker.app.habit.domain.ports.CategoryService;

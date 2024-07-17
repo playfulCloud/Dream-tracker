@@ -1,4 +1,4 @@
-package com.dreamtracker.app.view.domain.model.aggregateManagers;
+package com.dreamtracker.app.view.domain.model.aggregate;
 
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
