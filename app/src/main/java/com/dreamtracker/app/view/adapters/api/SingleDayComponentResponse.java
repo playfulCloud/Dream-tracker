@@ -37,4 +37,11 @@ public class SingleDayComponentResponse extends StatsComponentResponse{
     public int hashCode() {
         return Objects.hash(most, actual, date);
     }
+
+    @Override
+    public void combineResponse(CombinedComponentResponse response){
+        response.setMost(this.getMost());
+        response.setActualSingleDay(this.actual);
+        response.setDate(this.getDate());
+    }
 }

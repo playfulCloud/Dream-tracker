@@ -43,4 +43,15 @@ public class DependingOnDayComponentResponse extends StatsComponentResponse{
                 ", sundayRateSuccessRate=" + sundayRateSuccessRate +
                 '}';
     }
+
+    @Override
+    public void combineResponse(CombinedComponentResponse response){
+        response.setMondayRateSuccessRate(this.getMondayRateSuccessRate());
+        response.setTuesdayRateSuccessRate(this.getTuesdayRateSuccessRate());
+        response.setWednesdayRateSuccessRate(this.getWednesdayRateSuccessRate());
+        response.setThursdayRateSuccessRate(this.getThursdayRateSuccessRate());
+        response.setFridayRateSuccessRate(this.getFridayRateSuccessRate());
+        response.setSaturdayRateSuccessRate(this.getSaturdayRateSuccessRate());
+        response.setSundayRateSuccessRate(this.getSundayRateSuccessRate());
+    }
 }
