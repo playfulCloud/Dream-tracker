@@ -18,13 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class HabitController {
 
 
-  Logger logger = LogManager.getLogger(HabitController.class);
   private final HabitService habitService;
   private final HabitTrackService habitTrackService;
 
   @PostMapping("/habits")
   public ResponseEntity<HabitResponse> createHabit(@RequestBody HabitRequest habitRequest) {
-    logger.error("DZIALA DZIALA");
     return new ResponseEntity<>(habitService.createHabit(habitRequest), HttpStatus.CREATED);
   }
 

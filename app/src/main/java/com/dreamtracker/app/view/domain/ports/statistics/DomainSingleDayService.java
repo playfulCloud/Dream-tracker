@@ -41,11 +41,11 @@ public class DomainSingleDayService implements StatsAggregatorObserver {
     DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     String status = habitTrackResponse.status();
-    String dateOfHabitTrack = habitTrackResponse.date();
-    String aggregateDate = singleDayAggregate.getDate();
+    var dateOfHabitTrack = habitTrackResponse.date();
+    var aggregateDate = singleDayAggregate.getDate();
 
-    LocalDate parsedAggregateDate = ZonedDateTime.parse(aggregateDate, formatter).toLocalDate();
-    LocalDate habitTrackDate = ZonedDateTime.parse(dateOfHabitTrack, formatter).toLocalDate();
+    LocalDate parsedAggregateDate = aggregateDate.toLocalDate();
+    LocalDate habitTrackDate = dateOfHabitTrack.toLocalDate();
     boolean areDatesTheSame = parsedAggregateDate.equals(habitTrackDate);
 
     if (status.equals("DONE")) {
