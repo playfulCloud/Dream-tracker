@@ -45,11 +45,11 @@ public class DomainHabitTrackService implements HabitTrackService {
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
-    var formattedDate = OffsetDateTime.now(clock);
+    var actualDate = OffsetDateTime.now(clock);
 
     var track =
         HabitTrack.builder()
-            .date(formattedDate)
+            .date(actualDate)
             .status(habitTrackingRequest.status())
             .habitUUID(habitToUpdateTracking.getId())
             .build();

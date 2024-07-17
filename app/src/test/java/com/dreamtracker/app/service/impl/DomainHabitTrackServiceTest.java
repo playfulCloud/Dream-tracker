@@ -99,7 +99,6 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
                 .build()))
         .thenReturn(sampleHabitTrack);
 
-    System.out.println(sampleHabitTrack);
     // when
     var actualHabitTrackResponse = habitTrackService.trackTheHabit(sampleHabitTrackRequest);
     // then

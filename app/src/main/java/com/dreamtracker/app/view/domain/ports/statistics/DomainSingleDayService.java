@@ -38,7 +38,6 @@ public class DomainSingleDayService implements StatsAggregatorObserver {
                     .findByHabitUUID(habitUUID)
                     .orElseThrow(
                             () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     String status = habitTrackResponse.status();
     var dateOfHabitTrack = habitTrackResponse.date();
