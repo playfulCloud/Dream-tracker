@@ -5,6 +5,7 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.QuantityOfHabitsComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
+import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.QuantityOfHabitsAggregate;
 import com.dreamtracker.app.view.domain.ports.QuantityOfHabitsAggregateRepositoryPort;
 import java.util.UUID;
@@ -13,23 +14,23 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class DomainQuantityOfHabitsService implements StatsTemplate {
+public class DomainQuantityOfHabitsService implements StatsAggregatorObserver {
 
   private final QuantityOfHabitsAggregateRepositoryPort quantityOfHabitsAggregateRepositoryPort;
 
   @Override
-  public StatsComponentResponse initializeAggregates(UUID habitId) {
-    var quantityOfHabits = initialize(habitId);
+  public StatsComponentResponse initializeAggregate(UUID habitUUID) {
+    var quantityOfHabits = initialize(habitUUID);
     var quantityOfHabitsSaveToDB = quantityOfHabitsAggregateRepositoryPort.save(quantityOfHabits);
     return mapToResponse(quantityOfHabitsSaveToDB);
   }
 
   @Override
-  public StatsComponentResponse updateAggregatesAndCalculateResponse(
-      UUID habitId, HabitTrackResponse habitTrackResponse) {
+  public StatsComponentResponse updateAggregate(
+      UUID habitUUID, HabitTrackResponse habitTrackResponse) {
     var quantityOfHabits =
         quantityOfHabitsAggregateRepositoryPort
-            .findByHabitUUID(habitId)
+            .findByHabitUUID(habitUUID)
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
@@ -44,7 +45,7 @@ public class DomainQuantityOfHabitsService implements StatsTemplate {
   }
 
   @Override
-  public StatsComponentResponse getCalculateResponse(UUID habitId) {
+  public StatsComponentResponse getAggregate(UUID habitId) {
     var quantityOfHabits = quantityOfHabitsAggregateRepositoryPort.findByHabitUUID(habitId).orElseThrow(()->new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     return mapToResponse(quantityOfHabits);
   }
@@ -68,7 +69,10 @@ public class DomainQuantityOfHabitsService implements StatsTemplate {
         .build();
   }
 
-  public enum TrendStatus {
+
+
+
+    public enum TrendStatus {
     SLOW_RISING,
     SLOW_FALLING,
     RISING,

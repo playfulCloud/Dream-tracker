@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
+import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

@@ -21,7 +21,7 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserService;
-import com.dreamtracker.app.view.domain.model.aggregateManagers.StatsAggregator;
+import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;

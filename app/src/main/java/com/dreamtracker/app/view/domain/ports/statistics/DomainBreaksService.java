@@ -5,6 +5,7 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.view.adapters.api.BreakComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
+import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.BreaksAggregate;
 import com.dreamtracker.app.view.domain.ports.BreaksAggregateRepositoryPort;
 import java.util.UUID;
@@ -13,19 +14,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class DomainBreaksService implements StatsTemplate {
+public class DomainBreaksService implements StatsAggregatorObserver {
 
   private final BreaksAggregateRepositoryPort breaksAggregateRepositoryPort;
 
   @Override
-  public StatsComponentResponse initializeAggregates(UUID habitId) {
-    var breakAggregate = BreaksAggregate.builder().habitUUID(habitId).build();
+  public StatsComponentResponse initializeAggregate(UUID habitUUID) {
+    var breakAggregate = BreaksAggregate.builder().habitUUID(habitUUID).build();
     var aggregateSavedToDb = breaksAggregateRepositoryPort.save(breakAggregate);
     return mapToResponse(aggregateSavedToDb);
   }
 
   @Override
-  public StatsComponentResponse updateAggregatesAndCalculateResponse(
+  public StatsComponentResponse updateAggregate(
       UUID habitId, HabitTrackResponse habitTrackResponse) {
     BreaksAggregate aggregateFoundByHabitId =
         breaksAggregateRepositoryPort
@@ -55,7 +56,7 @@ public class DomainBreaksService implements StatsTemplate {
   }
 
   @Override
-  public StatsComponentResponse getCalculateResponse(UUID habitId) {
+  public StatsComponentResponse getAggregate(UUID habitId) {
     var aggregateFoundByHabitId =
         breaksAggregateRepositoryPort
             .findByHabitUUID(habitId)
@@ -73,4 +74,5 @@ public class DomainBreaksService implements StatsTemplate {
     }
     return (double) breaksAggregate.getSumOfBreaks() /breaksAggregate.getBreaksQuantity();
   }
+
 }

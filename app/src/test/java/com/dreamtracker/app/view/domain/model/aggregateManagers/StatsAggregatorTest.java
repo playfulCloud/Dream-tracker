@@ -11,6 +11,7 @@ import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.AggregatesFixtures;
+import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import com.dreamtracker.app.view.domain.ports.statistics.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,18 +26,7 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
 
 
     private final DomainBreaksService domainBreaksService = Mockito.mock(DomainBreaksService.class);
-    private final DomainSingleDayService domainSingleDayService = Mockito.mock(DomainSingleDayService.class);
-    private final DomainStreakService domainStreakService = Mockito.mock(DomainStreakService.class);
-    private final DomainQuantityOfHabitsService domainQuantityOfHabitsService = Mockito.mock(DomainQuantityOfHabitsService.class);
-    private final DomainDependingOnDayService domainDependingOnDayService = Mockito.mock(DomainDependingOnDayService.class);
-    private final BreakAggregateManager breakAggregateManager = new BreakAggregateManager(domainBreaksService);
-  private final SingleDayAggregateManager singleDayAggregateManager =
-      new SingleDayAggregateManager(domainSingleDayService);
-  private final QuantityOfHabitsAggregateManager quantityOfHabitsAggregateManager =
-      new QuantityOfHabitsAggregateManager(domainQuantityOfHabitsService);
-  private final DependingOnDayAggregateManager dependingOnDayAggregateManager =
-      new DependingOnDayAggregateManager(domainDependingOnDayService);
-    private final List<StatsAggregatorObserver> observers = List.of(breakAggregateManager);
+    private final List<StatsAggregatorObserver> observers = List.of(domainBreaksService);
   private final StatsAggregator statsAggregator = new StatsAggregator(observers);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final Habit habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
@@ -45,7 +35,7 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
     @Test
     void initializeAggregates() {
         var breakComponentResponse = getBreakStatsComponentResponse().build();
-        when(domainBreaksService.initializeAggregates(habit.getId())).thenReturn(breakComponentResponse);
+        when(domainBreaksService.initializeAggregate(habit.getId())).thenReturn(breakComponentResponse);
         var actual = statsAggregator.initializeAggregates(habit.getId());
         assertThat(actual).isEqualTo(true);
     }
@@ -54,7 +44,7 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
     void requestStatsUpdated() {
         var habitTrackResponse = getSampleHabitTrackResponse(dateService.getCurrentDateInISO8601()).status(HabitTrackStatus.DONE.toString()).build();
         var breakComponentResponse = getBreakStatsComponentResponse().build();
-        when(domainBreaksService.updateAggregatesAndCalculateResponse(habit.getId(),habitTrackResponse)).thenReturn(breakComponentResponse);
+        when(domainBreaksService.updateAggregate(habit.getId(),habitTrackResponse)).thenReturn(breakComponentResponse);
         var actual = statsAggregator.requestStatsUpdated(habit.getId(), habitTrackResponse);
 
         List<StatsComponentResponse> responses = List.of(breakComponentResponse);
@@ -65,7 +55,7 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
     @Test
     void getAggregates() {
         var breakComponentResponse = getBreakStatsComponentResponse().build();
-        when(domainBreaksService.getCalculateResponse(habit.getId())).thenReturn(breakComponentResponse);
+        when(domainBreaksService.getAggregate(habit.getId())).thenReturn(breakComponentResponse);
         var actual = statsAggregator.getAggregates(habit.getId());
         List<StatsComponentResponse> responses = List.of(breakComponentResponse);
         var expectedPageOfResponses = new Page<>(responses);

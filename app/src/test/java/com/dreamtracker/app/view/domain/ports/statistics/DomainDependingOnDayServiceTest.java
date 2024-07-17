@@ -51,7 +51,7 @@ class DomainDependingOnDayServiceTest
   }
 
   @Test
-  void initializeAggregatesPositiveTestCase() {
+  void initializeAggregatePositiveTestCase() {
     // given
     var aggregate = getDependingOnDayAggregateBuilder(habit.getId()).id(null).build();
     var aggregateSavedToDB = getDependingOnDayAggregateBuilder(habit.getId()).build();
@@ -59,7 +59,7 @@ class DomainDependingOnDayServiceTest
 
     when(dependingOnDayRepositoryPort.save(aggregate)).thenReturn(aggregateSavedToDB);
     // when
-    var actualComponentResponse = domainDependingOnDayService.initializeAggregates(habit.getId());
+    var actualComponentResponse = domainDependingOnDayService.initializeAggregate(habit.getId());
     // then
     assertThat(actualComponentResponse).isEqualTo(expectedComponentResponse);
   }
@@ -249,7 +249,7 @@ class DomainDependingOnDayServiceTest
 
   @ParameterizedTest
   @MethodSource("doneArguments")
-  void updateAggregatesAndCalculateResponsePositiveTestCaseDone(
+  void updateAggregatePositiveTestCaseDone(
       String date,
       DependingOnDayAggregate dependingOnDayAggregate,
       DependingOnDayComponentResponse expected) {
@@ -261,7 +261,7 @@ class DomainDependingOnDayServiceTest
         when(dependingOnDayRepositoryPort.save(dependingOnDayAggregate)).thenReturn(dependingOnDayAggregate);
 
         // when
-        var actual = domainDependingOnDayService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        var actual = domainDependingOnDayService.updateAggregate(habit.getId(), habitTrackResponse);
 
         // then
         assertThat(actual).isEqualTo(expected);
@@ -269,7 +269,7 @@ class DomainDependingOnDayServiceTest
 
   @ParameterizedTest
   @MethodSource("undoneArguments")
-  void updateAggregatesAndCalculateResponsePositiveTestCaseUndone(
+  void updateAggregatePositiveTestCaseUndone(
       String date,
       DependingOnDayAggregate dependingOnDayAggregate,
       DependingOnDayComponentResponse expected) {
@@ -281,14 +281,14 @@ class DomainDependingOnDayServiceTest
         when(dependingOnDayRepositoryPort.save(dependingOnDayAggregate)).thenReturn(dependingOnDayAggregate);
 
         // when
-        var actual = domainDependingOnDayService.updateAggregatesAndCalculateResponse(habit.getId(), habitTrackResponse);
+        var actual = domainDependingOnDayService.updateAggregate(habit.getId(), habitTrackResponse);
 
         // then
         assertThat(actual).isEqualTo(expected);
     }
 
   @Test
-  void getCalculateResponsePositiveTestCase() {
+  void getAggregatePositiveTestCase() {
    // given
     var dependingOnDayAggregate = getDependingOnDayAggregateBuilder(habit.getId()).build();
 
@@ -299,14 +299,14 @@ class DomainDependingOnDayServiceTest
 
 
     // when
-    var actual = domainDependingOnDayService.getCalculateResponse(habit.getId());
+    var actual = domainDependingOnDayService.getAggregate(habit.getId());
 
     // then
     assertThat(expectedResponse).isEqualTo(actual);
 
   }
     @Test
-    void updateAggregatesAndCalculateResponseEntityNotFoundException() {
+    void updateAggregateEntityNotFoundException() {
         // given
         var dependingOnDayAggregate = getDependingOnDayAggregateBuilder(habit.getId()).build();
 
@@ -318,7 +318,7 @@ class DomainDependingOnDayServiceTest
 
         assertThatThrownBy(() -> {
             // when
-            domainDependingOnDayService.updateAggregatesAndCalculateResponse(habit.getId(),habitTrackResponse);
+            domainDependingOnDayService.updateAggregate(habit.getId(),habitTrackResponse);
             // then
         }).isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
 
@@ -326,7 +326,7 @@ class DomainDependingOnDayServiceTest
     }
 
     @Test
-    void getCalculateResponseEntityNotFoundException() {
+    void getAggregateEntityNotFoundException() {
         // given
         var dependingOnDayAggregate = getDependingOnDayAggregateBuilder(habit.getId()).build();
 
@@ -336,7 +336,7 @@ class DomainDependingOnDayServiceTest
 
         assertThatThrownBy(() -> {
             // when
-             domainDependingOnDayService.getCalculateResponse(habit.getId());
+             domainDependingOnDayService.getAggregate(habit.getId());
             // then
         }).isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
 
