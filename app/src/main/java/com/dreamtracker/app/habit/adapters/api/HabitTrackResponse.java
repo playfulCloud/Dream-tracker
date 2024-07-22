@@ -2,9 +2,10 @@ package com.dreamtracker.app.habit.adapters.api;
 
 import lombok.Builder;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
+
 
 @Builder
-public record HabitTrackResponse(OffsetDateTime date, String status) {
+public record HabitTrackResponse(Instant date, String status) {
 
 }

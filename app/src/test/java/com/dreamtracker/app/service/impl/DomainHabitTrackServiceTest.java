@@ -57,7 +57,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   @Test
   void getAllTracksOfHabitPositiveTestCase() {
     // given
-    var dateForTracks = OffsetDateTime.now(fixedClock);
+    var dateForTracks = Instant.now(fixedClock);
     var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).build();
     var sampleHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
     var listOfTracks = List.of(sampleHabitTrack);
@@ -86,7 +86,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   void trackTheHabitPositiveTestCase() {
     // given
 
-    var dateForTracks = OffsetDateTime.now(fixedClock);
+    var dateForTracks = Instant.now(fixedClock);
     var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).id(null).build();
     var expectedHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
     var sampleHabitTrackRequest = getSampleHabitTrackRequest(sampleHabit.getId()).build();

@@ -3,6 +3,7 @@ package com.dreamtracker.app.view.domain.model.aggregate;
 import com.dreamtracker.app.view.adapters.api.*;
 import com.dreamtracker.app.view.domain.ports.statistics.DomainQuantityOfHabitsService;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -95,7 +96,7 @@ public interface AggregatesFixtures {
     }
 
 
-    default SingleDayComponentResponse.SingleDayComponentResponseBuilder getSingleDayComponentResponseBuilder(OffsetDateTime date){
+    default SingleDayComponentResponse.SingleDayComponentResponseBuilder getSingleDayComponentResponseBuilder(Instant date){
       return SingleDayComponentResponse.builder()
               .actual(0)
               .most(0)

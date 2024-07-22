@@ -1,18 +1,15 @@
 package com.dreamtracker.app.infrastructure.utils;
 
-import org.springframework.stereotype.Service;
-
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DateService {
 
-
-    public OffsetDateTime getCurrentDateInISO8601() {
-        return OffsetDateTime.now(ZoneOffset.UTC);
+  public Instant getCurrentDateInISO8601() {
+    return Instant.now();
     }
 
     public String getSpecificDateInISO8601(int year, int month, int day, int hour, int minute, int second, String zoneId) {
