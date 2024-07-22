@@ -3,6 +3,7 @@ package com.dreamtracker.app.view.domain.ports;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.view.adapters.api.CombinedComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.adapters.api.ViewRequest;
 import com.dreamtracker.app.view.adapters.api.ViewResponse;
@@ -18,7 +19,7 @@ public class DomainViewService implements ViewService {
   private final StatsAggregator statsAggregator;
 
   @Override
-  public Page<StatsComponentResponse> getStatsComponent(String viewName) {
+  public CombinedComponentResponse getStatsComponent(String viewName) {
     var foundView =
         viewRepositoryPort
             .findByName(viewName)

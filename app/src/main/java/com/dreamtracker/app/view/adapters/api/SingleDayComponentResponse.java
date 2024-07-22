@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
@@ -13,7 +14,7 @@ import java.util.Objects;
 public class SingleDayComponentResponse extends StatsComponentResponse{
     private final int most;
     private final int actual;
-    private final OffsetDateTime date;
+    private final Instant date;
 
 
     @Override
@@ -36,5 +37,12 @@ public class SingleDayComponentResponse extends StatsComponentResponse{
     @Override
     public int hashCode() {
         return Objects.hash(most, actual, date);
+    }
+
+    @Override
+    public void combineResponse(CombinedComponentResponse response){
+        response.setMost(this.getMost());
+        response.setActualSingleDay(this.actual);
+        response.setDate(this.getDate());
     }
 }

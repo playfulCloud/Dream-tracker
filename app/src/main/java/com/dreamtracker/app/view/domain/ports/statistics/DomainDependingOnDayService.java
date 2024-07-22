@@ -8,11 +8,8 @@ import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.DependingOnDayAggregate;
 import com.dreamtracker.app.view.domain.ports.DependingOnDayRepositoryPort;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+
+import java.time.*;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,13 +32,11 @@ public class DomainDependingOnDayService implements StatsAggregatorObserver {
       UUID habitId, HabitTrackResponse habitTrackResponse) {
     var dependingOnDayAggregateFoundByHabitUUID = dependingOnDayRepositoryPort.findByHabitUUID(habitId).orElseThrow(()->new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
-
-
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME; // Use a formatter that includes the zone ID.
-
     String status = habitTrackResponse.status();
-    OffsetDateTime dateTime = habitTrackResponse.date();
-    LocalDate date = dateTime.toLocalDate();
+    Instant dateTime = habitTrackResponse.date();
+    ZoneId zoneId = ZoneId.systemDefault();
+
+    LocalDate date = dateTime.atZone(zoneId).toLocalDate();
     DayOfWeek dayOfWeek = date.getDayOfWeek();
 
     switch(status){

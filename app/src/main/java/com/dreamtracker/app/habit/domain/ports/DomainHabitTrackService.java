@@ -7,10 +7,8 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
-import java.time.Clock;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
@@ -45,11 +43,11 @@ public class DomainHabitTrackService implements HabitTrackService {
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
-    var formattedDate = OffsetDateTime.now(clock);
+    var actualDate = Instant.now(clock);
 
     var track =
         HabitTrack.builder()
-            .date(formattedDate)
+            .date(actualDate)
             .status(habitTrackingRequest.status())
             .habitUUID(habitToUpdateTracking.getId())
             .build();

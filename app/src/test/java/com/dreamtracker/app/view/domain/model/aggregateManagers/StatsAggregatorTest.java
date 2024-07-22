@@ -1,25 +1,23 @@
 package com.dreamtracker.app.view.domain.model.aggregateManagers;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitTrackStatus;
-import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
-import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
+import com.dreamtracker.app.view.adapters.api.CombinedComponentResponse;
 import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.AggregatesFixtures;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import com.dreamtracker.app.view.domain.ports.statistics.*;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.when;
 
 class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, AggregatesFixtures {
 
@@ -47,9 +45,9 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
         when(domainBreaksService.updateAggregate(habit.getId(),habitTrackResponse)).thenReturn(breakComponentResponse);
         var actual = statsAggregator.requestStatsUpdated(habit.getId(), habitTrackResponse);
 
-        List<StatsComponentResponse> responses = List.of(breakComponentResponse);
-        var expectedPageOfResponses = new Page<>(responses);
-        assertThat(actual).isEqualTo(expectedPageOfResponses);
+    CombinedComponentResponse expected = new CombinedComponentResponse();
+    expected.setAverageBreak(breakComponentResponse.getAverageBreak());
+    assertThat(actual).isEqualTo(expected);
     }
 
     @Test
@@ -57,8 +55,7 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
         var breakComponentResponse = getBreakStatsComponentResponse().build();
         when(domainBreaksService.getAggregate(habit.getId())).thenReturn(breakComponentResponse);
         var actual = statsAggregator.getAggregates(habit.getId());
-        List<StatsComponentResponse> responses = List.of(breakComponentResponse);
-        var expectedPageOfResponses = new Page<>(responses);
-        assertThat(actual).isEqualTo(expectedPageOfResponses);
+    var expected = new CombinedComponentResponse();
+    assertThat(actual).isEqualTo(expected);
     }
 }

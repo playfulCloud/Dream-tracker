@@ -18,6 +18,7 @@ import com.dreamtracker.app.view.domain.model.aggregate.AggregatesFixtures;
 import com.dreamtracker.app.view.domain.model.aggregate.DependingOnDayAggregate;
 import com.dreamtracker.app.view.domain.ports.DependingOnDayRepositoryPort;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -252,7 +253,7 @@ class DomainDependingOnDayServiceTest
   @ParameterizedTest
   @MethodSource("doneArguments")
   void updateAggregatePositiveTestCaseDone(
-      OffsetDateTime date,
+      Instant date,
       DependingOnDayAggregate dependingOnDayAggregate,
       DependingOnDayComponentResponse expected) {
         // given
@@ -272,7 +273,7 @@ class DomainDependingOnDayServiceTest
   @ParameterizedTest
   @MethodSource("undoneArguments")
   void updateAggregatePositiveTestCaseUndone(
-      OffsetDateTime date,
+      Instant date,
       DependingOnDayAggregate dependingOnDayAggregate,
       DependingOnDayComponentResponse expected) {
         // given

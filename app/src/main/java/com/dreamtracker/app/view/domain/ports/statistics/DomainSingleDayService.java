@@ -9,9 +9,6 @@ import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.config.StatsAggregatorObserver;
 import com.dreamtracker.app.view.domain.model.aggregate.SingleDayAggregate;
 import com.dreamtracker.app.view.domain.ports.SingleDayAggregateRepositoryPort;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,15 +35,12 @@ public class DomainSingleDayService implements StatsAggregatorObserver {
                     .findByHabitUUID(habitUUID)
                     .orElseThrow(
                             () -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     String status = habitTrackResponse.status();
     var dateOfHabitTrack = habitTrackResponse.date();
     var aggregateDate = singleDayAggregate.getDate();
 
-    LocalDate parsedAggregateDate = aggregateDate.toLocalDate();
-    LocalDate habitTrackDate = dateOfHabitTrack.toLocalDate();
-    boolean areDatesTheSame = parsedAggregateDate.equals(habitTrackDate);
+    boolean areDatesTheSame = aggregateDate.equals(dateOfHabitTrack);
 
     if (status.equals("DONE")) {
       if (!areDatesTheSame) {

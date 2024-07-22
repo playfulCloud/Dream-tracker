@@ -109,7 +109,7 @@ class DomainHabitServiceTest
     var sampleHabitTrack =
         getSampleHabitTrack(
                 sampleHabit.getId(),
-                OffsetDateTime.now(fixedClock))
+                Instant.now(fixedClock))
             .build();
     var listOfTracks = List.of(sampleHabitTrack);
     when(habitTrackRepositoryPort.findByHabitUUID(sampleHabit.getId())).thenReturn(listOfTracks);

@@ -2,7 +2,7 @@ package com.dreamtracker.app.view.domain.model.aggregate;
 
 
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
-import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.view.adapters.api.CombinedComponentResponse;
 import com.dreamtracker.app.view.adapters.api.StatsComponentResponse;
 import com.dreamtracker.app.view.config.StatsAggregatorObservable;
 import com.dreamtracker.app.view.config.StatsAggregatorObserver;
@@ -31,19 +31,23 @@ public class StatsAggregator implements StatsAggregatorObservable {
     }
 
     @Override
-    public Page<StatsComponentResponse> requestStatsUpdated(UUID habitUUID, HabitTrackResponse habitTrackResponse) {
+    public CombinedComponentResponse requestStatsUpdated(UUID habitUUID, HabitTrackResponse habitTrackResponse) {
         var responsesToMap = triggerUpdateAndGetResponse(habitUUID,habitTrackResponse);
         return mapToPageResponse(responsesToMap);
     }
 
     @Override
-    public Page<StatsComponentResponse> getAggregates(UUID habitUUID) {
+    public CombinedComponentResponse getAggregates(UUID habitUUID) {
         var responsesToMap = getResponsesFromAggregates(habitUUID);
         return mapToPageResponse(responsesToMap);
     }
 
-    private Page<StatsComponentResponse> mapToPageResponse(List<StatsComponentResponse> responses){
-       return new Page<>(responses);
+    private CombinedComponentResponse mapToPageResponse(List<StatsComponentResponse> responses){
+        CombinedComponentResponse combinedComponentResponse = new CombinedComponentResponse();
+        for(StatsComponentResponse componentResponse : responses){
+            componentResponse.combineResponse(combinedComponentResponse);
+        }
+       return combinedComponentResponse;
     }
 
     private List<StatsComponentResponse> getResponsesFromAggregates(UUID habitUUID){
