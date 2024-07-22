@@ -1,5 +1,6 @@
 package com.dreamtracker.app.view.adapters.api;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class CombinedComponentResponse {
 
   private int most;
   private int actualSingleDay;
-  private OffsetDateTime date;
+  private Instant date;
 
   private double mondayRateSuccessRate;
   private double tuesdayRateSuccessRate;
