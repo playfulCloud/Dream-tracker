@@ -44,10 +44,5 @@ public class GoalController {
     return new ResponseEntity<>(goalService.getGoalById(id), HttpStatus.OK);
   }
 
-  @PostMapping("/goals/{goal-id}/habits")
-  public ResponseEntity<Void> associateHabitWithTheGoal(
-      @PathVariable("goal-id") UUID id, @RequestBody GoalAssignHabitRequest goalAssignHabitRequest) {
-    goalService.associateHabitWithGoal(id, goalAssignHabitRequest);
-    return ResponseEntity.noContent().build();
-  }
+
 }

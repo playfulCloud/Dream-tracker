@@ -4,15 +4,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.fixtures.GoalFixtures;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.UserFixtures;
+import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
-import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
-import com.dreamtracker.app.fixtures.HabitFixture;
-import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
@@ -48,23 +47,71 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void createGoalPositiveTestCase() {
     // given
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleGoalRequest = getSampleGoalRequestBuilder().build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoalRequest = getSampleGoalRequestBuilder().habitID(sampleHabit.getId()).build();
+
+    var sampleGoal =
+        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+            .completionCount(sampleGoalRequest.completionCount())
+            .habitUUID(sampleGoalRequest.habitID())
+            .build();
     when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
+
+    when(habitRepositoryPort.findById(sampleGoalRequest.habitID()))
+        .thenReturn(Optional.of(sampleHabit));
     when(goalRepositoryPort.save(
             Goal.builder()
                 .name(sampleGoalRequest.name())
                 .duration(sampleGoalRequest.duration())
                 .userUUID(sampleUser.getUuid())
-                .habitList(new ArrayList<>())
+                .habitUUID(sampleGoalRequest.habitID())
+                .completionCount(sampleGoalRequest.completionCount())
                 .build()))
         .thenReturn(sampleGoal);
     // when
     var actualGoalResponse = goalService.createGoal(sampleGoalRequest);
-    var expectedGoalResponse = getExpectedGoalResponse().build();
+    var expectedGoalResponse =
+        getExpectedGoalResponse()
+            .completionCount(sampleGoalRequest.completionCount())
+            .habitID(sampleGoalRequest.habitID())
+            .build();
     // then
     assertThat(actualGoalResponse).isEqualTo(expectedGoalResponse);
+  }
+
+  @Test
+  void createGoalEntityNotFoundExceptionThrown() {
+    // given
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoalRequest = getSampleGoalRequestBuilder().habitID(sampleHabit.getId()).build();
+
+    var sampleGoal =
+        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+            .completionCount(sampleGoalRequest.completionCount())
+            .habitUUID(sampleGoalRequest.habitID())
+            .build();
+    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
+        .thenReturn(Optional.of(sampleUser));
+
+    when(habitRepositoryPort.findById(sampleGoalRequest.habitID())).thenReturn(Optional.empty());
+    when(goalRepositoryPort.save(
+            Goal.builder()
+                .name(sampleGoalRequest.name())
+                .duration(sampleGoalRequest.duration())
+                .userUUID(sampleUser.getUuid())
+                .habitUUID(sampleGoalRequest.habitID())
+                .completionCount(sampleGoalRequest.completionCount())
+                .build()))
+        .thenReturn(sampleGoal);
+    assertThatThrownBy(
+            () -> {
+              // when
+              goalService.createGoal(sampleGoalRequest);
+              // then
+            })
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }
 
   @Test
@@ -149,68 +196,11 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   }
 
   @Test
-  void associateHabitWithGoalPositiveTestCase() {
-    // given
-    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
-
-    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
-    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
-
-    // when
-    goalService.associateHabitWithGoal(
-        sampleGoal.getUuid(), new GoalAssignHabitRequest(sampleHabit.getId(), 25));
-
-    // then
-    assertThat(sampleHabit).isEqualTo(getSampleHabitBuilder(sampleUser.getUuid()).goals(List.of(sampleGoal)).build());
-    assertThat(sampleGoal).isEqualTo(getSampleGoalBuilder(sampleUser.getUuid()).habitList(List.of(sampleHabit)).build());
-  }
-
-  @Test
-  void associateHabitWithGoalGoalNotFoundException() {
-    // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
-
-    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
-    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
-
-    assertThatThrownBy(
-            () ->
-                // when
-                goalService.associateHabitWithGoal(
-                    sampleGoal.getUuid(), new GoalAssignHabitRequest(sampleHabit.getId(), 25))
-            // then
-            )
-        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage)
-        .isInstanceOf(EntityNotFoundException.class);
-  }
-
-  @Test
-  void associateHabitWithGoalHabitNotFoundException() {
-    // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
-
-    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
-    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
-
-    assertThatThrownBy(
-            () ->
-                // when
-                goalService.associateHabitWithGoal(
-                    sampleGoal.getUuid(), new GoalAssignHabitRequest(sampleHabit.getId(), 25))
-            // then
-            )
-        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage)
-        .isInstanceOf(EntityNotFoundException.class);
-  }
-
-  @Test
   void getGoalByIdPositiveTestCase() {
     // given
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
-    var expectedGoalResponse = getExpectedGoalResponse().build();
+    var expectedGoalResponse =
+        getExpectedGoalResponse().completionCount(10).habitID(sampleGoal.getHabitUUID()).build();
 
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
     // when
@@ -228,6 +218,43 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     // when
     assertThatThrownBy(() -> goalService.getGoalById(sampleGoal.getUuid()))
         // then
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
+  @Test
+  void increaseCompletionCountPositiveTestCase() {
+    // given
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+
+    when(goalRepositoryPort.save(sampleGoal)).thenReturn(sampleGoal);
+
+    // when
+    var actual = goalService.increaseCompletionCount(sampleGoal.getUuid());
+    var expectedGoalResponse =
+        getExpectedGoalResponse()
+            .completionCount(sampleGoal.getCompletionCount())
+            .habitID(sampleGoal.getHabitUUID())
+            .build();
+
+    assertThat(expectedGoalResponse).isEqualTo(actual);
+  }
+
+  @Test
+  void increaseCompletionCountEntityNotFoundExceptionThrown() {
+    // given
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
+
+    when(goalRepositoryPort.save(sampleGoal)).thenReturn(sampleGoal);
+
+    // when
+    assertThatThrownBy(
+            () -> {
+              goalService.increaseCompletionCount(sampleGoal.getUuid());
+              // then
+            })
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }

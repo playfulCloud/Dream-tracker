@@ -11,6 +11,6 @@ public interface GoalService {
     boolean delete(UUID id);
     GoalResponse updateGoal(UUID id, GoalRequest goalRequest);
     Page<GoalResponse> getAllUserGoals();
-    void associateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest);
     GoalResponse getGoalById(UUID id);
+    GoalResponse increaseCompletionCount(UUID id);
 }

@@ -4,15 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.fixtures.GoalFixtures;
+import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
-import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import java.util.ArrayList;
 import java.util.UUID;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,8 +23,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import javax.sql.DataSource;
 
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
@@ -61,12 +60,21 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Test
   void createHabitPositiveTestCase() {
     // given
+    var createdHabitResponse =
+        restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), GoalResponse.class);
+
     var expectedGoalResponse =
-            getExpectedGoalResponse().build();
+        getExpectedGoalResponse()
+            .habitID(createdHabitResponse.getBody().id())
+            .completionCount(10)
+            .build();
     // when
     var createdGoalResponse =
-            restTemplate.postForEntity(
-                    BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), GoalResponse.class);
+        restTemplate.postForEntity(
+            BASE_URL + "/goals",
+            getSampleGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).build(),
+            GoalResponse.class);
     // then
     assertThat(createdGoalResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat(createdGoalResponse.getBody()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedGoalResponse);
@@ -76,11 +84,25 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Test
   void getAllUserGoalsPositiveTestCase() {
     userService.createSampleUser();
+
     // given
+    var createdHabitResponse =
+        restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), GoalResponse.class);
+
+    var expectedGoalResponse =
+        getExpectedGoalResponse()
+            .habitID(createdHabitResponse.getBody().id())
+            .completionCount(10)
+            .build();
+
+    restTemplate.postForEntity(
+        BASE_URL + "/goals",
+        getSampleGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).build(),
+        GoalResponse.class);
     restTemplate.postForEntity(
             BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), GoalResponse.class);
-    var expectedGoalResponse =
-            getExpectedGoalResponse().build();
+
 
     // when
     var actualPageResponse =
@@ -155,17 +177,29 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Test
   void deletePositiveTestCase(){
     // given
-    var goalToDelete =
-            restTemplate
-                    .postForEntity(
-                            BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), HabitResponse.class)
-                    .getBody();
+    var createdHabitResponse =
+            restTemplate.postForEntity(
+                    BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), GoalResponse.class);
+
+    var expectedGoalResponse =
+            getExpectedGoalResponse()
+                    .habitID(createdHabitResponse.getBody().id())
+                    .completionCount(10)
+                    .build();
+    // when
+    var createdGoalResponse =
+            restTemplate.postForEntity(
+                    BASE_URL + "/goals",
+                    getSampleGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).build(),
+                    GoalResponse.class);
+
+
     HttpHeaders headers = new HttpHeaders();
     HttpEntity<?> entity = new HttpEntity<>(headers);
     // when
     var deleted =
             restTemplate.exchange(
-                    BASE_URL + "/goals/" + goalToDelete.id().toString(),
+                    BASE_URL + "/goals/" +createdGoalResponse.getBody().id().toString(),
                     HttpMethod.DELETE,
                     entity,
                     Void.class);

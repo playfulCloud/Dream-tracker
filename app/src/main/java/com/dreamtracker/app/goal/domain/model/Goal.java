@@ -21,9 +21,14 @@ public class Goal {
     private String name;
     private String duration;
     private UUID userUUID;
+    private UUID habitUUID;
+    private int completionCount;
 
-    @ManyToMany(mappedBy = "goals")
-    private List<Habit> habitList;
+
+    public void increaseCompletionCount(){
+        this.completionCount +=1;
+    }
+
 
 
 }

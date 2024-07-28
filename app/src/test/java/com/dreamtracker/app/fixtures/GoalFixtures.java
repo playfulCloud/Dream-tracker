@@ -14,11 +14,12 @@ public interface GoalFixtures {
         .name("Running 5k")
         .userUUID(userUUID)
         .duration("P30M")
-        .habitList(new ArrayList<>());
+        .completionCount(10)
+        .habitUUID((UUID.fromString("8fbb366d-64bb-4e2a-8527-93085885270e")));
   }
 
   default GoalRequest.GoalRequestBuilder getSampleGoalRequestBuilder() {
-    return GoalRequest.builder().name("Running 5k").duration("P30M");
+    return GoalRequest.builder().name("Running 5k").duration("P30M").completionCount(10).habitID((UUID.fromString("8fbb366d-64bb-4e2a-8527-93085885270e")));
   }
 
   default GoalResponse.GoalResponseBuilder getExpectedGoalResponse() {
@@ -33,8 +34,7 @@ public interface GoalFixtures {
         .uuid(UUID.fromString("336d8a9a-2464-41f2-8a8f-2d37a78c88ae"))
         .name("Running 25k")
         .userUUID(userUUID)
-        .duration("P30M")
-        .habitList(new ArrayList<>());
+        .duration("P30M");
   }
 
   default Goal.GoalBuilder getSampleUpdatedGoalBuilder(UUID userUUID) {
@@ -42,8 +42,7 @@ public interface GoalFixtures {
         .uuid(UUID.fromString("7b8696f7-dc0e-4741-8faf-b09d3fd71bef"))
         .name("Walking 1k")
         .userUUID(userUUID)
-        .duration("P30M")
-        .habitList(new ArrayList<>());
+        .duration("P30M");
   }
 
   default GoalRequest.GoalRequestBuilder getSampleUpdateGoalRequestBuilder() {

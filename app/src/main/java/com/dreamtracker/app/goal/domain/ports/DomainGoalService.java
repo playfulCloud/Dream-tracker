@@ -3,7 +3,6 @@ package com.dreamtracker.app.goal.domain.ports;
 import com.dreamtracker.app.goal.adapters.api.GoalRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.goal.domain.model.Goal;
-import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
@@ -11,7 +10,6 @@ import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.Data;
@@ -25,17 +23,28 @@ public class DomainGoalService implements GoalService {
   private final HabitRepositoryPort habitRepositoryPort;
 
   @Override
+  @Transactional
   public GoalResponse createGoal(GoalRequest goalRequest) {
 
     var goalToCreate =
         Goal.builder()
             .name(goalRequest.name())
             .duration(goalRequest.duration())
-            .habitList(new ArrayList<>())
+            .habitUUID(goalRequest.habitID())
+            .completionCount(goalRequest.completionCount())
             .userUUID(currentUserProvider.getCurrentUser())
             .build();
 
+    var habitToBeAdded =
+        habitRepositoryPort
+            .findById(goalRequest.habitID())
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+
     var goalSavedToDB = goalRepositoryPort.save(goalToCreate);
+    habitToBeAdded.getGoals().add(goalSavedToDB);
+    habitRepositoryPort.save(habitToBeAdded);
     return mapToResponse(goalSavedToDB);
   }
 
@@ -75,28 +84,6 @@ public class DomainGoalService implements GoalService {
     return goalResponsePage;
   }
 
-  @Override
-  @Transactional
-  public void associateHabitWithGoal(UUID goalId, GoalAssignHabitRequest goalAssignHabitRequest) {
-    var goalToAddHabit =
-        goalRepositoryPort
-            .findById(goalId)
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-    var habitToBeAdded =
-        habitRepositoryPort
-            .findById(goalAssignHabitRequest.habitId())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-
-    goalToAddHabit.getHabitList().add(habitToBeAdded);
-    habitToBeAdded.getGoals().add(goalToAddHabit);
-
-    goalRepositoryPort.save(goalToAddHabit);
-    habitRepositoryPort.save(habitToBeAdded);
-  }
 
   @Override
   public GoalResponse getGoalById(UUID id) {
@@ -109,11 +96,26 @@ public class DomainGoalService implements GoalService {
     return mapToResponse(goal);
   }
 
+  @Override
+  public GoalResponse increaseCompletionCount(UUID id) {
+    var goal =
+        goalRepositoryPort
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    goal.increaseCompletionCount();
+    var goalSavedToDb = goalRepositoryPort.save(goal);
+    return mapToResponse(goalSavedToDb);
+  }
+
   public GoalResponse mapToResponse(Goal goal) {
     return GoalResponse.builder()
         .id(goal.getUuid())
         .name(goal.getName())
         .duration(goal.getDuration())
+        .completionCount(goal.getCompletionCount())
+        .habitID(goal.getHabitUUID())
         .build();
   }
 }
