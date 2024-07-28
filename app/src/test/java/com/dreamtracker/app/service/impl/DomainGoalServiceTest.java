@@ -24,8 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.logging.Logger;
+import org.junit.platform.commons.logging.LoggerFactory;
 import org.mockito.Mockito;
 
 class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture {
@@ -34,6 +37,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   private final GoalRepositoryPort goalRepositoryPort = Mockito.mock(GoalRepositoryPort.class);
   private final SpringDataUserRepository springDataUserRepository = Mockito.mock(SpringDataUserRepository.class);
   private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
+  private static final Logger logger = LoggerFactory.getLogger(DomainGoalServiceTest.class);
   private User sampleUser;
   private GoalService goalService;
 
@@ -117,23 +121,43 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void deleteTestPositiveCase() {
     // given
-    when(goalRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(true);
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).habitUUID(sampleHabit.getId()).build();
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     var expected = true;
     // when
-    var actual = goalService.delete(currentUserProvider.getCurrentUser());
+    var actual = goalService.delete(sampleGoal.getUuid());
     // then
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
-  void deleteTestNegativeCase() {
+  void deleteTestCaseEntityNotFoundExceptionThrownHabit() {
     // given
-    when(goalRepositoryPort.existsById(currentUserProvider.getCurrentUser())).thenReturn(false);
-    var expected = false;
-    // when
-    var actual = goalService.delete(currentUserProvider.getCurrentUser());
-    // then
-    assertThat(actual).isEqualTo(expected);
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).habitUUID(sampleHabit.getId()).build();
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
+    //when
+    assertThatThrownBy(() ->{
+      goalService.delete(sampleGoal.getUuid());
+      //then
+    }).isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
+  @Test
+  void deleteTestCaseEntityNotFoundExceptionThrownGoal() {
+    // given
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).habitUUID(sampleHabit.getId()).build();
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    //when
+    assertThatThrownBy(() ->{
+      goalService.delete(sampleGoal.getUuid());
+      //then
+    }).isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }
 
   @Test

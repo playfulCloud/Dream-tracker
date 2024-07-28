@@ -10,9 +10,13 @@ import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import jakarta.transaction.Transactional;
+
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Data
 public class DomainGoalService implements GoalService {
@@ -21,6 +25,7 @@ public class DomainGoalService implements GoalService {
   private final SpringDataUserRepository springDataUserRepository;
   private final CurrentUserProvider currentUserProvider;
   private final HabitRepositoryPort habitRepositoryPort;
+  private static final Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
 
   @Override
   @Transactional
@@ -50,13 +55,27 @@ public class DomainGoalService implements GoalService {
 
   @Override
   public boolean delete(UUID id) {
-    if (goalRepositoryPort.existsById(id)) {
-      goalRepositoryPort.deleteById(id);
-      return true;
-    }
-    return false;
-  }
 
+    var goalResponse =
+        goalRepositoryPort
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    var habitToBeAdded =
+        habitRepositoryPort
+            .findById(goalResponse.getHabitUUID())
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    var listOfGoals = habitToBeAdded.getGoals();
+    Iterator<Goal> iterator = listOfGoals.iterator();
+    while (iterator.hasNext()) {
+      iterator.next();
+      iterator.remove();
+    }
+    return true;
+  }
 
 
   @Override

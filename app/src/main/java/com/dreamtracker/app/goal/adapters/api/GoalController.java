@@ -5,6 +5,7 @@ import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.infrastructure.response.Page;
 import java.util.UUID;
 import lombok.Data;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class GoalController {
 
   private final GoalService goalService;
+  private static Logger logger;
 
   @PostMapping("/goals")
   public ResponseEntity<GoalResponse> createGoal(@RequestBody GoalRequest goalRequest) {
@@ -34,6 +36,7 @@ public class GoalController {
 
   @DeleteMapping("/goals/{goal-id}")
   public ResponseEntity<Void> deleteGoal(@PathVariable("goal-id") UUID id) {
+
     return goalService.delete(id)
         ? ResponseEntity.noContent().build()
         : ResponseEntity.notFound().build();
