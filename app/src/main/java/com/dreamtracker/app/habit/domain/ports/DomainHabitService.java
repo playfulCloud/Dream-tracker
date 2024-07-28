@@ -1,5 +1,6 @@
 package com.dreamtracker.app.habit.domain.ports;
 
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;

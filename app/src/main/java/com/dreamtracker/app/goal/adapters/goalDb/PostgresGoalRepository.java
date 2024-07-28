@@ -1,5 +1,6 @@
 package com.dreamtracker.app.goal.adapters.goalDb;
 
+import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.infrastructure.repository.SpringDataGoalRepository;
@@ -38,4 +39,6 @@ public class PostgresGoalRepository implements GoalRepositoryPort {
     public List<Goal> findByUserUUID(UUID userUUID) {
         return springDataGoalRepository.findByUserUUID(userUUID);
     }
+
+
 }

@@ -1,5 +1,9 @@
 package com.dreamtracker.app.habit.domain.ports;
 
+import com.dreamtracker.app.goal.domain.model.Goal;
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
+import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
+import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
@@ -7,21 +11,23 @@ import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
-
+import jakarta.transaction.Transactional;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
-import jakarta.transaction.Transactional;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Data
 public class DomainHabitTrackService implements HabitTrackService {
 
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
   private final HabitRepositoryPort habitRepositoryPort;
   private final StatsAggregator statsAggregator;
   private final Clock clock;
+  private final GoalService domainGoalService;
 
 
   @Override
@@ -52,9 +58,14 @@ public class DomainHabitTrackService implements HabitTrackService {
             .habitUUID(habitToUpdateTracking.getId())
             .build();
 
+
     var trackSavedToDB = habitTrackRepositoryPort.save(track);
     var habitTrackResponse = mapToResponse(trackSavedToDB);
     statsAggregator.requestStatsUpdated(habitToUpdateTracking.getId(), habitTrackResponse);
+
+    if (trackSavedToDB.getStatus().equals("DONE")) {
+      updateGoalProgress(habitToUpdateTracking.getGoals());
+    }
     return habitTrackResponse;
   }
 
@@ -63,5 +74,11 @@ public class DomainHabitTrackService implements HabitTrackService {
         .date(habitTrack.getDate())
         .status(habitTrack.getStatus())
         .build();
+  }
+
+  private void updateGoalProgress(List<Goal> goals) {
+    for (Goal goal : goals) {
+      domainGoalService.increaseCompletionCount(goal.getUuid());
+    }
   }
 }

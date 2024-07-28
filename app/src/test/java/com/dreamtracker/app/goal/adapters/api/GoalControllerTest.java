@@ -4,16 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.fixtures.GoalFixtures;
-import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
-import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
+import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import java.util.ArrayList;
-import java.util.UUID;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -22,8 +24,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import javax.sql.DataSource;
 
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
@@ -41,6 +41,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Autowired
   private DataSource dataSource;
 
+  private static final Logger logger = LoggerFactory.getLogger(GoalControllerTest.class);
 
   @BeforeEach
   void setUp() {
@@ -61,12 +62,21 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Test
   void createHabitPositiveTestCase() {
     // given
+    var createdHabitResponse =
+        restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), GoalResponse.class);
+
     var expectedGoalResponse =
-            getExpectedGoalResponse().build();
+        getExpectedGoalResponse()
+            .habitID(createdHabitResponse.getBody().id())
+            .completionCount(10)
+            .build();
     // when
     var createdGoalResponse =
-            restTemplate.postForEntity(
-                    BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), GoalResponse.class);
+        restTemplate.postForEntity(
+            BASE_URL + "/goals",
+            getSampleGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).build(),
+            GoalResponse.class);
     // then
     assertThat(createdGoalResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat(createdGoalResponse.getBody()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedGoalResponse);
@@ -76,11 +86,25 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Test
   void getAllUserGoalsPositiveTestCase() {
     userService.createSampleUser();
+
     // given
+    var createdHabitResponse =
+        restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), GoalResponse.class);
+
+    var expectedGoalResponse =
+        getExpectedGoalResponse()
+            .habitID(createdHabitResponse.getBody().id())
+            .completionCount(10)
+            .build();
+
+    restTemplate.postForEntity(
+        BASE_URL + "/goals",
+        getSampleGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).build(),
+        GoalResponse.class);
     restTemplate.postForEntity(
             BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), GoalResponse.class);
-    var expectedGoalResponse =
-            getExpectedGoalResponse().build();
+
 
     // when
     var actualPageResponse =
@@ -113,19 +137,32 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
 
   @Test
   void updateGoalPositiveTestCase(){
-    // given
-    var goalToUpdated =
-            restTemplate
-                    .postForEntity(
-                            BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), HabitResponse.class)
-                    .getBody();
-    var goalUpdateRequest = getSampleUpdateGoalRequestBuilder().build();
-    var updatedGoal = getUpdatedExpectedGoalResponse();
+
+  // given
+    var createdHabitResponse =
+        restTemplate.postForEntity(
+            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), GoalResponse.class);
+
+    var expectedGoalResponse =
+        getExpectedGoalResponse()
+            .habitID(createdHabitResponse.getBody().id())
+            .completionCount(10)
+            .build();
+    // when
+    var createdGoalResponse =
+        restTemplate.postForEntity(
+            BASE_URL + "/goals",
+            getSampleGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).completionCount(10).build(),
+            GoalResponse.class);
+
+    var goalUpdateRequest =
+        getSampleUpdateGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).completionCount(createdHabitResponse.getBody().completionCount()).build();
+    var updatedGoal = getUpdatedExpectedGoalResponse().habitID(createdHabitResponse.getBody().id()).completionCount(10).build();
     var requestEntity = new HttpEntity<>(goalUpdateRequest);
     // when
     var updated =
             restTemplate.exchange(
-                    BASE_URL + "/goals/" + goalToUpdated.id().toString(),
+                    BASE_URL + "/goals/" + createdGoalResponse.getBody().id().toString(),
                     HttpMethod.PUT,
                     requestEntity,
                     GoalResponse.class);
@@ -155,17 +192,29 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   @Test
   void deletePositiveTestCase(){
     // given
-    var goalToDelete =
-            restTemplate
-                    .postForEntity(
-                            BASE_URL + "/goals", getSampleGoalRequestBuilder().build(), HabitResponse.class)
-                    .getBody();
+    var createdHabitResponse =
+            restTemplate.postForEntity(
+                    BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), GoalResponse.class);
+
+    var expectedGoalResponse =
+            getExpectedGoalResponse()
+                    .habitID(createdHabitResponse.getBody().id())
+                    .completionCount(10)
+                    .build();
+    // when
+    var createdGoalResponse =
+            restTemplate.postForEntity(
+                    BASE_URL + "/goals",
+                    getSampleGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).build(),
+                    GoalResponse.class);
+
+    System.out.println(createdGoalResponse);
     HttpHeaders headers = new HttpHeaders();
     HttpEntity<?> entity = new HttpEntity<>(headers);
     // when
     var deleted =
             restTemplate.exchange(
-                    BASE_URL + "/goals/" + goalToDelete.id().toString(),
+                    BASE_URL + "/goals/" +createdGoalResponse.getBody().id().toString(),
                     HttpMethod.DELETE,
                     entity,
                     Void.class);
@@ -191,58 +240,5 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
     assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
-  @Test
-  void associateGoalWithHabitPositiveTestCase(){
-    // given
-    var goalToAdd = getSampleGoalRequestBuilder().build();
-    var createdGoal = restTemplate.postForEntity(BASE_URL+"/goals",goalToAdd, GoalResponse.class).getBody();
-    var habitToBeAdded =
-            restTemplate
-                    .postForEntity(
-                            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class)
-                    .getBody();
-    // when
-    var response =
-            restTemplate.postForEntity(
-                    BASE_URL + "/goals/" + createdGoal.id() + "/habits",
-                    GoalAssignHabitRequest.builder().habitId(habitToBeAdded.id()).completionCount(19).build(),
-                    Void.class);
-    // then
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-  }
-
-  @Test
-  void associateGoalWithHabitHabitNotFound(){
-    // given
-    var goalToAdd = getSampleGoalRequestBuilder().build();
-    var createdGoal = restTemplate.postForEntity(BASE_URL+"/goals",goalToAdd, GoalResponse.class).getBody();
-
-    // when
-    var response =
-            restTemplate.postForEntity(
-                    BASE_URL + "/goals/" + createdGoal.id().toString() + "/habits",
-                    GoalAssignHabitRequest.builder().habitId(UUID.fromString(wrongUUID)).build(),
-                    Void.class);
-    // then
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-  }
-
-  @Test
-  void associateGoalWithHabitGoalNotFound(){
-    // given
-    var habitToBeAdded =
-            restTemplate
-                    .postForEntity(
-                            BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class)
-                    .getBody();
-    // when
-    var response =
-            restTemplate.postForEntity(
-                    BASE_URL + "/goals/" + wrongUUID + "/habits",
-                    GoalAssignHabitRequest.builder().habitId(habitToBeAdded.id()).build(),
-                    Void.class);
-    // then
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-  }
 }
 

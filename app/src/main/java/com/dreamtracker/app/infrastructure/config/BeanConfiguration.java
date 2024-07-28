@@ -14,6 +14,8 @@ import com.dreamtracker.app.view.domain.ports.DomainViewService;
 import com.dreamtracker.app.view.domain.ports.ViewRepositoryPort;
 import com.dreamtracker.app.view.domain.ports.ViewService;
 import java.time.Clock;
+
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -45,9 +47,9 @@ public class BeanConfiguration {
       HabitTrackRepositoryPort habitTrackRepositoryPort,
       HabitRepositoryPort habitRepositoryPort,
       StatsAggregator statsAggregator,
-      Clock clock) {
+      Clock clock, GoalService domainGoalService) {
     return new DomainHabitTrackService(
-        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock);
+        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService);
   }
 
   @Bean
