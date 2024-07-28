@@ -2,6 +2,8 @@ package com.dreamtracker.app.habit.domain.ports;
 
 import com.dreamtracker.app.goal.domain.model.Goal;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
+import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
+import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
@@ -13,16 +15,19 @@ import jakarta.transaction.Transactional;
 import java.time.*;
 import java.util.List;
 import java.util.UUID;
+
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Data
 public class DomainHabitTrackService implements HabitTrackService {
 
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
   private final HabitRepositoryPort habitRepositoryPort;
-  private final DomainGoalService domainGoalService;
   private final StatsAggregator statsAggregator;
   private final Clock clock;
+  private final GoalService domainGoalService;
 
 
   @Override
