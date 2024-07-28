@@ -1,14 +1,18 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-
 interface HabitResponse {
-    uuid: string;
+    id: string;
     name: string;
     action: string;
     duration: string;
     difficulty: string;
+    status: string;
+}
+
+interface HabitTrackResponse {
+    date: string; // Assuming the date is returned as an ISO string
     status: string;
 }
 
@@ -21,33 +25,79 @@ const habits = () => {
         duration: '',
         difficulty: ''
     });
+    const [habits, setHabits] = useState<HabitResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [checkedHabits, setCheckedHabits] = useState<string[]>([]);
+    const [successHabit, setSuccessHabit] = useState<string | null>(null);
 
-    const handleChange = (e) => {
+    const fetchHabits = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/v1/habits');
+            const habitData = response.data.items || []; // Ensure habits is always an array
+            setHabits(habitData);
+            setLoading(false);
+        } catch (error) {
+            console.error(error);
+            setError('Failed to fetch habits');
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchHabits();
+    }, []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             const response = await axios.post<HabitResponse>('http://localhost:8080/v1/habits', formData);
             console.log(response.data);
+            fetchHabits(); // Fetch updated habits list after submitting form
         } catch (error) {
             console.error(error);
         }
     };
 
+    const handleDelete = async (id: string) => {
+        try {
+            await axios.delete(`http://localhost:8080/v1/habits/${id}`);
+            fetchHabits(); // Fetch updated habits list after deleting a habit
+        } catch (error) {
+            console.error('Failed to delete habit', error);
+        }
+    };
+
+    const handleTracking = async (id: string) => {
+        try {
+            const habitTrackingRequest = { habitId: id, status: "DONE" };
+            const response = await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest);
+            console.log(response.data);
+            setCheckedHabits([...checkedHabits, id]); // Add habit to checkedHabits array
+            setSuccessHabit(id);
+            setTimeout(() => setSuccessHabit(null), 2000); // Remove success highlight after 2 seconds
+            fetchHabits(); // Fetch updated habits list after tracking a habit
+        } catch (error) {
+            console.error('Failed to track habit', error);
+        }
+    };
+
     return (
         <div>
-            <button onClick={() => setFormVisible(!formVisible)}>
-                {formVisible ? 'Hide Form' : 'Show Form'}
+            <button className="text-black" onClick={() => setFormVisible(!formVisible)}>
+                {formVisible ? 'x' : '+'}
             </button>
             {formVisible && (
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+                        <label htmlFor="name" className="block text-sm font-medium text-black-700">Name</label>
                         <input
                             type="text"
                             name="name"
@@ -57,7 +107,7 @@ const habits = () => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="action" className="block text-sm font-medium text-gray-700">Action</label>
+                        <label htmlFor="action" className="block text-sm font-medium text-black-700">Action</label>
                         <input
                             type="text"
                             name="action"
@@ -114,6 +164,44 @@ const habits = () => {
                     </div>
                 </form>
             )}
+            <div className="mt-4">
+                <h2 className="text-lg font-medium text-gray-700">Habits List</h2>
+                {loading && <p>Loading...</p>}
+                {error && <p className="text-red-500">{error}</p>}
+                <ul className="space-y-2">
+                    {habits.length > 0 ? (
+                        habits.map(habit => (
+                            <li
+                                key={habit.id}
+                                className={`p-4 border border-gray-300 rounded text-black relative transition duration-300 ${
+                                    checkedHabits.includes(habit.id) ? 'bg-gray-300' : ''
+                                } ${successHabit === habit.id ? 'bg-green-300' : ''}`}
+                            >
+                                <button
+                                    className="absolute top-2 right-2 text-red-500"
+                                    onClick={() => handleDelete(habit.id)}
+                                >
+                                    X
+                                </button>
+                                <input
+                                    type="checkbox"
+                                    className="absolute transform -translate-y-1/2 right-4"
+                                    style={{ top: '50%', width: '40px', height: '40px' }}
+                                    onChange={() => handleTracking(habit.id)}
+                                    checked={checkedHabits.includes(habit.id)}
+                                />
+                                <p><strong>Name:</strong> {habit.name}</p>
+                                <p><strong>Action:</strong> {habit.action}</p>
+                                <p><strong>Duration:</strong> {habit.duration}</p>
+                                <p><strong>Difficulty:</strong> {habit.difficulty}</p>
+                                <p><strong>Status:</strong> {habit.status}</p>
+                            </li>
+                        ))
+                    ) : (
+                        !loading && <p>No habits found.</p>
+                    )}
+                </ul>
+            </div>
         </div>
     );
 }

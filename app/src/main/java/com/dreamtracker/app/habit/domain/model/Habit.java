@@ -18,7 +18,7 @@ public class Habit {
 
     @Id
     @GeneratedValue
-    private  UUID id;
+    private UUID id;
     private String name;
     private String action;
     private String frequency;
