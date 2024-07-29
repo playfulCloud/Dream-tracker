@@ -135,6 +135,7 @@ public class DomainGoalService implements GoalService {
         .duration(goal.getDuration())
         .completionCount(goal.getCompletionCount())
         .habitID(goal.getHabitUUID())
+            .currentCount(goal.getCurrentCount())
         .build();
   }
 }

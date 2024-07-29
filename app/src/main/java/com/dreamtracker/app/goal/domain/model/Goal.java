@@ -23,10 +23,11 @@ public class Goal {
     private UUID userUUID;
     private UUID habitUUID;
     private int completionCount;
+    private int currentCount;
 
 
     public void increaseCompletionCount(){
-        this.completionCount +=1;
+        this.currentCount +=1;
     }
 
 

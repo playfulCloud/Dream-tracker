@@ -259,9 +259,9 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     var expectedGoalResponse =
         getExpectedGoalResponse()
             .completionCount(sampleGoal.getCompletionCount())
+                .currentCount(1)
             .habitID(sampleGoal.getHabitUUID())
             .build();
-
     assertThat(expectedGoalResponse).isEqualTo(actual);
   }
 
