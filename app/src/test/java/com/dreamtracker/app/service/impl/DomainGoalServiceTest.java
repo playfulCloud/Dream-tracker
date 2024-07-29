@@ -9,6 +9,7 @@ import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.goal.domain.model.Goal;
+import com.dreamtracker.app.goal.domain.model.GoalStatus;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
@@ -52,13 +53,16 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   void createGoalPositiveTestCase() {
     // given
     var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleGoalRequest = getSampleGoalRequestBuilder().habitID(sampleHabit.getId()).build();
+    var sampleGoalRequest = getSampleGoalRequestBuilder().habitID(sampleHabit.getId()).completionCount(1).build();
 
     var sampleGoal =
         getSampleGoalBuilder(currentUserProvider.getCurrentUser())
             .completionCount(sampleGoalRequest.completionCount())
             .habitUUID(sampleGoalRequest.habitID())
+                .status(GoalStatus.ACTIVE.toString())
+                .currentCount(0)
             .build();
+
     when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
         .thenReturn(Optional.of(sampleUser));
 
@@ -71,6 +75,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
                 .userUUID(sampleUser.getUuid())
                 .habitUUID(sampleGoalRequest.habitID())
                 .completionCount(sampleGoalRequest.completionCount())
+                    .status(GoalStatus.ACTIVE.toString())
+                    .currentCount(0)
                 .build()))
         .thenReturn(sampleGoal);
     // when
@@ -79,6 +85,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
         getExpectedGoalResponse()
             .completionCount(sampleGoalRequest.completionCount())
             .habitID(sampleGoalRequest.habitID())
+                .status(GoalStatus.ACTIVE.toString())
             .build();
     // then
     assertThat(actualGoalResponse).isEqualTo(expectedGoalResponse);
@@ -265,10 +272,34 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     assertThat(expectedGoalResponse).isEqualTo(actual);
   }
 
+
+  @Test
+  void increaseCompletionCountPositiveTestCaseGoalCompleted() {
+    // given
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).completionCount(1).build();
+
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(goalRepositoryPort.save(sampleGoal)).thenReturn(sampleGoal);
+
+    // when
+    var actual = goalService.increaseCompletionCount(sampleGoal.getUuid());
+    var expectedGoalResponse =
+            getExpectedGoalResponse()
+                    .completionCount(sampleGoal.getCompletionCount())
+                    .currentCount(1)
+                    .habitID(sampleGoal.getHabitUUID())
+                    .status(GoalStatus.DONE.toString())
+                    .build();
+    assertThat(expectedGoalResponse).isEqualTo(actual);
+  }
+
   @Test
   void increaseCompletionCountEntityNotFoundExceptionThrown() {
     // given
     var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
 
     when(goalRepositoryPort.save(sampleGoal)).thenReturn(sampleGoal);

@@ -15,6 +15,7 @@ export interface GoalResponse {
     uuid: string;
     name: string;
     duration: string;
+    status: string; // Add status to the GoalResponse interface
     habitUUID: string;
     completionCount: number;
     currentCount: number;
@@ -34,11 +35,13 @@ const Goals = () => {
     const [error, setError] = useState<string | null>(null);
     const [formVisible, setFormVisible] = useState(false);
     const [formData, setFormData] = useState<GoalRequest>({ name: '', duration: '', completionCount: 0, habitID: '' });
+    const [showDoneGoals, setShowDoneGoals] = useState(false);
 
     const fetchGoals = async () => {
         try {
             const response = await axios.get<{ items: GoalResponse[] }>('http://localhost:8080/v1/goals');
             const goalData = response.data && response.data.items ? response.data.items : []; // Ensure goals is always an array
+            console.log(goalData)
             setGoals(goalData);
             setLoading(false);
         } catch (error) {
@@ -61,7 +64,7 @@ const Goals = () => {
 
     useEffect(() => {
         fetchGoals();
-        fetchHabits(); // Fetch habits when component mounts
+        fetchHabits();
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -87,6 +90,9 @@ const Goals = () => {
     const calculateProgress = (goal: GoalResponse) => {
         return (goal.currentCount / goal.completionCount) * 100;
     };
+
+    const activeGoals = goals.filter(goal => goal.status === 'ACTIVE');
+    const doneGoals = goals.filter(goal => goal.status === 'DONE');
 
     return (
         <div>
@@ -156,10 +162,12 @@ const Goals = () => {
             )}
             {loading && <p>Loading...</p>}
             {error && <p className="text-red-500">{error}</p>}
+
+            <h3 className="text-lg font-medium text-gray-700 mt-4">Active Goals</h3>
             <ul className="space-y-2 mt-4">
-                {goals.length > 0 ? (
-                    goals.map(goal => (
-                        <li key={goal.uuid} className="p-4 border border-gray-300 rounded text-black">
+                {activeGoals.length > 0 ? (
+                    activeGoals.map(goal => (
+                        <li key={goal.uuid} className="p-4 border border-green-300 rounded text-black bg-green-100">
                             <p><strong>Name:</strong> {goal.name}</p>
                             <p><strong>Duration:</strong> {goal.duration}</p>
                             <p><strong>Completion Count:</strong> {goal.completionCount}</p>
@@ -167,26 +175,67 @@ const Goals = () => {
                             <div className="relative pt-1">
                                 <div className="flex mb-2 items-center justify-between">
                                     <div>
-                                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200">
+                                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-green-600 bg-green-200">
                                             Progress
                                         </span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-xs font-semibold inline-block text-blue-600">
+                                        <span className="text-xs font-semibold inline-block text-green-600">
                                             {Math.round(calculateProgress(goal))}%
                                         </span>
                                     </div>
                                 </div>
-                                <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-blue-200">
-                                    <div style={{ width: `${calculateProgress(goal)}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"></div>
+                                <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-green-200">
+                                    <div style={{ width: `${calculateProgress(goal)}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500"></div>
                                 </div>
                             </div>
                         </li>
                     ))
                 ) : (
-                    !loading && <p>No goals found.</p>
+                    !loading && <p>No active goals found.</p>
                 )}
             </ul>
+
+            <h3 className="text-lg font-medium text-gray-700 mt-4">Done Goals</h3>
+            <button
+                className="text-blue-500 underline"
+                onClick={() => setShowDoneGoals(!showDoneGoals)}
+            >
+                {showDoneGoals ? 'Hide Done Goals' : 'Show Done Goals'}
+            </button>
+            {showDoneGoals && (
+                <ul className="space-y-2 mt-4">
+                    {doneGoals.length > 0 ? (
+                        doneGoals.map(goal => (
+                            <li key={goal.uuid} className="p-4 border border-gray-300 rounded text-black bg-gray-200">
+                                <p><strong>Name:</strong> {goal.name}</p>
+                                <p><strong>Duration:</strong> {goal.duration}</p>
+                                <p><strong>Completion Count:</strong> {goal.completionCount}</p>
+                                <p><strong>Current Count:</strong> {goal.currentCount}</p>
+                                <div className="relative pt-1">
+                                    <div className="flex mb-2 items-center justify-between">
+                                        <div>
+                                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-gray-600 bg-gray-300">
+                                                Progress
+                                            </span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-xs font-semibold inline-block text-gray-600">
+                                                {Math.round(calculateProgress(goal))}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-300">
+                                        <div style={{ width: `${calculateProgress(goal)}%` }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gray-500"></div>
+                                    </div>
+                                </div>
+                            </li>
+                        ))
+                    ) : (
+                        !loading && <p>No done goals found.</p>
+                    )}
+                </ul>
+            )}
         </div>
     );
 }

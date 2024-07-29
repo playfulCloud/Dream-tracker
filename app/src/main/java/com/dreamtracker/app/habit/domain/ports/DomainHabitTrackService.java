@@ -13,6 +13,8 @@ import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
 import java.time.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,7 +79,8 @@ public class DomainHabitTrackService implements HabitTrackService {
   }
 
   private void updateGoalProgress(List<Goal> goals) {
-    for (Goal goal : goals) {
+    List<Goal> goalsCopy = new ArrayList<>(goals);
+    for (Goal goal : goalsCopy) {
       domainGoalService.increaseCompletionCount(goal.getUuid());
     }
   }

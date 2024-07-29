@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.fixtures.GoalFixtures;
 import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.goal.domain.model.GoalStatus;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -70,6 +71,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
         getExpectedGoalResponse()
             .habitID(createdHabitResponse.getBody().id())
             .completionCount(10)
+                .status(GoalStatus.ACTIVE.toString())
             .build();
     // when
     var createdGoalResponse =
@@ -96,6 +98,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
         getExpectedGoalResponse()
             .habitID(createdHabitResponse.getBody().id())
             .completionCount(10)
+                .status(GoalStatus.ACTIVE.toString())
             .build();
 
     restTemplate.postForEntity(
@@ -157,7 +160,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
 
     var goalUpdateRequest =
         getSampleUpdateGoalRequestBuilder().habitID(createdHabitResponse.getBody().id()).completionCount(createdHabitResponse.getBody().completionCount()).build();
-    var updatedGoal = getUpdatedExpectedGoalResponse().habitID(createdHabitResponse.getBody().id()).completionCount(10).build();
+    var updatedGoal = getUpdatedExpectedGoalResponse().habitID(createdHabitResponse.getBody().id()).completionCount(10).status(GoalStatus.ACTIVE.toString()).build();
     var requestEntity = new HttpEntity<>(goalUpdateRequest);
     // when
     var updated =

@@ -3,6 +3,7 @@ package com.dreamtracker.app.goal.domain.ports;
 import com.dreamtracker.app.goal.adapters.api.GoalRequest;
 import com.dreamtracker.app.goal.adapters.api.GoalResponse;
 import com.dreamtracker.app.goal.domain.model.Goal;
+import com.dreamtracker.app.goal.domain.model.GoalStatus;
 import com.dreamtracker.app.habit.domain.ports.HabitRepositoryPort;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
@@ -10,8 +11,8 @@ import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import jakarta.transaction.Transactional;
-
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.Data;
@@ -38,6 +39,7 @@ public class DomainGoalService implements GoalService {
             .habitUUID(goalRequest.habitID())
             .completionCount(goalRequest.completionCount())
             .userUUID(currentUserProvider.getCurrentUser())
+            .status(GoalStatus.ACTIVE.toString())
             .build();
 
     var habitToBeAdded =
@@ -46,7 +48,7 @@ public class DomainGoalService implements GoalService {
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
-
+    
     var goalSavedToDB = goalRepositoryPort.save(goalToCreate);
     habitToBeAdded.getGoals().add(goalSavedToDB);
     habitRepositoryPort.save(habitToBeAdded);
@@ -69,12 +71,18 @@ public class DomainGoalService implements GoalService {
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var listOfGoals = habitToBeAdded.getGoals();
+    removeGoalFromHabit(listOfGoals, goalResponse.getUuid());
+    return true;
+  }
+
+  private static void removeGoalFromHabit(List<Goal> listOfGoals, UUID goalUUID) {
     Iterator<Goal> iterator = listOfGoals.iterator();
     while (iterator.hasNext()) {
-      iterator.next();
-      iterator.remove();
+      Goal next = iterator.next();
+      if (next.getUuid().equals(goalUUID)) {
+        iterator.remove();
+      }
     }
-    return true;
   }
 
 
@@ -116,6 +124,7 @@ public class DomainGoalService implements GoalService {
   }
 
   @Override
+  @Transactional
   public GoalResponse increaseCompletionCount(UUID id) {
     var goal =
         goalRepositoryPort
@@ -123,7 +132,10 @@ public class DomainGoalService implements GoalService {
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+
     goal.increaseCompletionCount();
+    checkCountAndChangeStatus(goal);
+
     var goalSavedToDb = goalRepositoryPort.save(goal);
     return mapToResponse(goalSavedToDb);
   }
@@ -135,7 +147,26 @@ public class DomainGoalService implements GoalService {
         .duration(goal.getDuration())
         .completionCount(goal.getCompletionCount())
         .habitID(goal.getHabitUUID())
-            .currentCount(goal.getCurrentCount())
+        .currentCount(goal.getCurrentCount())
+        .status(goal.getStatus())
         .build();
+  }
+
+  private void checkCountAndChangeStatus(Goal goal) {
+    if (goal.getCurrentCount() == goal.getCompletionCount()) {
+      goal.setStatus(GoalStatus.DONE.toString());
+      var habitToRemoveGoal =
+          habitRepositoryPort
+              .findById(goal.getHabitUUID())
+              .orElseThrow(
+                  () ->
+                      new EntityNotFoundException(
+                          ExceptionMessages.entityNotFoundExceptionMessage));
+      var listOfGoals = habitToRemoveGoal.getGoals();
+      removeGoalFromHabit(listOfGoals, goal.getUuid());
+      var goalSavedToDB = goalRepositoryPort.save(goal);
+    }
+
+    logger.debug(goal.toString());
   }
 }
