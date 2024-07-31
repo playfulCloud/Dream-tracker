@@ -1,25 +1,9 @@
+// app/goals/page.tsx
 "use client";
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
-interface Habit {
-    id: string;
-    name: string;
-    action: string;
-    duration: string;
-    difficulty: string;
-    status: string;
-}
-
-export interface GoalResponse {
-    uuid: string;
-    name: string;
-    duration: string;
-    status: string; // Add status to the GoalResponse interface
-    habitUUID: string;
-    completionCount: number;
-    currentCount: number;
-}
+import React, { useState } from 'react';
+import { useAppContext } from '../AppContext';
+import axios from "axios";
 
 interface GoalRequest {
     name: string;
@@ -28,44 +12,21 @@ interface GoalRequest {
     habitID: string;
 }
 
+interface GoalResponse {
+    uuid: string;
+    name: string;
+    duration: string;
+    status: string;
+    habitUUID: string;
+    completionCount: number;
+    currentCount: number;
+}
+
 const Goals = () => {
-    const [goals, setGoals] = useState<GoalResponse[]>([]);
-    const [habits, setHabits] = useState<Habit[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { goals, habits, loading, error, fetchGoals } = useAppContext();
     const [formVisible, setFormVisible] = useState(false);
     const [formData, setFormData] = useState<GoalRequest>({ name: '', duration: '', completionCount: 0, habitID: '' });
-    const [showDoneGoals, setShowDoneGoals] = useState(false);
-
-    const fetchGoals = async () => {
-        try {
-            const response = await axios.get<{ items: GoalResponse[] }>('http://localhost:8080/v1/goals');
-            const goalData = response.data && response.data.items ? response.data.items : []; // Ensure goals is always an array
-            console.log(goalData)
-            setGoals(goalData);
-            setLoading(false);
-        } catch (error) {
-            console.error(error);
-            setError('Failed to fetch goals');
-            setLoading(false);
-        }
-    };
-
-    const fetchHabits = async () => {
-        try {
-            const response = await axios.get<{ items: Habit[] }>('http://localhost:8080/v1/habits');
-            const habitData = response.data && response.data.items ? response.data.items : []; // Ensure habits is always an array
-            setHabits(habitData);
-        } catch (error) {
-            console.error(error);
-            setError('Failed to fetch habits');
-        }
-    };
-
-    useEffect(() => {
-        fetchGoals();
-        fetchHabits();
-    }, []);
+    const [showDoneGoals, setShowDoneGoals] = useState(false); // Add this line to declare the state variable
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -76,11 +37,9 @@ const Goals = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(formData)
         try {
             const response = await axios.post<GoalResponse>('http://localhost:8080/v1/goals', formData);
-            console.log(response.data);
-            setFormVisible(false); // Hide form after submission
+            setFormVisible(false);
             fetchGoals();
         } catch (error) {
             console.error(error);
@@ -162,7 +121,6 @@ const Goals = () => {
             )}
             {loading && <p>Loading...</p>}
             {error && <p className="text-red-500">{error}</p>}
-
             <h3 className="text-lg font-medium text-gray-700 mt-4">Active Goals</h3>
             <ul className="space-y-2 mt-4">
                 {activeGoals.length > 0 ? (
@@ -195,7 +153,6 @@ const Goals = () => {
                     !loading && <p>No active goals found.</p>
                 )}
             </ul>
-
             <h3 className="text-lg font-medium text-gray-700 mt-4">Done Goals</h3>
             <button
                 className="text-blue-500 underline"

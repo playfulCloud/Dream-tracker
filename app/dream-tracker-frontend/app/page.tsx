@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import Goals from "@/app/goals/page";
+import Habits from "@/app/habits/page";
 
 export default function Home() {
     return (
@@ -18,7 +20,6 @@ export default function Home() {
                 <Link href="/categories" className="px-4 py-2 bg-pink-950 text-white rounded hover:bg-green-700 transition duration-300">
                    categories
                 </Link>
-
             </div>
         </main>
     )

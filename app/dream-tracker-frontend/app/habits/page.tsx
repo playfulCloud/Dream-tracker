@@ -1,5 +1,8 @@
+// app/habits/page.tsx
 "use client";
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
+import { useAppContext } from '../AppContext';
 import axios from 'axios';
 
 interface HabitResponse {
@@ -12,11 +15,12 @@ interface HabitResponse {
 }
 
 interface HabitTrackResponse {
-    date: string; // Assuming the date is returned as an ISO string
+    date: string;
     status: string;
 }
 
-const habits = () => {
+const Habits = () => {
+    const { habits, loading, error, fetchHabits, fetchGoals } = useAppContext();
     const [formVisible, setFormVisible] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -25,28 +29,8 @@ const habits = () => {
         duration: '',
         difficulty: ''
     });
-    const [habits, setHabits] = useState<HabitResponse[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [checkedHabits, setCheckedHabits] = useState<string[]>([]);
     const [successHabit, setSuccessHabit] = useState<string | null>(null);
-
-    const fetchHabits = async () => {
-        try {
-            const response = await axios.get('http://localhost:8080/v1/habits');
-            const habitData = response.data.items || []; // Ensure habits is always an array
-            setHabits(habitData);
-            setLoading(false);
-        } catch (error) {
-            console.error(error);
-            setError('Failed to fetch habits');
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchHabits();
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -59,7 +43,6 @@ const habits = () => {
         e.preventDefault();
         try {
             const response = await axios.post<HabitResponse>('http://localhost:8080/v1/habits', formData);
-            console.log(response.data);
             fetchHabits(); // Fetch updated habits list after submitting form
         } catch (error) {
             console.error(error);
@@ -79,11 +62,11 @@ const habits = () => {
         try {
             const habitTrackingRequest = { habitId: id, status: "DONE" };
             const response = await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest);
-            console.log(response.data);
-            setCheckedHabits([...checkedHabits, id]); // Add habit to checkedHabits array
+            setCheckedHabits([...checkedHabits, id]);
             setSuccessHabit(id);
-            setTimeout(() => setSuccessHabit(null), 2000); // Remove success highlight after 2 seconds
+            setTimeout(() => setSuccessHabit(null), 2000);
             fetchHabits(); // Fetch updated habits list after tracking a habit
+            fetchGoals(); // Fetch updated goals list after tracking a habit
         } catch (error) {
             console.error('Failed to track habit', error);
         }
@@ -206,4 +189,4 @@ const habits = () => {
     );
 }
 
-export default habits;
+export default Habits;
