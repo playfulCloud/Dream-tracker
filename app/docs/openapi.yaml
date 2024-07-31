@@ -1,0 +1,599 @@
+openapi: 3.0.0
+info:
+  title: Dream Tracker API
+  version: 1.0.0
+  description: API documentation for Dream Tracker application
+
+servers:
+  - url: /v1
+
+paths:
+  /goals:
+    post:
+      summary: Create a new goal
+      description: Creates a new goal for the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoalRequest'
+      responses:
+        '201':
+          description: Goal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalResponse'
+        '500':
+          description: Internal server error
+    get:
+      summary: Get all user goals
+      description: Retrieves all goals for the user.
+      responses:
+        '200':
+          description: List of user goals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalResponsePage'
+        '500':
+          description: Internal server error
+
+  /goals/{goal-id}:
+    get:
+      summary: Get goal by ID
+      description: Retrieves a goal by its ID.
+      parameters:
+        - name: goal-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Goal details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalResponse'
+        '404':
+          description: Goal not found
+        '500':
+          description: Internal server error
+    put:
+      summary: Update goal by ID
+      description: Updates a goal by its ID.
+      parameters:
+        - name: goal-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoalRequest'
+      responses:
+        '200':
+          description: Goal updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalResponse'
+        '404':
+          description: Goal not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete goal by ID
+      description: Deletes a goal by its ID.
+      parameters:
+        - name: goal-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Goal deleted successfully
+        '404':
+          description: Goal not found
+        '500':
+          description: Internal server error
+
+  /habits:
+    post:
+      summary: Create a new habit
+      description: Creates a new habit for the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitRequest'
+      responses:
+        '201':
+          description: Habit created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '500':
+          description: Internal server error
+    get:
+      summary: Get all user habits
+      description: Retrieves all habits for the user.
+      responses:
+        '200':
+          description: List of user habits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponsePage'
+        '500':
+          description: Internal server error
+
+  /habits/{habit-id}:
+    get:
+      summary: Get habit by ID
+      description: Retrieves a habit by its ID.
+      parameters:
+        - name: habit-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Habit details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '404':
+          description: Habit not found
+        '500':
+          description: Internal server error
+    put:
+      summary: Update habit by ID
+      description: Updates a habit by its ID.
+      parameters:
+        - name: habit-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitRequest'
+      responses:
+        '200':
+          description: Habit updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '404':
+          description: Habit not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete habit by ID
+      description: Deletes a habit by its ID.
+      parameters:
+        - name: habit-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Habit deleted successfully
+        '404':
+          description: Habit not found
+        '500':
+          description: Internal server error
+
+  /habits-tracking:
+    post:
+      summary: Track a habit
+      description: Tracks a habit for the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitTrackingRequest'
+      responses:
+        '201':
+          description: Habit tracked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitTrackResponse'
+        '500':
+          description: Internal server error
+
+  /habits-tracking/{habit-id}:
+    get:
+      summary: Get all tracks of a habit
+      description: Retrieves all tracks of a habit by its ID.
+      parameters:
+        - name: habit-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of habit tracks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitTrackResponsePage'
+        '404':
+          description: Habit not found
+        '500':
+          description: Internal server error
+
+  /categories:
+    post:
+      summary: Create a new category
+      description: Creates a new category for the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '500':
+          description: Internal server error
+    get:
+      summary: Get all categories created by user
+      description: Retrieves all categories created by the user.
+      responses:
+        '200':
+          description: List of user categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponsePage'
+        '500':
+          description: Internal server error
+
+  /categories/{category-id}:
+    put:
+      summary: Update category by ID
+      description: Updates a category by its ID.
+      parameters:
+        - name: category-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '404':
+          description: Category not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete category by ID
+      description: Deletes a category by its ID.
+      parameters:
+        - name: category-id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Category deleted successfully
+        '404':
+          description: Category not found
+        '500':
+          description: Internal server error
+
+  /views/{view-name}:
+    get:
+      summary: Get view by name
+      description: Retrieves a view by its name.
+      parameters:
+        - name: view-name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: View details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CombinedComponentResponse'
+        '404':
+          description: View not found
+        '500':
+          description: Internal server error
+
+  /views:
+    post:
+      summary: Create a new view
+      description: Creates a new view for the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ViewRequest'
+      responses:
+        '201':
+          description: View created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViewResponse'
+        '500':
+          description: Internal server error
+
+  /seed:
+    post:
+      summary: Create a sample user for testing
+      description: Creates a sample user for testing purposes.
+      responses:
+        '200':
+          description: Sample user created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    GoalRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        duration:
+          type: string
+        completionCount:
+          type: integer
+        habitID:
+          type: string
+          format: uuid
+
+    GoalResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        duration:
+          type: string
+        habitID:
+          type: string
+          format: uuid
+        completionCount:
+          type: integer
+        currentCount:
+          type: integer
+        status:
+          type: string
+
+    GoalResponsePage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/GoalResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    HabitRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        action:
+          type: string
+        frequency:
+          type: string
+        duration:
+          type: string
+        difficulty:
+          type: string
+        status:
+          type: string
+        userUUID:
+          type: string
+          format: uuid
+
+    HabitResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        action:
+          type: string
+        frequency:
+          type: string
+        duration:
+          type: string
+        difficulty:
+          type: string
+        status:
+          type: string
+        userUUID:
+          type: string
+          format: uuid
+
+    HabitResponsePage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/HabitResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    HabitTrackingRequest:
+      type: object
+      properties:
+        habitId:
+          type: string
+          format: uuid
+        status:
+          type: string
+
+    HabitTrackResponse:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        status:
+          type: string
+
+    HabitTrackResponsePage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/HabitTrackResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    CategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    CategoryResponsePage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryResponse'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        number:
+          type: integer
+
+    CombinedComponentResponse:
+      type: object
+      properties:
+        components:
+          type: array
+          items:
+            type: object
+
+    ViewRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        components:
+          type: array
+          items:
+            type: object
+
+    ViewResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        components:
+          type: array
+          items:
+            type: object
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        username:
+          type: string
