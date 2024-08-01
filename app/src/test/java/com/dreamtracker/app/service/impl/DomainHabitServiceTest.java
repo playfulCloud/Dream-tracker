@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.fixtures.CategoryFixtures;
@@ -42,6 +43,7 @@ class DomainHabitServiceTest
   private final UserService userService = Mockito.mock(UserService.class);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final CategoryRepositoryPort categoryRepository = Mockito.mock(CategoryRepositoryPort.class);
+  private final GoalService goalService = Mockito.mock(GoalService.class);
   private HabitService habitService;
   private User sampleUser;
   private Clock fixedClock;
@@ -56,7 +58,7 @@ class DomainHabitServiceTest
             currentUserProvider,
             userService,
             categoryRepository,
-                habitTrackRepositoryPort,statsAggregator);
+                habitTrackRepositoryPort,statsAggregator,goalService);
   }
 
  @Test

@@ -56,8 +56,8 @@ public class DomainGoalService implements GoalService {
   }
 
   @Override
+  @Transactional
   public boolean delete(UUID id) {
-
     var goalResponse =
         goalRepositoryPort
             .findById(id)
@@ -72,6 +72,7 @@ public class DomainGoalService implements GoalService {
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var listOfGoals = habitToBeAdded.getGoals();
     removeGoalFromHabit(listOfGoals, goalResponse.getUuid());
+    goalRepositoryPort.deleteById(goalResponse.getUuid());
     return true;
   }
 

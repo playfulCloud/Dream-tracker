@@ -28,13 +28,13 @@ public class BeanConfiguration {
           CurrentUserProvider currentUserProvider,
           UserService userService,
           CategoryRepositoryPort categoryRepositoryPort,
-          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator) {
+          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator,GoalService domainGoalService) {
     return new DomainHabitService(
         habitRepositoryPort,
         currentUserProvider,
         userService,
         categoryRepositoryPort,
-        habitTrackRepositoryPort,statsAggregator);
+        habitTrackRepositoryPort,statsAggregator, domainGoalService);
   }
 
   @Bean
