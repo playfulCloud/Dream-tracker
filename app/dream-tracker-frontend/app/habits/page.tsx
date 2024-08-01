@@ -12,11 +12,17 @@ interface HabitResponse {
     duration: string;
     difficulty: string;
     status: string;
+    categories: Category[];
 }
 
 interface HabitTrackResponse {
     date: string;
     status: string;
+}
+
+interface Category {
+    id: string;
+    name: string;
 }
 
 const Habits = () => {
