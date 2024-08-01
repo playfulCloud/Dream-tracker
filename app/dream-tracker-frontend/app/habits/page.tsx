@@ -42,7 +42,7 @@ const Habits = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await axios.post<HabitResponse>('http://localhost:8080/v1/habits', formData);
+            await axios.post<HabitResponse>('http://localhost:8080/v1/habits', formData);
             fetchHabits(); // Fetch updated habits list after submitting form
         } catch (error) {
             console.error(error);
@@ -52,7 +52,8 @@ const Habits = () => {
     const handleDelete = async (id: string) => {
         try {
             await axios.delete(`http://localhost:8080/v1/habits/${id}`);
-            fetchHabits(); // Fetch updated habits list after deleting a habit
+            fetchHabits();
+            fetchGoals();
         } catch (error) {
             console.error('Failed to delete habit', error);
         }
@@ -61,7 +62,7 @@ const Habits = () => {
     const handleTracking = async (id: string) => {
         try {
             const habitTrackingRequest = { habitId: id, status: "DONE" };
-            const response = await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest);
+            await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest);
             setCheckedHabits([...checkedHabits, id]);
             setSuccessHabit(id);
             setTimeout(() => setSuccessHabit(null), 2000);

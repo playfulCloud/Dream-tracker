@@ -26,7 +26,7 @@ const Goals = () => {
     const { goals, habits, loading, error, fetchGoals } = useAppContext();
     const [formVisible, setFormVisible] = useState(false);
     const [formData, setFormData] = useState<GoalRequest>({ name: '', duration: '', completionCount: 0, habitID: '' });
-    const [showDoneGoals, setShowDoneGoals] = useState(false); // Add this line to declare the state variable
+    const [showDoneGoals, setShowDoneGoals] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -38,9 +38,9 @@ const Goals = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const response = await axios.post<GoalResponse>('http://localhost:8080/v1/goals', formData);
+            await axios.post<GoalResponse>('http://localhost:8080/v1/goals', formData);
             setFormVisible(false);
-            fetchGoals();
+            fetchGoals(); // Ensure state is updated after submitting the form
         } catch (error) {
             console.error(error);
         }

@@ -46,6 +46,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const response = await axios.get<{ items: GoalResponse[] }>('http://localhost:8080/v1/goals');
             const goalData = response.data && response.data.items ? response.data.items : [];
             setGoals(goalData);
+            localStorage.setItem('goals', JSON.stringify(goalData)); // Write to localStorage
+            console.log(goalData)
         } catch (error) {
             console.error(error);
             setError('Failed to fetch goals');
@@ -60,6 +62,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const response = await axios.get<{ items: Habit[] }>('http://localhost:8080/v1/habits');
             const habitData = response.data && response.data.items ? response.data.items : [];
             setHabits(habitData);
+            localStorage.setItem('habits', JSON.stringify(habitData)); // Write to localStorage
         } catch (error) {
             console.error(error);
             setError('Failed to fetch habits');
@@ -71,6 +74,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     useEffect(() => {
         fetchGoals();
         fetchHabits();
+
+        // Listen for localStorage changes
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === 'goals') {
+                setGoals(JSON.parse(event.newValue || '[]'));
+            }
+            if (event.key === 'habits') {
+                setHabits(JSON.parse(event.newValue || '[]'));
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     return (
