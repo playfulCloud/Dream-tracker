@@ -142,6 +142,7 @@ public boolean delete(UUID id) {
         .duration(habit.getDuration())
         .difficulty(habit.getDifficulty())
         .status(habit.getStatus())
+            .categories(habit.getCategories())
         .build();
   }
 }

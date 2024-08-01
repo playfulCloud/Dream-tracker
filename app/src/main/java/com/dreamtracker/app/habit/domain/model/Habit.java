@@ -28,7 +28,6 @@ public class Habit {
     private UUID userUUID;
 
     @ManyToMany
-    @JsonIgnore
     @JoinTable(
             name = "habit_category",
             joinColumns = @JoinColumn(name = "habit_id"),
