@@ -1,10 +1,13 @@
 package com.dreamtracker.app.goal.adapters.api;
 
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.GoalAssignHabitRequest;
 import com.dreamtracker.app.infrastructure.response.Page;
 import java.util.UUID;
 import lombok.Data;
+import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class GoalController {
 
   private final GoalService goalService;
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(GoalController.class);
 
   @PostMapping("/goals")
   public ResponseEntity<GoalResponse> createGoal(@RequestBody GoalRequest goalRequest) {
+    logger.debug(goalRequest.toString());
     return new ResponseEntity<>(goalService.createGoal(goalRequest), HttpStatus.CREATED);
   }
 
@@ -34,6 +39,7 @@ public class GoalController {
 
   @DeleteMapping("/goals/{goal-id}")
   public ResponseEntity<Void> deleteGoal(@PathVariable("goal-id") UUID id) {
+
     return goalService.delete(id)
         ? ResponseEntity.noContent().build()
         : ResponseEntity.notFound().build();
@@ -44,10 +50,5 @@ public class GoalController {
     return new ResponseEntity<>(goalService.getGoalById(id), HttpStatus.OK);
   }
 
-  @PostMapping("/goals/{goal-id}/habits")
-  public ResponseEntity<Void> associateHabitWithTheGoal(
-      @PathVariable("goal-id") UUID id, @RequestBody GoalAssignHabitRequest goalAssignHabitRequest) {
-    goalService.associateHabitWithGoal(id, goalAssignHabitRequest);
-    return ResponseEntity.noContent().build();
-  }
+
 }

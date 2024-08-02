@@ -1,23 +1,38 @@
 package com.dreamtracker.app.habit.domain.ports;
 
+import com.dreamtracker.app.goal.domain.model.Goal;
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
+import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
+import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
-import java.time.Clock;
-import java.time.ZonedDateTime;
+import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import jakarta.transaction.Transactional;
+import java.time.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
+
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Data
 public class DomainHabitTrackService implements HabitTrackService {
 
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
   private final HabitRepositoryPort habitRepositoryPort;
+  private final StatsAggregator statsAggregator;
   private final Clock clock;
+  private final GoalService domainGoalService;
 
 
   @Override
@@ -29,6 +44,7 @@ public class DomainHabitTrackService implements HabitTrackService {
   }
 
   @Override
+  @Transactional
   public HabitTrackResponse trackTheHabit(HabitTrackingRequest habitTrackingRequest) {
 
     var habitToUpdateTracking =
@@ -38,18 +54,24 @@ public class DomainHabitTrackService implements HabitTrackService {
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
-    ZonedDateTime date = ZonedDateTime.now(clock);
-    String formattedDate = date.format(DateTimeFormatter.ISO_DATE_TIME);
+    var actualDate = Instant.now(clock);
 
     var track =
         HabitTrack.builder()
-            .date(formattedDate)
+            .date(actualDate)
             .status(habitTrackingRequest.status())
             .habitUUID(habitToUpdateTracking.getId())
             .build();
 
+
     var trackSavedToDB = habitTrackRepositoryPort.save(track);
-    return mapToResponse(trackSavedToDB);
+    var habitTrackResponse = mapToResponse(trackSavedToDB);
+    statsAggregator.requestStatsUpdated(habitToUpdateTracking.getId(), habitTrackResponse);
+
+    if (trackSavedToDB.getStatus().equals("DONE")) {
+      updateGoalProgress(habitToUpdateTracking.getGoals());
+    }
+    return habitTrackResponse;
   }
 
   private HabitTrackResponse mapToResponse(HabitTrack habitTrack) {
@@ -57,5 +79,12 @@ public class DomainHabitTrackService implements HabitTrackService {
         .date(habitTrack.getDate())
         .status(habitTrack.getStatus())
         .build();
+  }
+
+  private void updateGoalProgress(List<Goal> goals) {
+    List<Goal> goalsCopy = new ArrayList<>(goals);
+    for (Goal goal : goalsCopy) {
+      domainGoalService.increaseCompletionCount(goal.getUuid());
+    }
   }
 }

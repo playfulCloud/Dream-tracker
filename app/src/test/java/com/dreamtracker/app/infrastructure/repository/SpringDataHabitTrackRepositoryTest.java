@@ -3,9 +3,10 @@ package com.dreamtracker.app.infrastructure.repository;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
-import com.dreamtracker.app.habit.domain.fixtures.HabitFixture;
-import com.dreamtracker.app.habit.domain.fixtures.HabitTrackFixture;
+import com.dreamtracker.app.fixtures.HabitFixture;
+import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.habit.domain.model.Habit;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import java.time.LocalDate;
@@ -30,6 +31,8 @@ class SpringDataHabitTrackRepositoryTest implements HabitTrackFixture, HabitFixt
     Habit habitToAssignATrack;
 
   @Autowired PostgreSQLContainer<?> postgreSQLContainer;
+    @Autowired
+    private DateService dateService;
 
     @Test
     void connectionEstablished(){
@@ -40,7 +43,7 @@ class SpringDataHabitTrackRepositoryTest implements HabitTrackFixture, HabitFixt
     @BeforeEach
     void setUp(){
         habitToAssignATrack = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-        var habitTrack = getSampleHabitTrack(habitToAssignATrack.getId(), String.valueOf(LocalDate.now())).build();
+        var habitTrack = getSampleHabitTrack(habitToAssignATrack.getId(), dateService.getCurrentDateInISO8601()).build();
 
         springDataHabitTrackRepository.save(habitTrack);
     }

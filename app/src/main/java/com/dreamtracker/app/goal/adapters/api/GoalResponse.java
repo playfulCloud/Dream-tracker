@@ -6,5 +6,5 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record GoalResponse(UUID id, String name, String duration, List<Habit> habitList) {}
+public record GoalResponse(UUID id, String name, String duration, UUID habitID, int completionCount,int currentCount,String status) {}
 

@@ -1,11 +1,15 @@
 package com.dreamtracker.app.habit.adapters.api;
 
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.habit.domain.ports.HabitService;
 import java.util.UUID;
 
 import com.dreamtracker.app.habit.domain.ports.HabitTrackService;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +19,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class HabitController {
 
+
   private final HabitService habitService;
   private final HabitTrackService habitTrackService;
+  private static final Logger logger = LoggerFactory.getLogger(HabitController.class);
 
   @PostMapping("/habits")
   public ResponseEntity<HabitResponse> createHabit(@RequestBody HabitRequest habitRequest) {
@@ -56,6 +62,7 @@ public class HabitController {
 
   @PostMapping("/habits/{habit-id}/categories")
   public ResponseEntity<Void> linkHabitWithCategory(@PathVariable("habit-id") UUID id,@RequestBody HabitCategoryCreateRequest habitCategoryCreateRequest){
+//    logger.trace(id + " " + habitCategoryCreateRequest);
     habitService.linkCategoryWithHabit(id,habitCategoryCreateRequest);
     return ResponseEntity.noContent().build();
   }

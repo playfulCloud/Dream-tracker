@@ -18,7 +18,7 @@ public class Habit {
 
     @Id
     @GeneratedValue
-    private  UUID id;
+    private UUID id;
     private String name;
     private String action;
     private String frequency;
@@ -28,7 +28,6 @@ public class Habit {
     private UUID userUUID;
 
     @ManyToMany
-    @JsonIgnore
     @JoinTable(
             name = "habit_category",
             joinColumns = @JoinColumn(name = "habit_id"),
