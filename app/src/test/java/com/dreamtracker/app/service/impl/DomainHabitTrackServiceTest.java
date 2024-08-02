@@ -4,6 +4,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
+import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.HabitTrackFixture;
@@ -42,6 +44,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final StatsAggregator statsAggregator = Mockito.mock(StatsAggregator.class);
+  private final GoalService goalService = Mockito.mock(DomainGoalService.class);
   private Clock fixedClock;
   private Habit sampleHabit;
 
@@ -51,7 +54,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
     sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     fixedClock = Clock.fixed(Instant.parse("2024-07-17T00:00:00Z"), ZoneOffset.UTC);
     habitTrackService =
-        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock);
+        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService);
   }
 
   @Test

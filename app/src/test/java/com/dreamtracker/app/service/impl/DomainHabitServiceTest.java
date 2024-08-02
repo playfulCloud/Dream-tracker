@@ -4,16 +4,17 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
-import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.fixtures.CategoryFixtures;
 import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.fixtures.UserFixtures;
+import com.dreamtracker.app.goal.domain.ports.GoalService;
+import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
+import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.habit.domain.model.Habit;
+import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.domain.ports.*;
-import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -22,9 +23,7 @@ import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
-
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +41,7 @@ class DomainHabitServiceTest
   private final UserService userService = Mockito.mock(UserService.class);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final CategoryRepositoryPort categoryRepository = Mockito.mock(CategoryRepositoryPort.class);
+  private final GoalService goalService = Mockito.mock(GoalService.class);
   private HabitService habitService;
   private User sampleUser;
   private Clock fixedClock;
@@ -56,14 +56,20 @@ class DomainHabitServiceTest
             currentUserProvider,
             userService,
             categoryRepository,
-                habitTrackRepositoryPort,statsAggregator);
+                habitTrackRepositoryPort,statsAggregator,goalService);
   }
 
  @Test
  void createHabitPositiveTestCase(){
     var habitRequest = getSampleHabitRequestBuilder().build();
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    var expectedHabitResponse = getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser()).build();
+    var habit =
+        getSampleHabitBuilder(currentUserProvider.getCurrentUser())
+            .categories(new ArrayList<>())
+            .build();
+    var expectedHabitResponse =
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+            .categories(new ArrayList<>())
+            .build();
     when(habitRepositoryPort.save(Habit.builder()
             .name(habitRequest.name())
             .action(habitRequest.action())
@@ -83,7 +89,7 @@ class DomainHabitServiceTest
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var expectedOutput = true;
-    when(habitRepositoryPort.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     // when
     var actualOutput = habitService.delete(sampleHabit.getId());
     // then
@@ -91,15 +97,15 @@ class DomainHabitServiceTest
   }
 
   @Test
-  void deleteNegativeTestCase() {
+  void deleteNegativeTestExceptionThrown() {
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-    var expectedOutput = false;
-    when(habitRepositoryPort.existsById(sampleHabit.getId())).thenReturn(expectedOutput);
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
     // when
-    var actualOutput = habitService.delete(sampleHabit.getId());
-    // then
-    assertThat(actualOutput).isEqualTo(expectedOutput);
+    assertThatThrownBy(() -> habitService.delete(sampleHabit.getId()))
+        // then
+        .isInstanceOf(EntityNotFoundException.class)
+        .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }
 
   @Test
@@ -136,7 +142,7 @@ class DomainHabitServiceTest
     // given
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     when(habitRepositoryPort.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(sampleHabit));
-    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).build();
+    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).categories(new ArrayList<>()).build();
     var expectedResponsePageItems = List.of(sampleHabitResponse);
     var expectedResponsePage = new Page<HabitResponse>(expectedResponsePageItems);
     // when
@@ -162,7 +168,7 @@ class DomainHabitServiceTest
     var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
     var sampleUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
     var updatedHabit = getSampleUpdatedHabitBuilder(sampleUser.getUuid()).build();
-    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().build();
+    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().categories(new ArrayList<>()).build();
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(habitRepositoryPort.save(updatedHabit)).thenReturn(updatedHabit);
     // when

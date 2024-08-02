@@ -1,22 +1,20 @@
 package com.dreamtracker.app.habit.domain.ports;
 
-import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.model.HabitTrack;
-import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
-import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
+import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
+import com.dreamtracker.app.habit.domain.model.Habit;
+import com.dreamtracker.app.habit.domain.model.HabitStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrack;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
-import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -28,16 +26,26 @@ public class DomainHabitService implements HabitService {
   private final CategoryRepositoryPort categoryRepositoryPort;
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
   private final StatsAggregator statsAggregator;
+  private final GoalService goalService;
 
-  @Override
-  @Transactional
-  public boolean delete(UUID id) {
-    if (habitRepositoryPort.existsById(id)) {
-      habitRepositoryPort.deleteById(id);
-      return true;
+ @Override
+@Transactional
+public boolean delete(UUID id) {
+    var foundHabit = habitRepositoryPort.findById(id).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+    var goals = foundHabit.getGoals();
+
+    List<UUID> goalUUIDs = new ArrayList<>();
+    for (var goal : goals) {
+        goalUUIDs.add(goal.getUuid());
     }
-    return false;
-  }
+
+    for (UUID goalUUID : goalUUIDs) {
+        goalService.delete(goalUUID);
+    }
+
+    habitRepositoryPort.deleteById(id);
+    return true;
+}
 
   @Override
   public List<HabitTrack> getHabitTrack(UUID id) {
@@ -129,6 +137,7 @@ public class DomainHabitService implements HabitService {
         .duration(habit.getDuration())
         .difficulty(habit.getDifficulty())
         .status(habit.getStatus())
+            .categories(habit.getCategories())
         .build();
   }
 }

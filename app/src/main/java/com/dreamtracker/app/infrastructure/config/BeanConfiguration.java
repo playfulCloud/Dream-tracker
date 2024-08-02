@@ -14,6 +14,8 @@ import com.dreamtracker.app.view.domain.ports.DomainViewService;
 import com.dreamtracker.app.view.domain.ports.ViewRepositoryPort;
 import com.dreamtracker.app.view.domain.ports.ViewService;
 import java.time.Clock;
+
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,13 +28,13 @@ public class BeanConfiguration {
           CurrentUserProvider currentUserProvider,
           UserService userService,
           CategoryRepositoryPort categoryRepositoryPort,
-          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator) {
+          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator,GoalService domainGoalService) {
     return new DomainHabitService(
         habitRepositoryPort,
         currentUserProvider,
         userService,
         categoryRepositoryPort,
-        habitTrackRepositoryPort,statsAggregator);
+        habitTrackRepositoryPort,statsAggregator, domainGoalService);
   }
 
   @Bean
@@ -45,14 +47,14 @@ public class BeanConfiguration {
       HabitTrackRepositoryPort habitTrackRepositoryPort,
       HabitRepositoryPort habitRepositoryPort,
       StatsAggregator statsAggregator,
-      Clock clock) {
+      Clock clock, GoalService domainGoalService) {
     return new DomainHabitTrackService(
-        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock);
+        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService);
   }
 
   @Bean
-  CategoryService categoryService(CategoryRepositoryPort categoryRepositoryPort,UserService userService, CurrentUserProvider currentUserProvider){
-    return new DomainCategoryService(categoryRepositoryPort,userService,currentUserProvider);
+  CategoryService categoryService(CategoryRepositoryPort categoryRepositoryPort,UserService userService, CurrentUserProvider currentUserProvider, HabitRepositoryPort habitRepositoryPort){
+    return new DomainCategoryService(categoryRepositoryPort,userService,currentUserProvider, habitRepositoryPort);
   }
 
   @Bean
