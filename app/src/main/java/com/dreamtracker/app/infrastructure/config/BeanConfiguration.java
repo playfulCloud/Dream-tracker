@@ -53,8 +53,8 @@ public class BeanConfiguration {
   }
 
   @Bean
-  CategoryService categoryService(CategoryRepositoryPort categoryRepositoryPort,UserService userService, CurrentUserProvider currentUserProvider){
-    return new DomainCategoryService(categoryRepositoryPort,userService,currentUserProvider);
+  CategoryService categoryService(CategoryRepositoryPort categoryRepositoryPort,UserService userService, CurrentUserProvider currentUserProvider, HabitRepositoryPort habitRepositoryPort){
+    return new DomainCategoryService(categoryRepositoryPort,userService,currentUserProvider, habitRepositoryPort);
   }
 
   @Bean

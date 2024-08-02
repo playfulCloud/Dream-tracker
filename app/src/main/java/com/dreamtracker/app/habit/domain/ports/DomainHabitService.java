@@ -1,24 +1,20 @@
 package com.dreamtracker.app.habit.domain.ports;
 
-import com.dreamtracker.app.goal.domain.model.Goal;
-import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
-import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.model.HabitTrack;
-import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
-import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
+import com.dreamtracker.app.habit.domain.model.Habit;
+import com.dreamtracker.app.habit.domain.model.HabitStatus;
+import com.dreamtracker.app.habit.domain.model.HabitTrack;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
-import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
-
 import java.util.*;
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -47,7 +43,6 @@ public boolean delete(UUID id) {
         goalService.delete(goalUUID);
     }
 
-   System.out.println(goals);
     habitRepositoryPort.deleteById(id);
     return true;
 }
@@ -142,6 +137,7 @@ public boolean delete(UUID id) {
         .duration(habit.getDuration())
         .difficulty(habit.getDifficulty())
         .status(habit.getStatus())
+            .categories(habit.getCategories())
         .build();
   }
 }

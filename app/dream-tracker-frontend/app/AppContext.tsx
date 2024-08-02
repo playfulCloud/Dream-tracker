@@ -1,4 +1,3 @@
-// app/AppContext.tsx
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -11,6 +10,7 @@ interface Habit {
     duration: string;
     difficulty: string;
     status: string;
+    categories: Category[]; // Ensure categories is part of Habit interface
 }
 
 interface GoalResponse {
@@ -26,10 +26,17 @@ interface GoalResponse {
 interface AppContextProps {
     habits: Habit[];
     goals: GoalResponse[];
+    categories: Category[]; // Ensure categories is part of context
     loading: boolean;
     error: string | null;
     fetchGoals: () => void;
     fetchHabits: () => void;
+    fetchCategories: () => void;
+}
+
+interface Category {
+    id: string;
+    name: string;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -37,6 +44,7 @@ const AppContext = createContext<AppContextProps | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [habits, setHabits] = useState<Habit[]>([]);
     const [goals, setGoals] = useState<GoalResponse[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -44,13 +52,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setLoading(true);
         try {
             const response = await axios.get<{ items: GoalResponse[] }>('http://localhost:8080/v1/goals');
-            const goalData = response.data && response.data.items ? response.data.items : [];
+            const goalData = response.data.items || [];
             setGoals(goalData);
-            localStorage.setItem('goals', JSON.stringify(goalData)); // Write to localStorage
-            console.log(goalData)
+            localStorage.setItem('goals', JSON.stringify(goalData));
         } catch (error) {
             console.error(error);
             setError('Failed to fetch goals');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get<{ items: Category[] }>('http://localhost:8080/v1/categories');
+            const categoryData = response.data.items || [];
+            setCategories(categoryData);
+            localStorage.setItem('categories', JSON.stringify(categoryData));
+        } catch (error) {
+            console.error(error);
+            setError('Failed to fetch categories');
         } finally {
             setLoading(false);
         }
@@ -60,9 +82,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setLoading(true);
         try {
             const response = await axios.get<{ items: Habit[] }>('http://localhost:8080/v1/habits');
-            const habitData = response.data && response.data.items ? response.data.items : [];
+            const habitData = response.data.items || [];
             setHabits(habitData);
-            localStorage.setItem('habits', JSON.stringify(habitData)); // Write to localStorage
+            localStorage.setItem('habits', JSON.stringify(habitData));
         } catch (error) {
             console.error(error);
             setError('Failed to fetch habits');
@@ -74,8 +96,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     useEffect(() => {
         fetchGoals();
         fetchHabits();
-
-        // Listen for localStorage changes
+        fetchCategories();
         const handleStorageChange = (event: StorageEvent) => {
             if (event.key === 'goals') {
                 setGoals(JSON.parse(event.newValue || '[]'));
@@ -83,17 +104,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (event.key === 'habits') {
                 setHabits(JSON.parse(event.newValue || '[]'));
             }
+            if (event.key === 'categories') {
+                setCategories(JSON.parse(event.newValue || '[]'));
+            }
         };
 
         window.addEventListener('storage', handleStorageChange);
-
         return () => {
             window.removeEventListener('storage', handleStorageChange);
         };
     }, []);
 
     return (
-        <AppContext.Provider value={{ habits, goals, loading, error, fetchGoals, fetchHabits }}>
+        <AppContext.Provider value={{ habits, goals, categories, loading, error, fetchGoals, fetchHabits, fetchCategories }}>
             {children}
         </AppContext.Provider>
     );
