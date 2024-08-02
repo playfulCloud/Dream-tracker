@@ -12,4 +12,5 @@ public interface HabitRepositoryPort {
     List<Habit> findByUserUUID(UUID userUUID);
     Optional<Habit>findById(UUID id);
     Habit save(Habit habit);
+    List<Habit>findAll();
 }

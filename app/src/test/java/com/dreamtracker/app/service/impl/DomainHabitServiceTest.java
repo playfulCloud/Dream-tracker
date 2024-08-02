@@ -42,6 +42,7 @@ class DomainHabitServiceTest
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final CategoryRepositoryPort categoryRepository = Mockito.mock(CategoryRepositoryPort.class);
   private final GoalService goalService = Mockito.mock(GoalService.class);
+  private final HabitTrackService habitTrackService = Mockito.mock(HabitTrackService.class);
   private HabitService habitService;
   private User sampleUser;
   private Clock fixedClock;
@@ -56,7 +57,7 @@ class DomainHabitServiceTest
             currentUserProvider,
             userService,
             categoryRepository,
-                habitTrackRepositoryPort,statsAggregator,goalService);
+                habitTrackRepositoryPort,statsAggregator,goalService,habitTrackService);
   }
 
  @Test

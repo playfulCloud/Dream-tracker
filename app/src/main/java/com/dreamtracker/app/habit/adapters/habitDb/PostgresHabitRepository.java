@@ -42,4 +42,9 @@ public class PostgresHabitRepository implements HabitRepositoryPort {
     public Habit save(Habit habit) {
         return springDataHabitRepository.save(habit);
     }
+
+    @Override
+    public List<Habit> findAll() {
+        return springDataHabitRepository.findAll();
+    }
 }

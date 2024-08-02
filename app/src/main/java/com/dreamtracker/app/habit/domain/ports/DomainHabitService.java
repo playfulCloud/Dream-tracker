@@ -1,12 +1,12 @@
 package com.dreamtracker.app.habit.domain.ports;
 
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
-import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.model.HabitStatus;
-import com.dreamtracker.app.habit.domain.model.HabitTrack;
+import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.habit.domain.model.*;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -14,8 +14,12 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 @RequiredArgsConstructor
 public class DomainHabitService implements HabitService {
@@ -27,6 +31,8 @@ public class DomainHabitService implements HabitService {
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
   private final StatsAggregator statsAggregator;
   private final GoalService goalService;
+  private final HabitTrackService habitTrackService;
+  private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
 
  @Override
 @Transactional
@@ -128,6 +134,54 @@ public boolean delete(UUID id) {
     var foundHabit = habitRepositoryPort.findById(habitUUID).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     return mapToResponse(foundHabit);
   }
+
+  @Override
+  @Async(value = "taskExecutor")
+  public void manageHabitsBasedOnTheirStatus(LocalDate localDate) {
+    var habits = habitRepositoryPort.findAll();
+    var dayOfTheWeek = localDate.getDayOfWeek();
+    var dayOfTheMonth = localDate.getDayOfMonth();
+
+    manageHabitsByFrequency(habits, HabitFrequency.DAILY, "DAILY");
+
+    if (dayOfTheWeek.equals(DayOfWeek.MONDAY)) {
+      manageHabitsByFrequency(habits, HabitFrequency.WEEKLY, "WEEKLY");
+    }
+
+    if (dayOfTheMonth == 1) {
+      manageHabitsByFrequency(habits, HabitFrequency.MONTHLY, "MONTHLY");
+    }
+  }
+
+  private void manageHabitsByFrequency(List<Habit> habits, HabitFrequency frequency, String period) {
+    habits.parallelStream()
+        .filter(habit -> habit.getFrequency().equals(frequency.toString()))
+        .forEach(habit -> manageHabit(habit, period));
+  }
+
+
+  private void manageHabit(Habit habit, String period) {
+    logger.info("Managing habit: " + period);
+    synchronized (habit) {
+      try {
+        switch (habit.getStatus()) {
+          case "ACTIVE":
+            habitTrackService.trackTheHabit(
+                    new HabitTrackingRequest(habit.getId(), HabitTrackStatus.UNDONE.toString()));
+            break;
+          case "COOLDOWN":
+            habit.setStatus(HabitStatus.ACTIVE.toString());
+            break;
+        }
+        var habitSavedToDB = habitRepositoryPort.save(habit);
+        logger.info(habitSavedToDB.toString());
+      } catch (Exception e) {
+        logger.error("Error managing habit: " + habit.getId(), e);
+      }
+    }
+  }
+
+
 
   private HabitResponse mapToResponse(Habit habit) {
     return HabitResponse.builder()

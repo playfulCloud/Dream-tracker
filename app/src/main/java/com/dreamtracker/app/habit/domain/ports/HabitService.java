@@ -5,6 +5,9 @@ import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
 import com.dreamtracker.app.infrastructure.response.Page;
+
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,4 +19,5 @@ public interface HabitService {
     HabitResponse updateHabit(UUID id,HabitRequest habitRequest);
     void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest);
     HabitResponse getHabitById(UUID habitUUID);
+    void manageHabitsBasedOnTheirStatus(LocalDate date);
 }

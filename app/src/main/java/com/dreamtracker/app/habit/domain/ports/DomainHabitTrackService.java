@@ -6,6 +6,7 @@ import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
@@ -69,6 +70,7 @@ public class DomainHabitTrackService implements HabitTrackService {
     statsAggregator.requestStatsUpdated(habitToUpdateTracking.getId(), habitTrackResponse);
 
     if (trackSavedToDB.getStatus().equals("DONE")) {
+      habitToUpdateTracking.setStatus(HabitStatus.COOLDOWN.toString());
       updateGoalProgress(habitToUpdateTracking.getGoals());
     }
     return habitTrackResponse;
