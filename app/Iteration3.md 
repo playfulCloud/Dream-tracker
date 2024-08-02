@@ -1,0 +1,20 @@
+## Iteration 3 - 2021-04-07
+
+### Features.
+#### Backend:
+0. Add new type of HabitStatus - "COOLDOWN" - which is set after DONE request and lasts depends on habit frequency till next day for daily, till next monday for weekly,till next day of the month for monthly.
+1. Functionality which automatically resets habit status from COOLDOWN to ACTIVE after .
+2. Functionality which send habitTrackRequest with `UNDONE` status if there is `ACTIVE` habit during switch of time periods (daily, weekly, monthly).
+3. ViewDomainService which offers methods to  create view with chosen view components.
+
+#### Frontend:
+1. When habit is cooling down show it in different color and disable DONE button and show time left till next status change.
+2. Statistics component which display statistics of habits.
+3. View creator which allows user to create view with chosen view components.
+4.
+
+
+
+
+#### Idea for design:
+Make it heat connected theme where ale interactions are based on temperature and heat. The more you do the habit the more heat you get. The more heat you get the more you can do. The more you do the habit the more heat you get. The more heat you get the more you can do.
