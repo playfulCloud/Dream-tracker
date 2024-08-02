@@ -75,6 +75,7 @@ public class DomainHabitTrackService implements HabitTrackService {
     var habitTrackResponse = mapToResponse(trackSavedToDB);
 
     statsAggregator.requestStatsUpdated(habitToUpdateTracking.getId(), habitTrackResponse);
+
     if (trackSavedToDB.getStatus().equals("DONE")) {
       var cooldown = dateService.getCooldownPeriodBasedOnCurrentDate(actualDate, habitToUpdateTracking.getFrequency());
       habitToUpdateTracking.setCoolDownTill(cooldown);
