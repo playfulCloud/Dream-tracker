@@ -43,7 +43,7 @@ public class DomainCategoryService implements CategoryService {
   @Override
   @Transactional
   public boolean delete(UUID id) {
-    var category = categoryRepositoryPort.findById(id).orElseThrow(() -> new EntityNotFoundException("Tesstestestesjaklldfjasjfkdsaljfkdsjakkl"));
+    var category = categoryRepositoryPort.findById(id).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
     var habits = category.getHabits();
 
     var habitToRemove = new ArrayList<Habit>();

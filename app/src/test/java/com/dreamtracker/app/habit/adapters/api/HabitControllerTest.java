@@ -12,7 +12,9 @@ import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.ports.UserService;
+import java.util.ArrayList;
 import java.util.UUID;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,8 +24,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import javax.sql.DataSource;
 
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
@@ -64,7 +64,9 @@ class HabitControllerTest
   void createHabitPositiveTestCase() {
     // given
     var expectedHabitResponse =
-        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser()).build();
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+            .categories(new ArrayList<>())
+            .build();
     // when
     var createdHabitResponse =
         restTemplate.postForEntity(
@@ -80,7 +82,9 @@ class HabitControllerTest
     restTemplate.postForEntity(
         BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class);
     var expectedHabitResponse =
-            getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser()).build();
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+            .categories(new ArrayList<>())
+            .build();
 
     // when
     var actualPageResponse =
@@ -117,7 +121,7 @@ class HabitControllerTest
                 BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class)
             .getBody();
     var habitUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
-    var updatedHabit = getSampleUpdatedHabitResponseBuilder().build();
+    var updatedHabit = getSampleUpdatedHabitResponseBuilder().categories(new ArrayList<>()).build();
     var requestEntity = new HttpEntity<>(habitUpdateRequest);
     // when
     var updated =
@@ -296,7 +300,10 @@ class HabitControllerTest
                     .postForEntity(
                             BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class)
                     .getBody();
-    var expectedHabitResponse = getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser()).build();
+    var expectedHabitResponse =
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+            .categories(new ArrayList<>())
+            .build();
     // when
     var habitResponse = restTemplate.getForEntity(BASE_URL + "/habits/" + habitToFind.id().toString(),HabitResponse.class);
     // then
