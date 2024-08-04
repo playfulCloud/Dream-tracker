@@ -11,6 +11,10 @@ import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import jakarta.transaction.Transactional;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.Period;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +22,7 @@ import java.util.UUID;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 @Data
 public class DomainGoalService implements GoalService {
@@ -26,6 +31,10 @@ public class DomainGoalService implements GoalService {
   private final SpringDataUserRepository springDataUserRepository;
   private final CurrentUserProvider currentUserProvider;
   private final HabitRepositoryPort habitRepositoryPort;
+  private final Clock clock;
+
+
+
   private static final Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
 
   @Override
@@ -40,6 +49,7 @@ public class DomainGoalService implements GoalService {
             .completionCount(goalRequest.completionCount())
             .userUUID(currentUserProvider.getCurrentUser())
             .status(GoalStatus.ACTIVE.toString())
+            .createdAt(Instant.now(clock))
             .build();
 
     var habitToBeAdded =
@@ -139,6 +149,31 @@ public class DomainGoalService implements GoalService {
 
     var goalSavedToDb = goalRepositoryPort.save(goal);
     return mapToResponse(goalSavedToDb);
+  }
+
+  // Checks the if current day is greater than the goal duration and marks the goal as failed
+  @Override
+  @Async("taskExecutor")
+  public void markGoalAsFailedIfNotCompleted() {
+    var listOfGoals = goalRepositoryPort.findAll();
+    listOfGoals.forEach(this::setStatusBasedOnDate);
+  }
+
+
+
+  private void setStatusBasedOnDate(Goal goal){
+    synchronized (goal){
+      var goalDuration = goal.getDuration();
+      var createdAt = goal.getCreatedAt();
+      var period = Period.parse(goalDuration);
+
+      var goalEndDate = createdAt.plus(period);
+
+      if(Instant.now(clock).isAfter(goalEndDate)){
+        goal.setStatus(GoalStatus.FAILED.toString());
+        goalRepositoryPort.save(goal);
+      }
+    }
   }
 
   public GoalResponse mapToResponse(Goal goal) {

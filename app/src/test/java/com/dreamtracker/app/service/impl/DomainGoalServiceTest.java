@@ -21,6 +21,10 @@ import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +42,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   private final GoalRepositoryPort goalRepositoryPort = Mockito.mock(GoalRepositoryPort.class);
   private final SpringDataUserRepository springDataUserRepository = Mockito.mock(SpringDataUserRepository.class);
   private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
+  private Clock clock;
   private static final Logger logger = LoggerFactory.getLogger(DomainGoalServiceTest.class);
   private User sampleUser;
   private GoalService goalService;
@@ -45,8 +50,9 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @BeforeEach
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
+    clock = Clock.fixed(Instant.parse("2024-07-17T00:00:00Z"), ZoneOffset.UTC);
     goalService =
-        new DomainGoalService(goalRepositoryPort, springDataUserRepository, currentUserProvider, habitRepositoryPort);
+        new DomainGoalService(goalRepositoryPort, springDataUserRepository, currentUserProvider, habitRepositoryPort,clock);
   }
 
   @Test

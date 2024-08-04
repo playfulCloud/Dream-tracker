@@ -1,6 +1,8 @@
 package com.dreamtracker.app.goal.domain.model;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import jakarta.persistence.*;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -26,6 +28,7 @@ public class Goal {
     private UUID habitUUID;
     private int completionCount;
     private int currentCount;
+    private Instant createdAt;
 
 
     public void increaseCompletionCount(){

@@ -40,5 +40,10 @@ public class PostgresGoalRepository implements GoalRepositoryPort {
         return springDataGoalRepository.findByUserUUID(userUUID);
     }
 
+    @Override
+    public List<Goal> findAll() {
+        return springDataGoalRepository.findAll();
+    }
+
 
 }

@@ -58,8 +58,8 @@ public class BeanConfiguration {
   }
 
   @Bean
-  public GoalService goalService(GoalRepositoryPort goalRepositoryPort, SpringDataUserRepository springDataUserRepository, CurrentUserProvider currentUserProvider, HabitRepositoryPort habitRepositoryPort){
-   return new DomainGoalService(goalRepositoryPort, springDataUserRepository,currentUserProvider,habitRepositoryPort);
+  public GoalService goalService(GoalRepositoryPort goalRepositoryPort, SpringDataUserRepository springDataUserRepository, CurrentUserProvider currentUserProvider, HabitRepositoryPort habitRepositoryPort, Clock clock){
+   return new DomainGoalService(goalRepositoryPort, springDataUserRepository,currentUserProvider,habitRepositoryPort,clock);
   }
 
   @Bean

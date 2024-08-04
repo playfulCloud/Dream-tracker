@@ -13,4 +13,5 @@ public interface GoalService {
     Page<GoalResponse> getAllUserGoals();
     GoalResponse getGoalById(UUID id);
     GoalResponse increaseCompletionCount(UUID id);
+    void markGoalAsFailedIfNotCompleted();
 }
