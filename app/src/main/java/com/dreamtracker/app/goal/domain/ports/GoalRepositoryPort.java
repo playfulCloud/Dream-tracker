@@ -14,7 +14,4 @@ public interface GoalRepositoryPort {
    List<Goal>findByUserUUID(UUID userUUID);
 
   List<Goal> findAll();
-
-  @Query("SELECT g FROM Goal g WHERE g.currentCount = g.completionCount")
-  List<Goal> findGoalsWithEqualCurrentAndCompletionCount();
 }
