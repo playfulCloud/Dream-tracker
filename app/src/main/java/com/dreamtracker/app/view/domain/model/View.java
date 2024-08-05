@@ -23,7 +23,10 @@ public class View {
     @GeneratedValue
     private UUID id;
     private UUID userUUID;
-    private UUID habitUUID;
     private String name;
+    private String description;
+    private boolean habits;
+    private boolean stats;
+    private boolean goals;
 
 }

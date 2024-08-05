@@ -38,8 +38,8 @@ public class BeanConfiguration {
   }
 
   @Bean
-  ViewService viewService(ViewRepositoryPort viewRepositoryPort,StatsAggregator statsAggregator){
-    return new DomainViewService(viewRepositoryPort,statsAggregator);
+  ViewService viewService(ViewRepositoryPort viewRepositoryPort){
+    return new DomainViewService(viewRepositoryPort);
   }
 
   @Bean

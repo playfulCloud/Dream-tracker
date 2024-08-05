@@ -46,4 +46,5 @@ public class PostgresViewRepository implements ViewRepositoryPort {
     public Optional<View> findByName(String name) {
         return springDataViewRepository.findByName(name);
     }
+
 }
