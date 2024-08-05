@@ -4,7 +4,5 @@ import lombok.Builder;
 
 import java.util.UUID;
 
-
 @Builder
-public record ViewRequest(String name, UUID habitUUID) {
-}
+public record ViewRequest(UUID id, String name, boolean habits, boolean stats, boolean goals, String description) {}
