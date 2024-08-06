@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjuster;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +30,10 @@ public class Habit {
     private String difficulty;
     private String status;
     private UUID userUUID;
+    private Instant coolDownTill;
+
+    @Version
+    private Integer version;
 
     @ManyToMany
     @JoinTable(
@@ -42,5 +50,21 @@ public class Habit {
             inverseJoinColumns = @JoinColumn(name = "goal_id")
     )
     private List<Goal>goals;
+
+
+    public void setCoolDownTill(Instant currentDate) {
+    LocalDateTime localDateTime = LocalDateTime.ofInstant(currentDate, ZoneId.systemDefault());
+    switch (this.frequency) {
+        case "DAILY":
+            this.coolDownTill = localDateTime.plusDays(1).toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+            break;
+        case "WEEKLY":
+            this.coolDownTill = localDateTime.plusWeeks(1).toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+            break;
+        case "MONTHLY":
+            this.coolDownTill = localDateTime.plusMonths(1).toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+            break;
+    }
+}
 
 }

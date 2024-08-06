@@ -14,7 +14,10 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
+
+import java.time.Clock;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,7 @@ public class DomainHabitService implements HabitService {
   private final StatsAggregator statsAggregator;
   private final GoalService goalService;
   private final HabitTrackService habitTrackService;
+  private final Clock clock;
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
 
  @Override
@@ -69,11 +73,15 @@ public boolean delete(UUID id) {
             .duration(habitRequest.duration())
             .difficulty(habitRequest.difficulty())
             .status(HabitStatus.ACTIVE.toString())
+            .frequency(habitRequest.frequency())
+            .coolDownTill(Instant.now(clock))
             .categories(new ArrayList<>())
             .goals(new ArrayList<>())
+            .version(1)
             .userUUID(currentUserProvider.getCurrentUser())
             .build();
 
+    logger.debug(habitToCreate.toString());
     var habitSavedToDB = habitRepositoryPort.save(habitToCreate);
     statsAggregator.initializeAggregates(habitSavedToDB.getId());
     return mapToResponse(habitSavedToDB);
@@ -95,6 +103,9 @@ public boolean delete(UUID id) {
             .orElseThrow(
                 () ->
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+
+    logger.debug(habitToUpdate.toString());
+    logger.debug(habitRequest.toString());
 
     Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
     Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
@@ -136,50 +147,20 @@ public boolean delete(UUID id) {
   }
 
   @Override
-  @Async(value = "taskExecutor")
-  public void manageHabitsBasedOnTheirStatus(LocalDate localDate) {
-    var habits = habitRepositoryPort.findAll();
-    var dayOfTheWeek = localDate.getDayOfWeek();
-    var dayOfTheMonth = localDate.getDayOfMonth();
-
-    manageHabitsByFrequency(habits, HabitFrequency.DAILY, "DAILY");
-
-    if (dayOfTheWeek.equals(DayOfWeek.MONDAY)) {
-      manageHabitsByFrequency(habits, HabitFrequency.WEEKLY, "WEEKLY");
-    }
-
-    if (dayOfTheMonth == 1) {
-      manageHabitsByFrequency(habits, HabitFrequency.MONTHLY, "MONTHLY");
-    }
-  }
-
-  private void manageHabitsByFrequency(List<Habit> habits, HabitFrequency frequency, String period) {
-    habits.parallelStream()
-        .filter(habit -> habit.getFrequency().equals(frequency.toString()))
-        .forEach(habit -> manageHabit(habit, period));
+  @Async
+  public void manageHabitsBasedOnCooldown() {
+    var habits = habitRepositoryPort.findByCoolDownTillAfter(Instant.now(clock));
+    habits.forEach(this::trackUndoneHabit);
   }
 
 
-  private void manageHabit(Habit habit, String period) {
-    logger.info("Managing habit: " + period);
-    synchronized (habit) {
-      try {
-        switch (habit.getStatus()) {
-          case "ACTIVE":
-            habitTrackService.trackTheHabit(
-                    new HabitTrackingRequest(habit.getId(), HabitTrackStatus.UNDONE.toString()));
-            break;
-          case "COOLDOWN":
-            habit.setStatus(HabitStatus.ACTIVE.toString());
-            break;
-        }
+  private void trackUndoneHabit(Habit habit) {
+    logger.info("Managing habit: ");
+    habitTrackService.trackTheHabit(
+            new HabitTrackingRequest(habit.getId(), HabitTrackStatus.UNDONE.toString()));
         var habitSavedToDB = habitRepositoryPort.save(habit);
         logger.info(habitSavedToDB.toString());
-      } catch (Exception e) {
-        logger.error("Error managing habit: " + habit.getId(), e);
-      }
-    }
-  }
+ }
 
 
 

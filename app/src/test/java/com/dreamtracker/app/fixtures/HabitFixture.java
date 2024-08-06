@@ -1,11 +1,12 @@
 package com.dreamtracker.app.fixtures;
 
-import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
+import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitDifficulty;
 import com.dreamtracker.app.habit.domain.model.HabitFrequency;
 import com.dreamtracker.app.habit.domain.model.HabitStatus;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public interface HabitFixture {
         .duration("P30M")
         .difficulty(HabitDifficulty.EASY.toString())
         .status(HabitStatus.ACTIVE.toString())
+        .version(1)
         .categories(new ArrayList<>())
         .goals(new ArrayList<>())
         .userUUID(userUUID);
@@ -36,6 +38,7 @@ public interface HabitFixture {
             .status(HabitStatus.ACTIVE.toString())
             .categories(new ArrayList<>())
             .goals(new ArrayList<>())
+            .version(1)
             .userUUID(userUUID);
   }
 
@@ -46,7 +49,8 @@ public interface HabitFixture {
               .action("hitting a gym")
               .duration("P30M")
               .difficulty(HabitDifficulty.EASY.toString())
-              .status(HabitStatus.ACTIVE.toString());
+              .status(HabitStatus.ACTIVE.toString())
+              .categories(new ArrayList<>());
   }
 
 
@@ -76,7 +80,8 @@ public interface HabitFixture {
             .action("30 pages per day")
             .duration("P30M")
             .difficulty(HabitDifficulty.EASY.toString())
-            .status(HabitStatus.ACTIVE.toString());
+            .status(HabitStatus.ACTIVE.toString())
+            .categories(new ArrayList<>());
 
 
   }

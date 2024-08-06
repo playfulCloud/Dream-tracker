@@ -29,6 +29,8 @@ public class Goal {
     private int completionCount;
     private int currentCount;
     private Instant createdAt;
+    @Version
+    private Integer version;
 
 
     public void increaseCompletionCount(){

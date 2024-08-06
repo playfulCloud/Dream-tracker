@@ -3,6 +3,8 @@ package com.dreamtracker.app.infrastructure.utils;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.domain.ports.HabitService;
 import java.time.LocalDate;
+import java.util.concurrent.*;
+
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +22,25 @@ public class ScheduleManager {
 
   @Scheduled(cron = "0 0 0 * * ?")
   public void manageHabitsBasedOnTheirStatus(){
-    var currentDate = LocalDate.now();
-    log.info("Starting to manage habits based on their status" + currentDate);
-    habitService.manageHabitsBasedOnTheirStatus(currentDate);
+    ExecutorService executorService = Executors.newFixedThreadPool(10);
+    CompletableFuture.runAsync(() -> {
+      var currentDate = LocalDate.now();
+      log.info("Starting to manage habits based on their status" + currentDate);
+      habitService.manageHabitsBasedOnCooldown();
+    }, executorService);
+    executorService.shutdown();
   }
+
+
 
   @Scheduled(cron = "0 1 0 * * ?")
   public void manageGoalsBasedOnTheirStatus() {
-    var currentDate = LocalDate.now();
-    log.info("Starting to manage Goals based on their status" + currentDate);
-    goalService.markGoalAsFailedIfNotCompleted();
+    ExecutorService executorService = Executors.newFixedThreadPool(10);
+    CompletableFuture.runAsync(() -> {
+      var currentDate = LocalDate.now();
+      log.info("Starting to manage goals based on their status" + currentDate);
+      goalService.markGoalAsFailedIfNotCompleted();
+    }, executorService);
+    executorService.shutdown();
   }
 }

@@ -19,5 +19,5 @@ public interface HabitService {
     HabitResponse updateHabit(UUID id,HabitRequest habitRequest);
     void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest);
     HabitResponse getHabitById(UUID habitUUID);
-    void manageHabitsBasedOnTheirStatus(LocalDate date);
+    void manageHabitsBasedOnCooldown();
 }

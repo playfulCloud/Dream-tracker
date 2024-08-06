@@ -11,8 +11,6 @@ import com.dreamtracker.app.fixtures.UserFixtures;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
-import com.dreamtracker.app.habit.domain.model.Habit;
-import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.domain.ports.*;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
@@ -30,6 +28,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class DomainHabitServiceTest
     implements HabitFixture, HabitTrackFixture, UserFixtures, CategoryFixtures {
@@ -43,6 +43,7 @@ class DomainHabitServiceTest
   private final CategoryRepositoryPort categoryRepository = Mockito.mock(CategoryRepositoryPort.class);
   private final GoalService goalService = Mockito.mock(GoalService.class);
   private final HabitTrackService habitTrackService = Mockito.mock(HabitTrackService.class);
+  private static final Logger logger = LoggerFactory.getLogger(DomainHabitServiceTest.class);
   private HabitService habitService;
   private User sampleUser;
   private Clock fixedClock;
@@ -53,34 +54,34 @@ class DomainHabitServiceTest
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
     habitService =
         new DomainHabitService(
-                habitRepositoryPort,
+            habitRepositoryPort,
             currentUserProvider,
             userService,
             categoryRepository,
-                habitTrackRepositoryPort,statsAggregator,goalService,habitTrackService);
+            habitTrackRepositoryPort,
+            statsAggregator,
+            goalService,
+            habitTrackService,
+            fixedClock);
   }
 
  @Test
  void createHabitPositiveTestCase(){
-    var habitRequest = getSampleHabitRequestBuilder().build();
+    var habitRequest = getSampleHabitRequestBuilder().frequency("DAILY").build();
     var habit =
         getSampleHabitBuilder(currentUserProvider.getCurrentUser())
-            .categories(new ArrayList<>())
+            .coolDownTill(Instant.now(fixedClock))
+            .id(null)
             .build();
+
+    logger.debug(habit.toString());
+    logger.debug("habitRequest: {}", habitRequest);
+
     var expectedHabitResponse =
         getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
-            .categories(new ArrayList<>())
+            .id(habit.getId())
             .build();
-    when(habitRepositoryPort.save(Habit.builder()
-            .name(habitRequest.name())
-            .action(habitRequest.action())
-            .duration(habitRequest.duration())
-            .difficulty(habitRequest.difficulty())
-            .status(HabitStatus.ACTIVE.toString())
-            .categories(new ArrayList<>())
-            .goals(new ArrayList<>())
-            .userUUID(currentUserProvider.getCurrentUser())
-            .build())).thenReturn(habit);
+    when(habitRepositoryPort.save(habit)).thenReturn(habit);
     var actualHabitResponse = habitService.createHabit(habitRequest);
     assertThat(expectedHabitResponse).isEqualTo(actualHabitResponse);
  }
@@ -166,10 +167,19 @@ class DomainHabitServiceTest
   @Test
   void updateHabit() {
     // given
-    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
+    var sampleHabit =
+        getSampleHabitBuilder(sampleUser.getUuid()).coolDownTill(Instant.now(fixedClock)).build();
     var sampleUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
-    var updatedHabit = getSampleUpdatedHabitBuilder(sampleUser.getUuid()).build();
-    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().categories(new ArrayList<>()).build();
+
+    var updatedHabit =
+        getSampleUpdatedHabitBuilder(sampleUser.getUuid())
+            .coolDownTill(Instant.now(fixedClock))
+            .build();
+    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().build();
+
+    logger.debug(sampleHabit.toString());
+    logger.debug(updatedHabit.toString());
+
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(habitRepositoryPort.save(updatedHabit)).thenReturn(updatedHabit);
     // when

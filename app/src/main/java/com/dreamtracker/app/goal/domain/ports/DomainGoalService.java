@@ -151,9 +151,8 @@ public class DomainGoalService implements GoalService {
     return mapToResponse(goalSavedToDb);
   }
 
-  // Checks the if current day is greater than the goal duration and marks the goal as failed
   @Override
-  @Async("taskExecutor")
+  @Async
   public void markGoalAsFailedIfNotCompleted() {
     var listOfGoals = goalRepositoryPort.findAll();
     listOfGoals.forEach(this::setStatusBasedOnDate);
@@ -162,7 +161,6 @@ public class DomainGoalService implements GoalService {
 
 
   private void setStatusBasedOnDate(Goal goal){
-    synchronized (goal){
       var goalDuration = goal.getDuration();
       var createdAt = goal.getCreatedAt();
       var period = Period.parse(goalDuration);
@@ -173,7 +171,6 @@ public class DomainGoalService implements GoalService {
         goal.setStatus(GoalStatus.FAILED.toString());
         goalRepositoryPort.save(goal);
       }
-    }
   }
 
   public GoalResponse mapToResponse(Goal goal) {

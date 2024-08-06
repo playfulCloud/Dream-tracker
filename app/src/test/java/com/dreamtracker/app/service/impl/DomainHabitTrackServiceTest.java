@@ -18,6 +18,7 @@ import com.dreamtracker.app.habit.domain.ports.HabitTrackService;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
@@ -27,6 +28,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
 
@@ -38,6 +41,8 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
   private final StatsAggregator statsAggregator = Mockito.mock(StatsAggregator.class);
   private final GoalService goalService = Mockito.mock(DomainGoalService.class);
+  private final DateService dateService = new DateService();
+  private static final Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
   private Clock fixedClock;
   private Habit sampleHabit;
 
@@ -47,7 +52,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
     sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     fixedClock = Clock.fixed(Instant.parse("2024-07-17T00:00:00Z"), ZoneOffset.UTC);
     habitTrackService =
-        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService);
+        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService,dateService);
   }
 
   @Test
@@ -96,7 +101,11 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
         .thenReturn(sampleHabitTrack);
 
     // when
+
     var actualHabitTrackResponse = habitTrackService.trackTheHabit(sampleHabitTrackRequest);
+    logger.debug(actualHabitTrackResponse.toString());
+
+
     // then
     assertThat(actualHabitTrackResponse).isEqualTo(expectedHabitTrackResponse);
   }
