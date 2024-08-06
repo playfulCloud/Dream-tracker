@@ -51,20 +51,5 @@ public class Habit {
     )
     private List<Goal>goals;
 
-
-    public void setCoolDownTill(Instant currentDate) {
-    LocalDateTime localDateTime = LocalDateTime.ofInstant(currentDate, ZoneId.systemDefault());
-    switch (this.frequency) {
-        case "DAILY":
-            this.coolDownTill = localDateTime.plusDays(1).toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
-            break;
-        case "WEEKLY":
-            this.coolDownTill = localDateTime.plusWeeks(1).toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
-            break;
-        case "MONTHLY":
-            this.coolDownTill = localDateTime.plusMonths(1).toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
-            break;
-    }
-}
-
+    
 }
