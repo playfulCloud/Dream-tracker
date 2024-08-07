@@ -255,4 +255,24 @@ class DomainHabitServiceTest
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
   }
+
+  @Test
+  void manageHabitsBasedOnCooldownPositiveTest() {
+    // given
+    var currentInstant = Instant.now(fixedClock);
+    var sampleHabit =
+        getSampleHabitBuilder(sampleUser.getUuid()).coolDownTill(currentInstant).build();
+    var sampleHabitTrack = getSampleHabitTrackRequest(sampleHabit.getId()).status("UNDONE").build();
+    var sampleHabitTrackResponse = getSampleHabitTrackResponse(Instant.now(fixedClock)).build();
+    var listOfHabits = List.of(sampleHabit);
+    when(habitRepositoryPort.findByCoolDownTillAfter(Instant.now(fixedClock)))
+        .thenReturn(listOfHabits);
+    when(habitTrackService.trackTheHabit(sampleHabitTrack)).thenReturn(sampleHabitTrackResponse);
+    when(habitRepositoryPort.save(sampleHabit)).thenReturn(sampleHabit);
+    // when
+    logger.debug("currentInstant: {}", currentInstant);
+    var isCompleted = habitService.manageHabitsBasedOnCooldown();
+    // then
+    assertThat(isCompleted).isTrue();
+  }
 }

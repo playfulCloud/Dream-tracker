@@ -1,5 +1,6 @@
 package com.dreamtracker.app.habit.domain.ports;
 
+import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
 import com.dreamtracker.app.habit.adapters.api.HabitRequest;
@@ -19,5 +20,5 @@ public interface HabitService {
     HabitResponse updateHabit(UUID id,HabitRequest habitRequest);
     void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest);
     HabitResponse getHabitById(UUID habitUUID);
-    void manageHabitsBasedOnCooldown();
+    boolean manageHabitsBasedOnCooldown();
 }

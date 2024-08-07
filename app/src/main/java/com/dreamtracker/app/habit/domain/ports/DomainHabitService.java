@@ -14,11 +14,8 @@ import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
-
 import java.time.Clock;
-import java.time.DayOfWeek;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -148,9 +145,10 @@ public boolean delete(UUID id) {
 
   @Override
   @Async
-  public void manageHabitsBasedOnCooldown() {
+  public boolean manageHabitsBasedOnCooldown() {
     var habits = habitRepositoryPort.findByCoolDownTillAfter(Instant.now(clock));
     habits.forEach(this::trackUndoneHabit);
+    return true;
   }
 
 

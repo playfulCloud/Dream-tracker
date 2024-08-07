@@ -45,5 +45,10 @@ public class PostgresGoalRepository implements GoalRepositoryPort {
         return springDataGoalRepository.findAll();
     }
 
+    @Override
+    public List<Goal>findGoalsWithEqualCurrentAndCompletionCount(){
+        return springDataGoalRepository.findGoalsWithEqualCurrentAndCompletionCount();
+    }
+
 
 }
