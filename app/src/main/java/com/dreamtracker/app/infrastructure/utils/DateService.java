@@ -30,20 +30,19 @@ public class DateService {
                 .toLocalDate()
                 .atStartOfDay(ZoneId.systemDefault())
                 .toInstant();
+        break;
       case "WEEKLY":
         result =
             localDateTime
-                .plusWeeks(1)
+                .with(java.time.temporal.TemporalAdjusters.next(java.time.DayOfWeek.MONDAY))
                 .toLocalDate()
                 .atStartOfDay(ZoneId.systemDefault())
                 .toInstant();
+        break;
       case "MONTHLY":
-        result =
-            localDateTime
-                .plusMonths(1)
-                .toLocalDate()
-                .atStartOfDay(ZoneId.systemDefault())
-                .toInstant();
+        result = localDateTime.with(java.time.temporal.TemporalAdjusters.firstDayOfNextMonth())
+                .toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
+        break;
     }
 
     return result;

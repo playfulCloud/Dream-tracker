@@ -51,5 +51,5 @@ public class Habit {
     )
     private List<Goal>goals;
 
-    
+
 }
