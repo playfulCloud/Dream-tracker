@@ -51,7 +51,7 @@ class DomainHabitServiceTest
   @BeforeEach
   void setUp() {
     fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-    sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
+    sampleUser = getSampleUser(currentUserProvider.getCurrentFromSecurityContext()).build();
     habitService =
         new DomainHabitService(
             habitRepositoryPort,
@@ -69,7 +69,7 @@ class DomainHabitServiceTest
  void createHabitPositiveTestCase(){
     var habitRequest = getSampleHabitRequestBuilder().frequency("DAILY").build();
     var habit =
-        getSampleHabitBuilder(currentUserProvider.getCurrentUser())
+        getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .coolDownTill(Instant.now(fixedClock))
             .id(null)
             .build();
@@ -78,7 +78,7 @@ class DomainHabitServiceTest
     logger.debug("habitRequest: {}", habitRequest);
 
     var expectedHabitResponse =
-        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .id(habit.getId())
             .build();
     when(habitRepositoryPort.save(habit)).thenReturn(habit);

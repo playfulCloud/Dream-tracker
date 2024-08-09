@@ -64,7 +64,7 @@ class HabitControllerTest
   void createHabitPositiveTestCase() {
     // given
     var expectedHabitResponse =
-        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .categories(new ArrayList<>())
             .build();
     // when
@@ -82,7 +82,7 @@ class HabitControllerTest
     restTemplate.postForEntity(
         BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class);
     var expectedHabitResponse =
-        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .categories(new ArrayList<>())
             .build();
 
@@ -301,7 +301,7 @@ class HabitControllerTest
                             BASE_URL + "/habits", getSampleHabitRequestBuilder().build(), HabitResponse.class)
                     .getBody();
     var expectedHabitResponse =
-        getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
+        getSampleHabitResponseBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .categories(new ArrayList<>())
             .build();
     // when

@@ -49,7 +49,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
 
   @BeforeEach
   void setUp() {
-    sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     fixedClock = Clock.fixed(Instant.parse("2024-07-17T00:00:00Z"), ZoneOffset.UTC);
     habitTrackService =
         new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService,dateService);
@@ -75,7 +75,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
   @Test
   void getAllTracksOfHabitEmptyPage() {
     // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
     // when
     var actualPageResponse = habitTrackService.getAllTracksOfHabit(sampleHabit.getId());

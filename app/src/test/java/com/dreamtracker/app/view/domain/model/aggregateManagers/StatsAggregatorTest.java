@@ -25,7 +25,7 @@ class StatsAggregatorTest implements HabitFixture, HabitTrackFixture, Aggregates
     private final List<StatsAggregatorObserver> observers = List.of(domainBreaksService);
   private final StatsAggregator statsAggregator = new StatsAggregator(observers);
   private final CurrentUserProvider currentUserProvider = new MockCurrentUserProviderImpl();
-  private final Habit habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+  private final Habit habit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
   private final DateService dateService = new DateService();
 
     @Test

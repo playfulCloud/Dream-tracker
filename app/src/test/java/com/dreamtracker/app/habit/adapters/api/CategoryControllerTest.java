@@ -58,7 +58,7 @@ class CategoryControllerTest implements CategoryFixtures {
   @Test
   void getAllUserCategoriesEmptyPage() {
     // given
-    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentUser());
+    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentFromSecurityContext());
     // when
     var actualPageResponse =
             restTemplate.exchange(
@@ -76,7 +76,7 @@ class CategoryControllerTest implements CategoryFixtures {
   void createCategoryPositiveTestCase() {
     // given
     var categoryRequest = getSampleCategoryRequestBuilder().build();
-    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentUser());
+    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentFromSecurityContext());
     // when
     var actualCategoryResponse =
         restTemplate.postForEntity(
@@ -97,7 +97,7 @@ class CategoryControllerTest implements CategoryFixtures {
             BASE_URL + "/categories",
             getSampleCategoryRequestBuilder().build(),
             HabitResponse.class);
-    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentUser());
+    var expectedCategoryResponse = getSampleCategoryBuilder(currentUserProvider.getCurrentFromSecurityContext());
     // when
     var actualPageResponse =
         restTemplate.exchange(
@@ -127,7 +127,7 @@ class CategoryControllerTest implements CategoryFixtures {
             .getBody();
     var categoryUpdateRequest = getSampleUpdateCategoryRequestBuilder().build();
     var updatedCategory =
-        getSampleUpdatedCategoryBuilder(currentUserProvider.getCurrentUser()).build();
+        getSampleUpdatedCategoryBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var requestEntity = new HttpEntity<>(categoryUpdateRequest);
     // when
     var updated =
@@ -167,7 +167,7 @@ class CategoryControllerTest implements CategoryFixtures {
         restTemplate
             .postForEntity(
                 BASE_URL + "/categories",
-                getSampleCategoryBuilder(currentUserProvider.getCurrentUser()).build(),
+                getSampleCategoryBuilder(currentUserProvider.getCurrentFromSecurityContext()).build(),
                 HabitResponse.class)
             .getBody();
     HttpHeaders headers = new HttpHeaders();
@@ -190,7 +190,7 @@ class CategoryControllerTest implements CategoryFixtures {
         restTemplate
             .postForEntity(
                 BASE_URL + "/categories",
-                getSampleCategoryBuilder(currentUserProvider.getCurrentUser()).build(),
+                getSampleCategoryBuilder(currentUserProvider.getCurrentFromSecurityContext()).build(),
                 HabitResponse.class)
             .getBody();
     HttpHeaders headers = new HttpHeaders();

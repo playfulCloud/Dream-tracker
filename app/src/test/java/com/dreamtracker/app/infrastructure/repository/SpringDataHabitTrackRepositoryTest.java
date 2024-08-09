@@ -42,7 +42,7 @@ class SpringDataHabitTrackRepositoryTest implements HabitTrackFixture, HabitFixt
 
     @BeforeEach
     void setUp(){
-        habitToAssignATrack = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+        habitToAssignATrack = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
         var habitTrack = getSampleHabitTrack(habitToAssignATrack.getId(), dateService.getCurrentDateInISO8601()).build();
 
         springDataHabitTrackRepository.save(habitTrack);

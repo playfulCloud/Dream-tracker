@@ -38,7 +38,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
 
   @BeforeEach
   void setUp() {
-    sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
+    sampleUser = getSampleUser(currentUserProvider.getCurrentFromSecurityContext()).build();
     categoryService = new DomainCategoryService(categoryRepositoryPort, userService, currentUserProvider, habitRepositoryPort);
   }
 
@@ -47,7 +47,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
     // given
     var sampleCategory = getSampleCategoryBuilder(sampleUser.getUuid()).build();
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    when(userService.findById(currentUserProvider.getCurrentUser()))
+    when(userService.findById(currentUserProvider.getCurrentFromSecurityContext()))
         .thenReturn(Optional.of(sampleUser));
     when(categoryRepositoryPort.save(
             Category.builder()
@@ -68,10 +68,10 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   void deleteTestPositiveCase() {
     // given
     var sampleCategory = getSampleCategoryBuilder(sampleUser.getUuid()).build();
-    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentUser())).thenReturn(Optional.of(sampleCategory));
+    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentFromSecurityContext())).thenReturn(Optional.of(sampleCategory));
     var expected = true;
     // when
-    var actual = categoryService.delete(currentUserProvider.getCurrentUser());
+    var actual = categoryService.delete(currentUserProvider.getCurrentFromSecurityContext());
     // then
     assertThat(actual).isEqualTo(expected);
   }
@@ -79,10 +79,10 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
 //  @Test
 //  void deleteTestNegativeCase() {
 //    // given
-//    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentUser())).thenReturn();
+//    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentFromSecurityContext())).thenReturn();
 //    var expected = false;
 //    // when
-//    var actual = categoryService.delete(currentUserProvider.getCurrentUser());
+//    var actual = categoryService.delete(currentUserProvider.getCurrentFromSecurityContext());
 //    // then
 //    assertThat(actual).isEqualTo(expected);
 //  }
@@ -107,12 +107,12 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   void updateCategoryEntityNotFoundException() {
     // given
     var sampleCategoryRequest = getSampleCategoryRequestBuilder().build();
-    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentUser()))
+    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentFromSecurityContext()))
         .thenReturn(Optional.empty());
     assertThatThrownBy(
             () -> // when
             categoryService.updateCategory(
-                    currentUserProvider.getCurrentUser(), sampleCategoryRequest))
+                    currentUserProvider.getCurrentFromSecurityContext(), sampleCategoryRequest))
         // then
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
@@ -122,7 +122,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   void getAllUserCategoriesPositiveTestCase() {
     // given
     var sampleCategoryForPage =
-        getSampleCategoryForPageBuilder(currentUserProvider.getCurrentUser()).build();
+        getSampleCategoryForPageBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var expectedPageItems =
         List.of(
             CategoryResponse.builder()
@@ -130,7 +130,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
                 .name("bar")
                 .build());
     var expectedPage = new Page<CategoryResponse>(expectedPageItems);
-    when(userService.findById(currentUserProvider.getCurrentUser()))
+    when(userService.findById(currentUserProvider.getCurrentFromSecurityContext()))
         .thenReturn(Optional.of(sampleUser));
 
     when(categoryRepositoryPort.findByUserUUID(sampleUser.getUuid()))
@@ -144,7 +144,7 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
   @Test
   void getAllUserCategoriesEmptyPage() {
     // given
-    when(categoryRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
+    when(categoryRepositoryPort.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext())).thenReturn(new ArrayList<>());
     // when
     var actualPageResponse =  categoryService.getAllUserCategories();
     //then

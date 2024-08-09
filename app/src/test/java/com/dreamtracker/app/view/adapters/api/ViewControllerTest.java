@@ -96,7 +96,7 @@ class ViewControllerTest implements ViewFixture, HabitFixture {
     // given
     var expectedViewResponse =
         getViewResponseBuilder()
-            .userUUID(currentUserProvider.getCurrentUser())
+            .userUUID(currentUserProvider.getCurrentFromSecurityContext())
             .name("testName")
             .build();
     var viewRequest = getViewRequestBuilder().name("testName").build();
@@ -131,7 +131,7 @@ class ViewControllerTest implements ViewFixture, HabitFixture {
   void createView() {
     // given
     var expectedViewResponse =
-        getViewResponseBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+        getViewResponseBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     var viewRequest = getViewRequestBuilder().build();
     // when
     var actualViewResponse =
@@ -150,7 +150,7 @@ class ViewControllerTest implements ViewFixture, HabitFixture {
     var viewRequest = getViewRequestBuilder().description("prechanged").build();
     var expectedViewResponse =
         getViewResponseBuilder()
-            .userUUID(currentUserProvider.getCurrentUser())
+            .userUUID(currentUserProvider.getCurrentFromSecurityContext())
             .description("changed")
             .build();
     var createdView =

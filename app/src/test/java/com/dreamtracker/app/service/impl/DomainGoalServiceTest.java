@@ -45,7 +45,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
 
   @BeforeEach
   void setUp() {
-    sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
+    sampleUser = getSampleUser(currentUserProvider.getCurrentFromSecurityContext()).build();
     clock = Clock.fixed(Instant.parse("2024-09-17T00:00:00Z"), ZoneOffset.UTC);
     goalService =
         new DomainGoalService(goalRepositoryPort, springDataUserRepository, currentUserProvider, habitRepositoryPort,clock);
@@ -54,18 +54,18 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void createGoalPositiveTestCase() {
     // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var sampleGoalRequest = getSampleGoalRequestBuilder().habitID(sampleHabit.getId()).completionCount(1).build();
 
     var sampleGoal =
-        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+        getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .completionCount(sampleGoalRequest.completionCount())
             .habitUUID(sampleGoalRequest.habitID())
                 .status(GoalStatus.ACTIVE.toString())
                 .currentCount(0)
             .build();
 
-    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
+    when(springDataUserRepository.findById(currentUserProvider.getCurrentFromSecurityContext()))
         .thenReturn(Optional.of(sampleUser));
 
     when(habitRepositoryPort.findById(sampleGoalRequest.habitID()))
@@ -96,15 +96,15 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void createGoalEntityNotFoundExceptionThrown() {
     // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var sampleGoalRequest = getSampleGoalRequestBuilder().habitID(sampleHabit.getId()).build();
 
     var sampleGoal =
-        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+        getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .completionCount(sampleGoalRequest.completionCount())
             .habitUUID(sampleGoalRequest.habitID())
             .build();
-    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
+    when(springDataUserRepository.findById(currentUserProvider.getCurrentFromSecurityContext()))
         .thenReturn(Optional.of(sampleUser));
 
     when(habitRepositoryPort.findById(sampleGoalRequest.habitID())).thenReturn(Optional.empty());
@@ -130,8 +130,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void deleteTestPositiveCase() {
     // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).habitUUID(sampleHabit.getId()).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).habitUUID(sampleHabit.getId()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     var expected = true;
@@ -144,8 +144,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void deleteTestCaseEntityNotFoundExceptionThrownHabit() {
     // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).habitUUID(sampleHabit.getId()).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).habitUUID(sampleHabit.getId()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.empty());
     //when
@@ -158,8 +158,8 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void deleteTestCaseEntityNotFoundExceptionThrownGoal() {
     // given
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).habitUUID(sampleHabit.getId()).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).habitUUID(sampleHabit.getId()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     //when
@@ -172,10 +172,10 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void updateGoalPositiveTestCase() {
     // given
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var sampleGoalRequest = getSampleGoalRequestBuilder().build();
     var expectedGoalResponse = getUpdatedExpectedGoalResponse().build();
-    var updatedGoal = getSampleUpdatedGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    var updatedGoal = getSampleUpdatedGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
     when(goalRepositoryPort.save(sampleGoal)).thenReturn(updatedGoal);
     // when
@@ -188,7 +188,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   void updateGoalEntityNotFoundException() {
     // given
     var sampleGoalRequest = getSampleUpdateGoalRequestBuilder().build();
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
     // when
     assertThatThrownBy(() -> goalService.updateGoal(sampleGoal.getUuid(), sampleGoalRequest))
@@ -200,7 +200,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void getAllGoalsPositiveTestCase() {
     // given
-    var sampleGoalForPage = getSampleGoalForPageBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoalForPage = getSampleGoalForPageBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var expectedPageItems =
         List.of(
             GoalResponse.builder()
@@ -209,9 +209,9 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
                 .duration(sampleGoalForPage.getDuration())
                 .build());
     var expectedPage = new Page<GoalResponse>(expectedPageItems);
-    when(springDataUserRepository.findById(currentUserProvider.getCurrentUser()))
+    when(springDataUserRepository.findById(currentUserProvider.getCurrentFromSecurityContext()))
         .thenReturn(Optional.of(sampleUser));
-    when(goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(List.of(sampleGoalForPage));
+    when(goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext())).thenReturn(List.of(sampleGoalForPage));
     // when
     var actualPageResponse = goalService.getAllUserGoals();
     // then
@@ -221,7 +221,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void getAllUserGoalsEmptyPage() {
     // given
-    when(goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(new ArrayList<>());
+    when(goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext())).thenReturn(new ArrayList<>());
     // when
     var actualPageResponse = goalService.getAllUserGoals();
     // then
@@ -231,7 +231,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void getGoalByIdPositiveTestCase() {
     // given
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var expectedGoalResponse =
         getExpectedGoalResponse().completionCount(10).habitID(sampleGoal.getHabitUUID()).build();
 
@@ -246,7 +246,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void getGoalByIdEntityNotFoundException() {
     // given
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
     // when
     assertThatThrownBy(() -> goalService.getGoalById(sampleGoal.getUuid()))
@@ -258,7 +258,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void increaseCompletionCountPositiveTestCase() {
     // given
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
 
     when(goalRepositoryPort.save(sampleGoal)).thenReturn(sampleGoal);
@@ -278,9 +278,9 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void increaseCompletionCountPositiveTestCaseGoalCompleted() {
     // given
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).completionCount(1).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).completionCount(1).build();
 
-    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.of(sampleGoal));
     when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
     when(goalRepositoryPort.save(sampleGoal)).thenReturn(sampleGoal);
@@ -300,7 +300,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void increaseCompletionCountEntityNotFoundExceptionThrown() {
     // given
-    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).build();
+    var sampleGoal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
 
     when(goalRepositoryPort.findById(sampleGoal.getUuid())).thenReturn(Optional.empty());
 
@@ -327,14 +327,14 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     Instant yesterdayInstant = yesterdayZonedDateTime.toInstant();
 
     var expectedGoal =
-        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+        getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .createdAt(yesterdayInstant)
             .status(GoalStatus.ACTIVE.toString())
             .duration("P1D")
             .version(1)
             .build();
     var goal =
-        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+        getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .createdAt(yesterdayInstant)
             .duration("P1D")
             .status(GoalStatus.ACTIVE.toString())
@@ -359,14 +359,14 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
     Instant yesterdayInstant = yesterdayZonedDateTime.toInstant();
 
     var expectedGoal =
-        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+        getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .createdAt(yesterdayInstant)
             .status(GoalStatus.FAILED.toString())
             .duration("P1D")
             .version(1)
             .build();
     var goal =
-        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+        getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext())
             .createdAt(yesterdayInstant)
             .duration("P1D")
             .status(GoalStatus.ACTIVE.toString())
@@ -384,7 +384,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @Test
   void markAsFailedIfNotCompletedPositiveTestCase() {
     // given
-    var goal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).duration("P1D").createdAt(Instant.parse("2024-09-15T00:00:00Z")).build();
+    var goal = getSampleGoalBuilder(currentUserProvider.getCurrentFromSecurityContext()).duration("P1D").createdAt(Instant.parse("2024-09-15T00:00:00Z")).build();
     var listOfGoals = List.of(goal);
     when(goalRepositoryPort.findAll()).thenReturn(listOfGoals);
     when(goalRepositoryPort.save(goal)).thenReturn(goal);

@@ -23,4 +23,9 @@ public class PostgresUserRepository implements UserRepositoryPort {
     public Optional<User> findById(UUID id) {
         return springDataUserRepository.findById(id);
     }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return springDataUserRepository.findByEmail(email) ;
+    }
 }

@@ -31,7 +31,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
 
   @BeforeEach
   void setUp() {
-    habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    habit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     domainBreaksService = new DomainBreaksService(breaksAggregateRepositoryPort);
   }
   @Test
@@ -173,7 +173,7 @@ class DomainBreaksServiceTest implements AggregatesFixtures, HabitFixture, Habit
   @Test
   void getAggregatePositiveTestCase() {
     // given
-    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
     var breakAggregateSavedToDB =
         getBreakAggregateBuilder(habit.getId())
             .breaksQuantity(0)

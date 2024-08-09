@@ -27,11 +27,11 @@ class DomainViewServiceTest implements ViewFixture, HabitFixture {
   @Test
   void createViewPositiveTestCase() {
     // given
-    var view = getViewBuilder().id(null).userUUID(currentUserProvider.getCurrentUser()).build();
-    var viewSavedToDB = getViewBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+    var view = getViewBuilder().id(null).userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
+    var viewSavedToDB = getViewBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     var viewRequest = getViewRequestBuilder().build();
     var expectedResponse =
-        getViewResponseBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+        getViewResponseBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(viewRepositoryPort.save(view)).thenReturn(viewSavedToDB);
     // when
     var actualResponse = domainViewService.createView(viewRequest);
@@ -42,7 +42,7 @@ class DomainViewServiceTest implements ViewFixture, HabitFixture {
   @Test
   void deleteViewPositiveTestCase() {
     // given
-    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(viewRepositoryPort.existsById(view.getId())).thenReturn(true);
     var expectedResponse = true;
     // when
@@ -54,7 +54,7 @@ class DomainViewServiceTest implements ViewFixture, HabitFixture {
   @Test
   void deleteViewNegativeTestCase() {
     // given
-    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(viewRepositoryPort.existsById(view.getId())).thenReturn(false);
     var expectedResponse = false;
     // when
@@ -66,9 +66,9 @@ class DomainViewServiceTest implements ViewFixture, HabitFixture {
   @Test
   void getViewByNamePositiveTestCase() {
     // given
-    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     var expectedResponse =
-        getViewResponseBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+        getViewResponseBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(viewRepositoryPort.findByName(view.getName())).thenReturn(Optional.of(view));
     // when
     var actualResponse = domainViewService.getViewByName(view.getName());
@@ -79,12 +79,12 @@ class DomainViewServiceTest implements ViewFixture, HabitFixture {
   @Test
   void updateViewPositiveTestCase() {
     // given
-    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     var viewRequest =
         getViewRequestBuilder().id(view.getId()).stats(false).description("confirmed").build();
     var expectedResponse =
         getViewResponseBuilder()
-            .userUUID(currentUserProvider.getCurrentUser())
+            .userUUID(currentUserProvider.getCurrentFromSecurityContext())
             .stats(false)
             .description("confirmed")
             .build();
@@ -99,7 +99,7 @@ class DomainViewServiceTest implements ViewFixture, HabitFixture {
   @Test
   void updateViewEntityNotFoundExceptionThrown() {
     // given
-    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     var viewRequest =
         getViewRequestBuilder().id(view.getId()).stats(false).description("confirmed").build();
     when(viewRepositoryPort.findById(view.getId())).thenReturn(Optional.empty());
@@ -117,7 +117,7 @@ class DomainViewServiceTest implements ViewFixture, HabitFixture {
   @Test
   void getViewByNameEntityNotFound() {
     // given
-    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentUser()).build();
+    var view = getViewBuilder().userUUID(currentUserProvider.getCurrentFromSecurityContext()).build();
     when(viewRepositoryPort.findByName(view.getName())).thenReturn(Optional.empty());
     // when
     assertThatThrownBy(
