@@ -18,12 +18,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class View {
 
-    //TODO: Will be changed in third iteration for now there is only habitUUID of one habit for testing api
     @Id
     @GeneratedValue
     private UUID id;
     private UUID userUUID;
-    private UUID habitUUID;
     private String name;
+    private String description;
+    private boolean habits;
+    private boolean stats;
+    private boolean goals;
 
 }
