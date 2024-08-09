@@ -11,6 +11,7 @@ import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import jakarta.transaction.Transactional;
+import java.time.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 
 @Data
 public class DomainGoalService implements GoalService {
@@ -26,6 +28,10 @@ public class DomainGoalService implements GoalService {
   private final SpringDataUserRepository springDataUserRepository;
   private final CurrentUserProvider currentUserProvider;
   private final HabitRepositoryPort habitRepositoryPort;
+  private final Clock clock;
+
+
+
   private static final Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
 
   @Override
@@ -40,6 +46,7 @@ public class DomainGoalService implements GoalService {
             .completionCount(goalRequest.completionCount())
             .userUUID(currentUserProvider.getCurrentUser())
             .status(GoalStatus.ACTIVE.toString())
+            .createdAt(Instant.now(clock))
             .build();
 
     var habitToBeAdded =
@@ -135,11 +142,42 @@ public class DomainGoalService implements GoalService {
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     goal.increaseCompletionCount();
-    checkCountAndChangeStatus(goal);
+    var goalToSave = checkCountAndChangeStatus(goal);
 
-    var goalSavedToDb = goalRepositoryPort.save(goal);
+    var goalSavedToDb = goalRepositoryPort.save(goalToSave);
     return mapToResponse(goalSavedToDb);
   }
+
+  @Override
+  @Async
+  public boolean markGoalAsFailedIfNotCompleted() {
+    var listOfGoals = goalRepositoryPort.findAll();
+    listOfGoals.forEach(this::setStatusBasedOnDate);
+    return true;
+  }
+
+  @Override
+  public Goal setStatusBasedOnDate(Goal goal) {
+    var goalDuration = goal.getDuration();
+    var createdAt = goal.getCreatedAt();
+    var period = Period.parse(goalDuration);
+
+    var goalEndDate = createdAt.plus(period);
+    logger.debug("Goal end date: " + goalEndDate.toString());
+    logger.debug("Current date: " + Instant.now().toString());
+
+    Instant endInstant = goalEndDate.atZone(ZoneId.systemDefault()).toInstant();
+
+    boolean isAfter = Instant.now(clock).isAfter(endInstant);
+    logger.debug("Is current date after goal end date: " + isAfter);
+
+    if (isAfter) {
+      goal.setStatus(GoalStatus.FAILED.toString());
+      return goalRepositoryPort.save(goal);
+    }
+    return goal;
+  }
+
 
   public GoalResponse mapToResponse(Goal goal) {
     return GoalResponse.builder()
@@ -153,7 +191,7 @@ public class DomainGoalService implements GoalService {
         .build();
   }
 
-  private void checkCountAndChangeStatus(Goal goal) {
+  private Goal checkCountAndChangeStatus(Goal goal) {
     if (goal.getCurrentCount() == goal.getCompletionCount()) {
       goal.setStatus(GoalStatus.DONE.toString());
       var habitToRemoveGoal =
@@ -165,9 +203,9 @@ public class DomainGoalService implements GoalService {
                           ExceptionMessages.entityNotFoundExceptionMessage));
       var listOfGoals = habitToRemoveGoal.getGoals();
       removeGoalFromHabit(listOfGoals, goal.getUuid());
-      var goalSavedToDB = goalRepositoryPort.save(goal);
     }
 
     logger.debug(goal.toString());
+    return goal;
   }
 }

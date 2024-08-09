@@ -6,10 +6,12 @@ import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackingRequest;
+import com.dreamtracker.app.habit.domain.model.HabitStatus;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 
 import java.time.*;
@@ -23,6 +25,8 @@ import java.util.UUID;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 @Data
@@ -33,6 +37,8 @@ public class DomainHabitTrackService implements HabitTrackService {
   private final StatsAggregator statsAggregator;
   private final Clock clock;
   private final GoalService domainGoalService;
+  private final DateService dateService;
+  private static final Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
 
 
   @Override
@@ -55,6 +61,7 @@ public class DomainHabitTrackService implements HabitTrackService {
                     new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
 
     var actualDate = Instant.now(clock);
+    logger.debug(habitToUpdateTracking.toString());
 
     var track =
         HabitTrack.builder()
@@ -66,11 +73,16 @@ public class DomainHabitTrackService implements HabitTrackService {
 
     var trackSavedToDB = habitTrackRepositoryPort.save(track);
     var habitTrackResponse = mapToResponse(trackSavedToDB);
+
     statsAggregator.requestStatsUpdated(habitToUpdateTracking.getId(), habitTrackResponse);
 
     if (trackSavedToDB.getStatus().equals("DONE")) {
+      var cooldown = dateService.getCooldownPeriodBasedOnCurrentDate(actualDate, habitToUpdateTracking.getFrequency());
+      habitToUpdateTracking.setCoolDownTill(cooldown);
+      habitRepositoryPort.save(habitToUpdateTracking);
       updateGoalProgress(habitToUpdateTracking.getGoals());
     }
+
     return habitTrackResponse;
   }
 
@@ -87,4 +99,5 @@ public class DomainHabitTrackService implements HabitTrackService {
       domainGoalService.increaseCompletionCount(goal.getUuid());
     }
   }
+
 }

@@ -21,11 +21,11 @@ import com.dreamtracker.app.infrastructure.response.Page;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.logging.Logger;
@@ -38,6 +38,7 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   private final GoalRepositoryPort goalRepositoryPort = Mockito.mock(GoalRepositoryPort.class);
   private final SpringDataUserRepository springDataUserRepository = Mockito.mock(SpringDataUserRepository.class);
   private final HabitRepositoryPort habitRepositoryPort = Mockito.mock(HabitRepositoryPort.class);
+  private Clock clock;
   private static final Logger logger = LoggerFactory.getLogger(DomainGoalServiceTest.class);
   private User sampleUser;
   private GoalService goalService;
@@ -45,8 +46,9 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
   @BeforeEach
   void setUp() {
     sampleUser = getSampleUser(currentUserProvider.getCurrentUser()).build();
+    clock = Clock.fixed(Instant.parse("2024-09-17T00:00:00Z"), ZoneOffset.UTC);
     goalService =
-        new DomainGoalService(goalRepositoryPort, springDataUserRepository, currentUserProvider, habitRepositoryPort);
+        new DomainGoalService(goalRepositoryPort, springDataUserRepository, currentUserProvider, habitRepositoryPort,clock);
   }
 
   @Test
@@ -312,5 +314,84 @@ class DomainGoalServiceTest implements UserFixtures, GoalFixtures, HabitFixture 
             })
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
+  @Test
+  void setStatusBasedOnDatePositiveTestCase() {
+    // given
+    Instant now = Instant.now();
+
+    ZoneId systemZone = ZoneId.systemDefault();
+    ZonedDateTime zonedDateTime = now.atZone(systemZone);
+    ZonedDateTime yesterdayZonedDateTime = zonedDateTime.plusDays(2);
+    Instant yesterdayInstant = yesterdayZonedDateTime.toInstant();
+
+    var expectedGoal =
+        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+            .createdAt(yesterdayInstant)
+            .status(GoalStatus.ACTIVE.toString())
+            .duration("P1D")
+            .version(1)
+            .build();
+    var goal =
+        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+            .createdAt(yesterdayInstant)
+            .duration("P1D")
+            .status(GoalStatus.ACTIVE.toString())
+            .createdAt(Instant.parse("2024-09-18T00:00:00Z"))
+            .version(1)
+            .build();
+    when(goalRepositoryPort.save(goal)).thenReturn(expectedGoal);
+    // when
+    var actualGoal = goalService.setStatusBasedOnDate(goal);
+    // then
+    assertThat(actualGoal).isEqualTo(expectedGoal);
+  }
+
+  @Test
+  void setStatusBasedOnDateStatusStaysActive() {
+    // given
+    Instant now = Instant.now();
+
+    ZoneId systemZone = ZoneId.systemDefault();
+    ZonedDateTime zonedDateTime = now.atZone(systemZone);
+    ZonedDateTime yesterdayZonedDateTime = zonedDateTime.plusDays(2);
+    Instant yesterdayInstant = yesterdayZonedDateTime.toInstant();
+
+    var expectedGoal =
+        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+            .createdAt(yesterdayInstant)
+            .status(GoalStatus.FAILED.toString())
+            .duration("P1D")
+            .version(1)
+            .build();
+    var goal =
+        getSampleGoalBuilder(currentUserProvider.getCurrentUser())
+            .createdAt(yesterdayInstant)
+            .duration("P1D")
+            .status(GoalStatus.ACTIVE.toString())
+            .createdAt(Instant.parse("2024-09-15T00:00:00Z"))
+            .version(1)
+            .build();
+    when(goalRepositoryPort.save(goal)).thenReturn(expectedGoal);
+    // when
+    var actualGoal = goalService.setStatusBasedOnDate(goal);
+
+    // then
+    assertThat(actualGoal).isEqualTo(expectedGoal);
+  }
+
+  @Test
+  void markAsFailedIfNotCompletedPositiveTestCase() {
+    // given
+    var goal = getSampleGoalBuilder(currentUserProvider.getCurrentUser()).duration("P1D").createdAt(Instant.parse("2024-09-15T00:00:00Z")).build();
+    var listOfGoals = List.of(goal);
+    when(goalRepositoryPort.findAll()).thenReturn(listOfGoals);
+    when(goalRepositoryPort.save(goal)).thenReturn(goal);
+    // when
+    goalService.markGoalAsFailedIfNotCompleted();
+
+    // then
+    assertThat(goalService.markGoalAsFailedIfNotCompleted()).isTrue();
   }
 }

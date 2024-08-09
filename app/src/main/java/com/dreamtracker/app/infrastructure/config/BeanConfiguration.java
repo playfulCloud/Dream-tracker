@@ -5,6 +5,7 @@ import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.domain.ports.*;
 import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.DomainUserService;
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
@@ -28,13 +29,13 @@ public class BeanConfiguration {
           CurrentUserProvider currentUserProvider,
           UserService userService,
           CategoryRepositoryPort categoryRepositoryPort,
-          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator,GoalService domainGoalService) {
+          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator,GoalService domainGoalService, HabitTrackService habitTrackService, Clock clock) {
     return new DomainHabitService(
         habitRepositoryPort,
         currentUserProvider,
         userService,
         categoryRepositoryPort,
-        habitTrackRepositoryPort,statsAggregator, domainGoalService);
+        habitTrackRepositoryPort,statsAggregator, domainGoalService, habitTrackService, clock);
   }
 
   @Bean
@@ -44,12 +45,12 @@ public class BeanConfiguration {
 
   @Bean
   HabitTrackService habitTrackService(
-      HabitTrackRepositoryPort habitTrackRepositoryPort,
-      HabitRepositoryPort habitRepositoryPort,
-      StatsAggregator statsAggregator,
-      Clock clock, GoalService domainGoalService) {
+          HabitTrackRepositoryPort habitTrackRepositoryPort,
+          HabitRepositoryPort habitRepositoryPort,
+          StatsAggregator statsAggregator,
+          Clock clock, GoalService domainGoalService, DateService dateService) {
     return new DomainHabitTrackService(
-        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService);
+        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService, dateService);
   }
 
   @Bean
@@ -58,8 +59,8 @@ public class BeanConfiguration {
   }
 
   @Bean
-  public GoalService goalService(GoalRepositoryPort goalRepositoryPort, SpringDataUserRepository springDataUserRepository, CurrentUserProvider currentUserProvider, HabitRepositoryPort habitRepositoryPort){
-   return new DomainGoalService(goalRepositoryPort, springDataUserRepository,currentUserProvider,habitRepositoryPort);
+  public GoalService goalService(GoalRepositoryPort goalRepositoryPort, SpringDataUserRepository springDataUserRepository, CurrentUserProvider currentUserProvider, HabitRepositoryPort habitRepositoryPort, Clock clock){
+   return new DomainGoalService(goalRepositoryPort, springDataUserRepository,currentUserProvider,habitRepositoryPort,clock);
   }
 
   @Bean

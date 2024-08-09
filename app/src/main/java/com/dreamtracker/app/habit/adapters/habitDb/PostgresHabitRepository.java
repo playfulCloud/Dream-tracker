@@ -6,6 +6,7 @@ import com.dreamtracker.app.infrastructure.repository.SpringDataHabitRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,5 +42,20 @@ public class PostgresHabitRepository implements HabitRepositoryPort {
     @Override
     public Habit save(Habit habit) {
         return springDataHabitRepository.save(habit);
+    }
+
+    @Override
+    public List<Habit> findAll() {
+        return springDataHabitRepository.findAll();
+    }
+
+    @Override
+    public List<Habit> findByStatus(String status) {
+        return springDataHabitRepository.findByStatus(status);
+    }
+
+    @Override
+    public List<Habit> findByCoolDownTillAfter(Instant currentDate) {
+        return springDataHabitRepository.findByCoolDownTillAfter(currentDate);
     }
 }
