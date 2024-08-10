@@ -15,13 +15,16 @@ public class DomainUserService implements UserService {
 
 
 
-  @Override
-  public UserResponse createSampleUser() {
+ @Override
+public UserResponse createSampleUser() {
     var sampleUser =
         User.builder()
             .uuid(currentUserProvider.getCurrentUser())
             .name("John")
             .surname("Doe")
+            .fullName("John Doe")
+            .email("john.doe@example.com")
+            .password("securepassword") // Ensure this is hashed in a real application
             .build();
 
     var userSavedToDB = userRepositoryPort.save(sampleUser);
@@ -30,10 +33,10 @@ public class DomainUserService implements UserService {
         .uuid(userSavedToDB.getUuid())
         .name(userSavedToDB.getName())
         .surname(userSavedToDB.getSurname())
+        .fullName(userSavedToDB.getFullName())
+        .email(userSavedToDB.getEmail())
         .build();
-  }
-
-  @Override
+}  @Override
   public Optional<User> findById(UUID uuid) {
     return userRepositoryPort.findById(uuid);
   }

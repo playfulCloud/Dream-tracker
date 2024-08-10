@@ -78,7 +78,7 @@ public boolean delete(UUID id) {
             .categories(new ArrayList<>())
             .goals(new ArrayList<>())
             .version(1)
-            .userUUID(currentUserProvider.getCurrentFromSecurityContext())
+            .userUUID(currentUserProvider.getCurrentUser())
             .build();
 
     logger.debug(habitToCreate.toString());
@@ -89,7 +89,7 @@ public boolean delete(UUID id) {
 
   @Override
   public Page<HabitResponse> getAllUserHabits() {
-    var habits = habitRepositoryPort.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext());
+    var habits = habitRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfHabitResponses = habits.stream().map(this::mapToResponse).toList();
     Page<HabitResponse> responsePage = new Page<>(listOfHabitResponses);
     return responsePage;

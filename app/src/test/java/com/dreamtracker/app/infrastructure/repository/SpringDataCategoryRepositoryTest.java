@@ -37,14 +37,14 @@ class SpringDataCategoryRepositoryTest implements CategoryFixtures {
 
     @BeforeEach
     void setUp(){
-        var categoryWithUser = getSampleCategoryBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
+        var categoryWithUser = getSampleCategoryBuilder(currentUserProvider.getCurrentUser()).build();
         springDataCategoryRepository.save(categoryWithUser);
     }
 
 
     @Test
     void getListOfUserHabitPositiveTestCase(){
-        var userCategory = springDataCategoryRepository.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext());
+        var userCategory = springDataCategoryRepository.findByUserUUID(currentUserProvider.getCurrentUser());
         assertThat(userCategory).isNotNull();
         assertThat(userCategory.size()).isNotEqualTo(0);
     }
