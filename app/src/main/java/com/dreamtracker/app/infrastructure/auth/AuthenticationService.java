@@ -1,6 +1,7 @@
 package com.dreamtracker.app.infrastructure.auth;
 
 import com.dreamtracker.app.user.adapters.api.UserResponse;
+import com.dreamtracker.app.user.domain.model.CredentialsValidator;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class AuthenticationService {
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
+  private final CredentialsValidator credentialsValidator;
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
   public UserResponse register(RegistrationRequest input) {
@@ -29,17 +31,16 @@ public class AuthenticationService {
             .password(passwordEncoder.encode(input.password()))
             .build();
 
+    credentialsValidator.validateEmail(input.email());
+    credentialsValidator.validatePassword(input.password());
     var userSavedToDB = userRepository.save(user);
     return mapToUserResponse(userSavedToDB);
   }
 
   public AuthenticationResponse login(LoginRequest input) {
-    logger.debug("Login request received: " + input.toString());
     try {
-      logger.debug("Attempting authentication for user: " + input.email());
       authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(input.email(), input.password()));
-      logger.debug("Authentication successful for user: " + input.email());
     } catch (Exception e) {
       logger.error("Authentication failed for user: " + input.email(), e);
       throw e;
