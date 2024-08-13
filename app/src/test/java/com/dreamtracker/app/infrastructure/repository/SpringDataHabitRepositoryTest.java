@@ -36,14 +36,14 @@ class SpringDataHabitRepositoryTest implements HabitFixture {
 
    @BeforeEach
     void setUp(){
-       var habitWithUser = getSampleHabitBuilder(currentUserProvider.getCurrentFromSecurityContext()).build();
+       var habitWithUser = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
        springDataHabitRepository.save(habitWithUser);
    }
 
 
     @Test
     void getListOfUserHabitPositiveTestCase(){
-       var userHabits = springDataHabitRepository.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext());
+       var userHabits = springDataHabitRepository.findByUserUUID(currentUserProvider.getCurrentUser());
        assertThat(userHabits).isNotNull();
        assertThat(userHabits.size()).isNotEqualTo(0);
     }

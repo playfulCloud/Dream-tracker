@@ -25,7 +25,6 @@ public class DomainCategoryService implements CategoryService {
   private final CategoryRepositoryPort categoryRepositoryPort;
   private final UserService userService;
 
-  @Qualifier("mockCurrentUserProvider")
   private final CurrentUserProvider currentUserProvider;
   private final HabitRepositoryPort habitREpo;
 
@@ -35,7 +34,7 @@ public class DomainCategoryService implements CategoryService {
     var categoryToCreate =
         Category.builder()
             .name(categoryRequest.name())
-            .userUUID(currentUserProvider.getCurrentFromSecurityContext())
+            .userUUID(currentUserProvider.getCurrentUser())
             .habits(new ArrayList<>())
             .build();
 
@@ -82,7 +81,7 @@ public class DomainCategoryService implements CategoryService {
 
   @Override
   public Page<CategoryResponse> getAllUserCategories() {
-    var listOfCategories = categoryRepositoryPort.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext());
+    var listOfCategories = categoryRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfCategoryResponses = listOfCategories.stream().map(this::mapToResponse).toList();
     var categoryResponsePage = new Page<CategoryResponse>(listOfCategoryResponses);
     return categoryResponsePage;

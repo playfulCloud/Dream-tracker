@@ -19,7 +19,6 @@ import java.util.UUID;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 
 @Data
@@ -27,7 +26,6 @@ public class DomainGoalService implements GoalService {
 
   private final GoalRepositoryPort goalRepositoryPort;
   private final SpringDataUserRepository springDataUserRepository;
-  @Qualifier("mockCurrentUserProvider")
   private final CurrentUserProvider currentUserProvider;
   private final HabitRepositoryPort habitRepositoryPort;
   private final Clock clock;
@@ -46,7 +44,7 @@ public class DomainGoalService implements GoalService {
             .duration(goalRequest.duration())
             .habitUUID(goalRequest.habitID())
             .completionCount(goalRequest.completionCount())
-            .userUUID(currentUserProvider.getCurrentFromSecurityContext())
+            .userUUID(currentUserProvider.getCurrentUser())
             .status(GoalStatus.ACTIVE.toString())
             .createdAt(Instant.now(clock))
             .build();
@@ -115,7 +113,7 @@ public class DomainGoalService implements GoalService {
 
   @Override
   public Page<GoalResponse> getAllUserGoals() {
-    var listOfGoals = goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentFromSecurityContext());
+    var listOfGoals = goalRepositoryPort.findByUserUUID(currentUserProvider.getCurrentUser());
     var listOfGoalResponses = listOfGoals.stream().map(this::mapToResponse).toList();
     var goalResponsePage = new Page<GoalResponse>(listOfGoalResponses);
     return goalResponsePage;
