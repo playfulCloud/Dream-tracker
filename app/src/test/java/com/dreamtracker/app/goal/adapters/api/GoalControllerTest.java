@@ -55,9 +55,9 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
   private void resetDatabase() {
     try (var connection = dataSource.getConnection();
          var statement = connection.createStatement()) {
-      statement.execute("TRUNCATE TABLE Goal RESTART IDENTITY CASCADE");
-      statement.execute("TRUNCATE TABLE Habit RESTART IDENTITY CASCADE");
-      statement.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Goals RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Habits RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Users RESTART IDENTITY CASCADE");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

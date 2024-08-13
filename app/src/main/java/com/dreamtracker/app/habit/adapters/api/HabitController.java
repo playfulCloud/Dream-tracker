@@ -21,8 +21,6 @@ public class HabitController {
 
   private final HabitService habitService;
   private final HabitTrackService habitTrackService;
-
-  @Qualifier("userProvider")
   private final CurrentUserProvider currentUserProvider;
 
   private static final Logger logger = LoggerFactory.getLogger(HabitController.class);
