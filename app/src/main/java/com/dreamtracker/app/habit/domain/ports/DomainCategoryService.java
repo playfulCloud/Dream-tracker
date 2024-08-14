@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import jakarta.transaction.Transactional;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +24,7 @@ public class DomainCategoryService implements CategoryService {
 
   private final CategoryRepositoryPort categoryRepositoryPort;
   private final UserService userService;
+
   private final CurrentUserProvider currentUserProvider;
   private final HabitRepositoryPort habitREpo;
 

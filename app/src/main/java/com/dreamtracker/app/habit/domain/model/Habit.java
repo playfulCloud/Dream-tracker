@@ -18,6 +18,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Habits")
 public class Habit {
 
     @Id

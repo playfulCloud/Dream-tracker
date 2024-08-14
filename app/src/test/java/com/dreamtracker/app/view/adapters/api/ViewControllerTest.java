@@ -7,11 +7,17 @@ import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.ViewFixture;
 import com.dreamtracker.app.habit.adapters.api.HabitResponse;
+import com.dreamtracker.app.infrastructure.auth.AuthenticationResponse;
+import com.dreamtracker.app.infrastructure.auth.LoginRequest;
+import com.dreamtracker.app.infrastructure.auth.RegistrationRequest;
+import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import java.util.UUID;
 import javax.sql.DataSource;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -23,6 +29,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -30,6 +37,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ViewControllerTest implements ViewFixture, HabitFixture {
 
   @Autowired PostgreSQLContainer<?> postgreSQLContainer;
@@ -44,16 +52,45 @@ class ViewControllerTest implements ViewFixture, HabitFixture {
   @BeforeEach
   void setUp() {
     resetDatabase();
-    userService.createSampleUser();
+    registerAndLoginUser();
   }
 
   private void resetDatabase() {
     try (var connection = dataSource.getConnection();
         var statement = connection.createStatement()) {
       statement.execute("TRUNCATE TABLE View RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE category RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Goal RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Habit RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private void registerAndLoginUser() {
+    var registrationRequest =
+            new RegistrationRequest("john.doe@example.com", "Doe", "john.doe@example.com");
+    var registrationResponse =
+            restTemplate.postForEntity(
+                    BASE_URL + "/auth/register", registrationRequest, UserResponse.class);
+    Assertions.assertThat(registrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+    var loginRequest = new LoginRequest("john.doe@example.com", "Doe");
+    var loginResponse =
+            restTemplate.postForEntity(BASE_URL + "/login", loginRequest, AuthenticationResponse.class);
+    Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    var authToken = loginResponse.getBody().token();
+    restTemplate.getRestTemplate().getInterceptors().clear();
+    restTemplate
+            .getRestTemplate()
+            .getInterceptors()
+            .add(
+                    (request, body, execution) -> {
+                      request.getHeaders().add("Authorization", "Bearer " + authToken);
+                      return execution.execute(request, body);
+                    });
   }
 
   @Test
