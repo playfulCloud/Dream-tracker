@@ -17,6 +17,10 @@ interface HabitCategoryCreateRequest {
     id: string;
 }
 
+const getToken = (): string | null => {
+    return localStorage.getItem('token');
+};
+
 const Categories = () => {
     const { categories, habits, loading, error, fetchCategories, fetchHabits } = useAppContext();
     const [formVisible, setFormVisible] = useState(false);
@@ -62,7 +66,12 @@ const Categories = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.post<CategoryResponse>('http://localhost:8080/v1/categories', formData);
+            const token = getToken();
+            await axios.post<CategoryResponse>('http://localhost:8080/v1/categories', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setFormVisible(false);
             if (fetchCategories) {
                 fetchCategories();
@@ -79,7 +88,12 @@ const Categories = () => {
             return;
         }
         try {
-            await axios.post(`http://localhost:8080/v1/habits/${selectedHabit}/categories`, habitFormData);
+            const token = getToken();
+            await axios.post(`http://localhost:8080/v1/habits/${selectedHabit}/categories`, habitFormData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setSelectedCategory(null);
             setSelectedHabit(null);
             if (fetchHabits) {
@@ -93,7 +107,12 @@ const Categories = () => {
     const handleDelete = async (id: string) => {
         console.log('Attempting to delete category with id:', id);
         try {
-            const response = await axios.delete(`http://localhost:8080/v1/categories/${id}`);
+            const token = getToken();
+            const response = await axios.delete(`http://localhost:8080/v1/categories/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             console.log(response);
             if (response.status === 204) {
                 console.log('Category deleted successfully');
@@ -112,7 +131,12 @@ const Categories = () => {
 
     const handleUpdate = async (id: string) => {
         try {
-            await axios.put(`http://localhost:8080/v1/categories/${id}`, formData);
+            const token = getToken();
+            await axios.put(`http://localhost:8080/v1/categories/${id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setSelectedCategory(null);
             if (fetchCategories) {
                 fetchCategories();

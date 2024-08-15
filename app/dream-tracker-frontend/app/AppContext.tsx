@@ -48,10 +48,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const getToken = () => {
+        return localStorage.getItem('token');
+    };
+
     const fetchGoals = async () => {
         setLoading(true);
         try {
-            const response = await axios.get<{ items: GoalResponse[] }>('http://localhost:8080/v1/goals');
+            const token = getToken();
+            const response = await axios.get<{ items: GoalResponse[] }>('http://localhost:8080/v1/goals', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const goalData = response.data.items || [];
             setGoals(goalData);
             localStorage.setItem('goals', JSON.stringify(goalData));
@@ -66,7 +75,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const fetchCategories = async () => {
         setLoading(true);
         try {
-            const response = await axios.get<{ items: Category[] }>('http://localhost:8080/v1/categories');
+            const token = getToken();
+            const response = await axios.get<{ items: Category[] }>('http://localhost:8080/v1/categories', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const categoryData = response.data.items || [];
             setCategories(categoryData);
             localStorage.setItem('categories', JSON.stringify(categoryData));
@@ -81,7 +95,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const fetchHabits = async () => {
         setLoading(true);
         try {
-            const response = await axios.get<{ items: Habit[] }>('http://localhost:8080/v1/habits');
+            const token = getToken();
+            const response = await axios.get<{ items: Habit[] }>('http://localhost:8080/v1/habits', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             const habitData = response.data.items || [];
             setHabits(habitData);
             localStorage.setItem('habits', JSON.stringify(habitData));
