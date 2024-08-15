@@ -22,6 +22,10 @@ interface GoalResponse {
     currentCount: number;
 }
 
+const getToken = (): string | null => {
+    return localStorage.getItem('token');
+};
+
 const Goals = () => {
     const { goals, habits, loading, error, fetchGoals } = useAppContext();
     const [formVisible, setFormVisible] = useState(false);
@@ -37,8 +41,13 @@ const Goals = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const token = getToken();
         try {
-            await axios.post<GoalResponse>('http://localhost:8080/v1/goals', formData);
+            await axios.post<GoalResponse>('http://localhost:8080/v1/goals', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setFormVisible(false);
             fetchGoals(); // Ensure state is updated after submitting the form
         } catch (error) {

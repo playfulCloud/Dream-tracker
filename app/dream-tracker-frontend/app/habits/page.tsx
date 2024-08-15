@@ -1,4 +1,3 @@
-// app/habits/page.tsx
 "use client";
 
 import React, { useState } from 'react';
@@ -25,6 +24,10 @@ interface Category {
     name: string;
 }
 
+const getToken = (): string | null => {
+    return localStorage.getItem('token');
+};
+
 const Habits = () => {
     const { habits, loading, error, fetchHabits, fetchGoals } = useAppContext();
     const [formVisible, setFormVisible] = useState(false);
@@ -48,7 +51,12 @@ const Habits = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axios.post<HabitResponse>('http://localhost:8080/v1/habits', formData);
+            const token = getToken();
+            await axios.post<HabitResponse>('http://localhost:8080/v1/habits', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             fetchHabits(); // Fetch updated habits list after submitting form
         } catch (error) {
             console.error(error);
@@ -57,7 +65,12 @@ const Habits = () => {
 
     const handleDelete = async (id: string) => {
         try {
-            await axios.delete(`http://localhost:8080/v1/habits/${id}`);
+            const token = getToken();
+            await axios.delete(`http://localhost:8080/v1/habits/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             fetchHabits();
             fetchGoals();
         } catch (error) {
@@ -67,8 +80,13 @@ const Habits = () => {
 
     const handleTracking = async (id: string) => {
         try {
+            const token = getToken();
             const habitTrackingRequest = { habitId: id, status: "DONE" };
-            await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest);
+            await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             setCheckedHabits([...checkedHabits, id]);
             setSuccessHabit(id);
             setTimeout(() => setSuccessHabit(null), 2000);
