@@ -1,4 +1,4 @@
-// app/goals/page.tsx
+// app/goals/page2.tsx
 "use client";
 
 import React, { useState } from 'react';
