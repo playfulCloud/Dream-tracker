@@ -81,6 +81,7 @@ class DomainHabitServiceTest
         getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
             .id(habit.getId())
             .cooldownTill(Instant.now(fixedClock).toString())
+            .frequency("DAILY")
             .build();
     when(habitRepositoryPort.save(habit)).thenReturn(habit);
     var actualHabitResponse = habitService.createHabit(habitRequest);
@@ -146,9 +147,10 @@ class DomainHabitServiceTest
      var habit =
         getSampleHabitBuilder(currentUserProvider.getCurrentUser())
             .coolDownTill(Instant.now(fixedClock))
+                .frequency("DAILY")
             .build();
     when(habitRepositoryPort.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(habit));
-    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).categories(new ArrayList<>()).cooldownTill(Instant.now(fixedClock).toString()).build();
+    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).categories(new ArrayList<>()).cooldownTill(Instant.now(fixedClock).toString()).frequency("DAILY").build();
     var expectedResponsePageItems = List.of(sampleHabitResponse);
     var expectedResponsePage = new Page<HabitResponse>(expectedResponsePageItems);
     // when
@@ -172,14 +174,14 @@ class DomainHabitServiceTest
   void updateHabit() {
     // given
     var sampleHabit =
-        getSampleHabitBuilder(sampleUser.getUuid()).coolDownTill(Instant.now(fixedClock)).build();
+        getSampleHabitBuilder(sampleUser.getUuid()).coolDownTill(Instant.now(fixedClock)).frequency("DAILY").build();
     var sampleUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
 
     var updatedHabit =
         getSampleUpdatedHabitBuilder(sampleUser.getUuid())
             .coolDownTill(Instant.now(fixedClock))
             .build();
-    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().cooldownTill(Instant.now(fixedClock).toString()).build();
+    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().cooldownTill(Instant.now(fixedClock).toString()).frequency("DAILY").build();
 
     logger.debug(sampleHabit.toString());
     logger.debug(updatedHabit.toString());

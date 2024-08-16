@@ -172,6 +172,7 @@ public boolean delete(UUID id) {
         .status(habit.getStatus())
         .categories(habit.getCategories())
         .cooldownTill(habit.getCoolDownTill().toString())
+        .frequency(habit.getFrequency())
         .build();
   }
 }

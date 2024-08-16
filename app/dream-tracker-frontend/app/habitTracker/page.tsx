@@ -1,8 +1,8 @@
-"use client";
+"use client"
 import * as React from "react";
 import { useAppContext } from '../AppContext';
-import {DialogDemo} from "@/app/habitTracker/createForm";
-import {  Trash } from "lucide-react"
+import { DialogDemo } from "@/app/habitTracker/createForm";
+import { Trash } from "lucide-react";
 import axios from 'axios';
 import {
     ColumnDef,
@@ -38,7 +38,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {useState} from "react";
+import { useState, useEffect } from "react";
+import { formatDistanceToNowStrict, isFuture, differenceInSeconds } from "date-fns";
 
 export type Habit = {
     id: string;
@@ -46,6 +47,8 @@ export type Habit = {
     action: string;
     duration: string;
     difficulty: string;
+    cooldownTill: string;
+    frequency: string;
     status: string;
 };
 
@@ -56,23 +59,30 @@ interface HabitTrackResponse {
 
 export const createColumns = (
     handleTracking: (id: string) => void,
-    handleDelete: (id: string) => void
+    handleDelete: (id: string) => void,
+    cooldownTimers: { [key: string]: string } // Dodajemy obiekt z odliczaniem cooldownów
 ): ColumnDef<Habit>[] => [
     {
         id: "select",
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => {
-                    row.toggleSelected(!!value);
-                    if (value) {
-                        console.log(row.original);
-                        handleTracking(row.original.id);
-                    }
-                }}
-                aria-label="Select row"
-            />
-        ),
+        cell: ({ row }) => {
+            const isDisabled = isFuture(new Date(row.original.cooldownTill));
+            return (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => {
+                        if (!isDisabled) {
+                            row.toggleSelected(!!value);
+                            if (value) {
+                                console.log(row.original);
+                                handleTracking(row.original.id);
+                            }
+                        }
+                    }}
+                    aria-label="Select row"
+                    disabled={isDisabled}
+                />
+            );
+        },
         enableSorting: false,
         enableHiding: false,
     },
@@ -82,6 +92,18 @@ export const createColumns = (
         cell: ({ row }) => (
             <div className="capitalize">{row.getValue("name")}</div>
         ),
+    },
+    {
+        accessorKey: "cooldownTill",
+        header: "Cooldown",
+        cell: ({ row }) => {
+            const cooldownTime = cooldownTimers[row.original.id]; // Pobierz odliczanie dla danego nawyku
+            return (
+                <div className="capitalize">
+                    {cooldownTime || "Ready"}
+                </div>
+            );
+        },
     },
     {
         accessorKey: "action",
@@ -104,10 +126,10 @@ export const createColumns = (
         ),
     },
     {
-        accessorKey: "status",
-        header: "Status",
+        accessorKey: "frequency",
+        header: "Frequency",
         cell: ({ row }) => (
-            <div className="capitalize">{row.getValue("status")}</div>
+            <div className="capitalize">{row.getValue("frequency")}</div>
         ),
     },
     {
@@ -133,7 +155,7 @@ export const createColumns = (
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600"
-                            onClick={() => handleDelete(habit.id)}
+                                          onClick={() => handleDelete(habit.id)}
                         >
                             <Trash className="mr-2 h-4 w-4" />
                             Delete habit
@@ -150,6 +172,8 @@ const getToken = (): string | null => {
 };
 
 export function HabitTracker() {
+    const [cooldownTimers, setCooldownTimers] = useState<{ [key: string]: string }>({}); // Stan przechowujący odliczanie cooldownów
+
     const handleTracking = async (id: string) => {
         try {
             const token = getToken();
@@ -193,11 +217,33 @@ export function HabitTracker() {
     const [checkedHabits, setCheckedHabits] = useState<string[]>([]);
     const [successHabit, setSuccessHabit] = useState<string | null>(null);
 
+    // Aktualizacja odliczania cooldownu
+    useEffect(() => {
+        const updateCooldowns = () => {
+            const updatedTimers: { [key: string]: string } = {};
+            habits.forEach((habit) => {
+                if (isFuture(new Date(habit.cooldownTill))) {
+                    const secondsRemaining = differenceInSeconds(new Date(habit.cooldownTill), new Date());
+                    updatedTimers[habit.id] = formatDistanceToNowStrict(new Date(habit.cooldownTill));
+                } else {
+                    updatedTimers[habit.id] = "Ready";
+                }
+            });
+            setCooldownTimers(updatedTimers);
+        };
+
+        updateCooldowns(); // Pierwsze wywołanie
+
+        const interval = setInterval(updateCooldowns, 1000); // Aktualizacja co sekundę
+
+        return () => clearInterval(interval); // Czyszczenie interwału po odmontowaniu komponentu
+    }, [habits]);
+
     React.useEffect(() => {
         fetchHabits(); // Fetch habits when the component mounts
     }, []);
 
-    const columns = createColumns(handleTracking, handleDelete); // Wywołaj createColumns z handleTracking i handleDelete
+    const columns = createColumns(handleTracking, handleDelete, cooldownTimers);
 
     const table = useReactTable({
         data: habits,
@@ -235,7 +281,7 @@ export function HabitTracker() {
                             Columns <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DialogDemo/>
+                    <DialogDemo />
                     <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
@@ -279,21 +325,30 @@ export function HabitTracker() {
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
+                            table.getRowModel().rows.map((row) => {
+                                const isDisabled = isFuture(new Date(row.original.cooldownTill));
+                                return (
+                                    <TableRow
+                                        key={row.id}
+                                        className={`transition-colors duration-500 ${
+                                            row.getIsSelected() && "selected"
+                                                ? "bg-green-200"
+                                                : isDisabled
+                                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed opacity-50"
+                                                    : ""
+                                        }`}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                );
+                            })
                         ) : (
                             <TableRow>
                                 <TableCell
