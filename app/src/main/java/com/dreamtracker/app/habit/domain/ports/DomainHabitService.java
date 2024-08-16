@@ -16,9 +16,6 @@ import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -173,7 +170,8 @@ public boolean delete(UUID id) {
         .duration(habit.getDuration())
         .difficulty(habit.getDifficulty())
         .status(habit.getStatus())
-            .categories(habit.getCategories())
+        .categories(habit.getCategories())
+        .cooldownTill(habit.getCoolDownTill().toString())
         .build();
   }
 }

@@ -80,6 +80,7 @@ class DomainHabitServiceTest
     var expectedHabitResponse =
         getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
             .id(habit.getId())
+            .cooldownTill(Instant.now(fixedClock).toString())
             .build();
     when(habitRepositoryPort.save(habit)).thenReturn(habit);
     var actualHabitResponse = habitService.createHabit(habitRequest);
@@ -142,9 +143,12 @@ class DomainHabitServiceTest
   @Test
   void getAllUserHabitsPositiveTestCase() {
     // given
-    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-    when(habitRepositoryPort.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(sampleHabit));
-    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).categories(new ArrayList<>()).build();
+     var habit =
+        getSampleHabitBuilder(currentUserProvider.getCurrentUser())
+            .coolDownTill(Instant.now(fixedClock))
+            .build();
+    when(habitRepositoryPort.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(habit));
+    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).categories(new ArrayList<>()).cooldownTill(Instant.now(fixedClock).toString()).build();
     var expectedResponsePageItems = List.of(sampleHabitResponse);
     var expectedResponsePage = new Page<HabitResponse>(expectedResponsePageItems);
     // when
@@ -175,7 +179,7 @@ class DomainHabitServiceTest
         getSampleUpdatedHabitBuilder(sampleUser.getUuid())
             .coolDownTill(Instant.now(fixedClock))
             .build();
-    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().build();
+    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().cooldownTill(Instant.now(fixedClock).toString()).build();
 
     logger.debug(sampleHabit.toString());
     logger.debug(updatedHabit.toString());

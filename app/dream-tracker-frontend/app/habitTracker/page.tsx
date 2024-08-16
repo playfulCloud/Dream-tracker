@@ -1,5 +1,9 @@
-"use client"
+"use client";
 import * as React from "react";
+import { useAppContext } from '../AppContext';
+import {DialogDemo} from "@/app/habitTracker/createForm";
+import {  Trash } from "lucide-react"
+import axios from 'axios';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -34,69 +38,70 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {useState} from "react";
 
-const data: Payment[] = [
-    {
-        id: "m5gr84i9",
-        amount: 316,
-        status: "success",
-        email: "ken99@yahoo.com",
-    },
-    {
-        id: "3u1reuv4",
-        amount: 242,
-        status: "success",
-        email: "Abe45@gmail.com",
-    },
-    {
-        id: "derv1ws0",
-        amount: 837,
-        status: "processing",
-        email: "Monserrat44@gmail.com",
-    },
-    {
-        id: "5kma53ae",
-        amount: 874,
-        status: "success",
-        email: "Silas22@gmail.com",
-    },
-    {
-        id: "bhqecj4p",
-        amount: 721,
-        status: "failed",
-        email: "carmella@hotmail.com",
-    },
-];
-
-export type Payment = {
+export type Habit = {
     id: string;
-    amount: number;
-    status: "pending" | "processing" | "success" | "failed";
-    email: string;
+    name: string;
+    action: string;
+    duration: string;
+    difficulty: string;
+    status: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+interface HabitTrackResponse {
+    date: string;
+    status: string;
+}
+
+export const createColumns = (
+    handleTracking: (id: string) => void,
+    handleDelete: (id: string) => void
+): ColumnDef<Habit>[] => [
     {
         id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-            />
-        ),
         cell: ({ row }) => (
             <Checkbox
                 checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                onCheckedChange={(value) => {
+                    row.toggleSelected(!!value);
+                    if (value) {
+                        console.log(row.original);
+                        handleTracking(row.original.id);
+                    }
+                }}
                 aria-label="Select row"
             />
         ),
         enableSorting: false,
         enableHiding: false,
+    },
+    {
+        accessorKey: "name",
+        header: "Habit Name",
+        cell: ({ row }) => (
+            <div className="capitalize">{row.getValue("name")}</div>
+        ),
+    },
+    {
+        accessorKey: "action",
+        header: ({ column }) => (
+            <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+                Action
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        cell: ({ row }) => <div className="capitalize">{row.getValue("action")}</div>,
+    },
+    {
+        accessorKey: "difficulty",
+        header: "Difficulty",
+        cell: ({ row }) => (
+            <div className="capitalize">{row.getValue("difficulty")}</div>
+        ),
     },
     {
         accessorKey: "status",
@@ -106,40 +111,10 @@ export const columns: ColumnDef<Payment>[] = [
         ),
     },
     {
-        accessorKey: "email",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Email
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-    },
-    {
-        accessorKey: "amount",
-        header: () => <div className="text-right">Amount</div>,
-        cell: ({ row }) => {
-            const amount = parseFloat(row.getValue("amount"));
-
-            // Format the amount as a dollar amount
-            const formatted = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-            }).format(amount);
-
-            return <div className="text-right font-medium">{formatted}</div>;
-        },
-    },
-    {
         id: "actions",
         enableHiding: false,
         cell: ({ row }) => {
-            const payment = row.original;
+            const habit = row.original;
 
             return (
                 <DropdownMenu>
@@ -152,12 +127,17 @@ export const columns: ColumnDef<Payment>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(payment.id)}
+                            onClick={() => console.log(`Update habit ${habit.id}`)}
                         >
-                           Update habit
+                            Update habit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Delete habit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600"
+                            onClick={() => handleDelete(habit.id)}
+                        >
+                            <Trash className="mr-2 h-4 w-4" />
+                            Delete habit
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
@@ -165,17 +145,62 @@ export const columns: ColumnDef<Payment>[] = [
     },
 ];
 
-export function DataTableDemo() {
+const getToken = (): string | null => {
+    return localStorage.getItem('token');
+};
+
+export function HabitTracker() {
+    const handleTracking = async (id: string) => {
+        try {
+            const token = getToken();
+            const habitTrackingRequest = { habitId: id, status: "DONE" };
+            await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setCheckedHabits([...checkedHabits, id]);
+            setSuccessHabit(id);
+            setTimeout(() => setSuccessHabit(null), 2000);
+            console.log("done");
+            fetchHabits();
+            fetchGoals();
+        } catch (error) {
+            console.error('Failed to track habit', error);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        try {
+            const token = getToken();
+            await axios.delete(`http://localhost:8080/v1/habits/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            fetchHabits();
+        } catch (error) {
+            console.error('Failed to delete habit', error);
+        }
+    };
+
+    const { habits, loading, error, fetchHabits, fetchGoals } = useAppContext();
     const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        []
-    );
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const [checkedHabits, setCheckedHabits] = useState<string[]>([]);
+    const [successHabit, setSuccessHabit] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        fetchHabits(); // Fetch habits when the component mounts
+    }, []);
+
+    const columns = createColumns(handleTracking, handleDelete); // Wywołaj createColumns z handleTracking i handleDelete
 
     const table = useReactTable({
-        data,
+        data: habits,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -198,9 +223,9 @@ export function DataTableDemo() {
             <div className="flex items-center py-4 space-x-4">
                 <Input
                     placeholder="Filter habits..."
-                    value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                    value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("email")?.setFilterValue(event.target.value)
+                        table.getColumn("name")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
@@ -210,6 +235,7 @@ export function DataTableDemo() {
                             Columns <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
+                    <DialogDemo/>
                     <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
@@ -308,9 +334,5 @@ export function DataTableDemo() {
         </div>
     );
 }
-
-const HabitTracker = () => {
-    return <DataTableDemo />;
-};
 
 export default HabitTracker;
