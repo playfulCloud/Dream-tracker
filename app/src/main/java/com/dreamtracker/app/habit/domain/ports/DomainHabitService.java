@@ -1,6 +1,5 @@
 package com.dreamtracker.app.habit.domain.ports;
 
-import com.dreamtracker.app.goal.domain.model.GoalStatus;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitCategoryCreateRequest;
@@ -109,7 +108,6 @@ public boolean delete(UUID id) {
 
     boolean isAfter = Instant.now(clock).isAfter(habitToUpdate.getCoolDownTill());
     if (!isAfter && habitRequest.frequency() != null && !habitToUpdate.getFrequency().equals( habitRequest.frequency()) ) {
-      logger.error("testteste");
       var updatedCoolDown = dateService.getCooldownPeriodBasedOnCurrentDate(habitToUpdate.getCoolDownTill(),habitRequest.frequency());
       habitToUpdate.setCoolDownTill(updatedCoolDown);
     }
@@ -119,16 +117,7 @@ public boolean delete(UUID id) {
     Optional.ofNullable(habitRequest.frequency()).ifPresent(habitToUpdate::setFrequency);
     Optional.ofNullable(habitRequest.duration()).ifPresent(habitToUpdate::setDuration);
     Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
-
-    logger.error(habitToUpdate.getCoolDownTill().toString());
-    logger.error(Instant.now(clock).toString());
-    logger.debug("Is current date before cooldown " + !isAfter);
-
-    logger.error(habitRequest.frequency());
-    logger.error(habitToUpdate.getFrequency());
-
-
-
+    
     var updatedHabit = habitRepositoryPort.save(habitToUpdate);
 
     return mapToResponse(updatedHabit);

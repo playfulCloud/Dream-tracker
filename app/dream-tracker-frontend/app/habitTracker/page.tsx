@@ -1,28 +1,24 @@
-"use client"
+"use client";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { useAppContext } from '../AppContext';
 import { CreateForm } from "@/app/habitTracker/createForm";
 import { UpdateForm } from "@/app/habitTracker/updateForm";
-import { Trash } from "lucide-react";
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash } from "lucide-react";
 import axios from 'axios';
 import {
     ColumnDef,
     ColumnFiltersState,
-    SortingState,
-    VisibilityState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    SortingState,
     useReactTable,
+    VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-import {
-    differenceInDays,
-    differenceInWeeks,
-    differenceInMonths
-} from "date-fns";
+import { differenceInDays, differenceInMonths, differenceInWeeks, formatDistanceToNowStrict, isFuture } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -36,16 +32,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { useState, useEffect } from "react";
-import { formatDistanceToNowStrict, isFuture } from "date-fns";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
 
 export type Habit = {
     id: string;
@@ -64,10 +51,11 @@ interface HabitTrackResponse {
 }
 
 export const createColumns = (
-    handleTracking: (id: string) => void,
+    handleCheckboxChange: (rowId: string, checked: boolean) => void,
     handleDelete: (id: string) => void,
     cooldownTimers: { [key: string]: string },
-    openUpdateForm: (habit: Habit) => void
+    openUpdateForm: (habit: Habit) => void,
+    rowSelection: { [key: string]: boolean }
 ): ColumnDef<Habit>[] => [
     {
         id: "select",
@@ -75,16 +63,8 @@ export const createColumns = (
             const isDisabled = isFuture(new Date(row.original.cooldownTill));
             return (
                 <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => {
-                        if (!isDisabled) {
-                            row.toggleSelected(!!value);
-                            if (value) {
-                                console.log(row.original);
-                                handleTracking(row.original.id);
-                            }
-                        }
-                    }}
+                    checked={!!rowSelection[row.original.id]}
+                    onCheckedChange={(value) => handleCheckboxChange(row.original.id, !!value)}
                     aria-label="Select row"
                     disabled={isDisabled}
                 />
@@ -183,6 +163,23 @@ export function HabitTracker() {
     const [cooldownTimers, setCooldownTimers] = useState<{ [key: string]: string }>({});
     const [isOpen, setIsOpen] = useState(false);
     const [currentHabit, setCurrentHabit] = useState<Habit | null>(null);
+    const [rowSelection, setRowSelection] = useState<{ [key: string]: boolean }>({});
+
+    const handleCheckboxChange = (rowId: string, checked: boolean) => {
+        if (checked) {
+            setRowSelection((prev) => ({
+                ...prev,
+                [rowId]: true,
+            }));
+            handleTracking(rowId);
+        } else {
+            setRowSelection((prev) => {
+                const updatedSelection = { ...prev };
+                delete updatedSelection[rowId];
+                return updatedSelection;
+            });
+        }
+    };
 
     const handleTracking = async (id: string) => {
         try {
@@ -229,8 +226,7 @@ export function HabitTracker() {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
-    const [rowSelection, setRowSelection] = React.useState({});
-
+    const columns = createColumns(handleCheckboxChange, handleDelete, cooldownTimers, openUpdateForm, rowSelection);
     useEffect(() => {
         const updateCooldowns = () => {
             const updatedTimers: { [key: string]: string } = {};
@@ -280,7 +276,21 @@ export function HabitTracker() {
         fetchHabits();
     }, []);
 
-    const columns = createColumns(handleTracking, handleDelete, cooldownTimers, openUpdateForm);
+    const customSort = (rowA, rowB, columnId) => {
+        const isDisabledA = isFuture(new Date(rowA.original.cooldownTill));
+        const isDisabledB = isFuture(new Date(rowB.original.cooldownTill));
+
+        if (isDisabledA && !isDisabledB) return 1;
+        if (!isDisabledA && isDisabledB) return -1; // Enabled rows stay at the top
+
+
+        const valueA = rowA.getValue(columnId);
+        const valueB = rowB.getValue(columnId);
+
+        if (valueA > valueB) return 1;
+        if (valueA < valueB) return -1;
+        return 0;
+    };
 
     const table = useReactTable({
         data: habits,
@@ -289,7 +299,11 @@ export function HabitTracker() {
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
+        getSortedRowModel: getSortedRowModel({
+            sortTypes: {
+                custom: customSort,
+            },
+        }),
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
@@ -299,6 +313,7 @@ export function HabitTracker() {
             columnVisibility,
             rowSelection,
         },
+        autoResetPageIndex: false,
     });
 
     return (
@@ -366,14 +381,15 @@ export function HabitTracker() {
                                 const isDisabled = isFuture(new Date(row.original.cooldownTill));
                                 return (
                                     <TableRow
-                                        key={row.id}
+                                        key={row.original.id}
                                         className={`transition-colors duration-500 ${
-                                            row.getIsSelected() && "selected"
-                                                ? "bg-green-200"
+                                            rowSelection[row.original.id] 
+                                                ? "bg-green-500 text-white"
                                                 : isDisabled
-                                                    ? "bg-gray-300 text-gray-600 cursor-not-allowed opacity-50"
-                                                    : ""
+                                                    ? "disabled-row" 
+                                                    : "bg-white" 
                                         }`}
+
                                     >
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}>
@@ -384,6 +400,7 @@ export function HabitTracker() {
                                             </TableCell>
                                         ))}
                                     </TableRow>
+
                                 );
                             })
                         ) : (
