@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import React from "react";
 import axios from "axios";
 
-export function DialogDemo() {
+export function CreateForm() {
 
     const {fetchHabits} = useAppContext();
     const [formData, setFormData] = React.useState({

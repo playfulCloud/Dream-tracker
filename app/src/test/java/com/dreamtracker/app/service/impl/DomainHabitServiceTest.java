@@ -16,6 +16,7 @@ import com.dreamtracker.app.habit.domain.ports.*;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
@@ -44,6 +45,7 @@ class DomainHabitServiceTest
   private final GoalService goalService = Mockito.mock(GoalService.class);
   private final HabitTrackService habitTrackService = Mockito.mock(HabitTrackService.class);
   private static final Logger logger = LoggerFactory.getLogger(DomainHabitServiceTest.class);
+  private final DateService dateService = Mockito.mock(DateService.class);
   private HabitService habitService;
   private User sampleUser;
   private Clock fixedClock;
@@ -62,7 +64,7 @@ class DomainHabitServiceTest
             statsAggregator,
             goalService,
             habitTrackService,
-            fixedClock);
+            fixedClock,dateService);
   }
 
  @Test

@@ -1,7 +1,8 @@
 "use client"
 import * as React from "react";
 import { useAppContext } from '../AppContext';
-import { DialogDemo } from "@/app/habitTracker/createForm";
+import { CreateForm } from "@/app/habitTracker/createForm";
+import { UpdateForm } from "@/app/habitTracker/updateForm";
 import { Trash } from "lucide-react";
 import axios from 'axios';
 import {
@@ -17,6 +18,11 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import {
+    differenceInDays,
+    differenceInWeeks,
+    differenceInMonths
+} from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,7 +45,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useState, useEffect } from "react";
-import { formatDistanceToNowStrict, isFuture, differenceInSeconds } from "date-fns";
+import { formatDistanceToNowStrict, isFuture } from "date-fns";
 
 export type Habit = {
     id: string;
@@ -60,7 +66,8 @@ interface HabitTrackResponse {
 export const createColumns = (
     handleTracking: (id: string) => void,
     handleDelete: (id: string) => void,
-    cooldownTimers: { [key: string]: string } // Dodajemy obiekt z odliczaniem cooldownów
+    cooldownTimers: { [key: string]: string },
+    openUpdateForm: (habit: Habit) => void
 ): ColumnDef<Habit>[] => [
     {
         id: "select",
@@ -97,7 +104,7 @@ export const createColumns = (
         accessorKey: "cooldownTill",
         header: "Cooldown",
         cell: ({ row }) => {
-            const cooldownTime = cooldownTimers[row.original.id]; // Pobierz odliczanie dla danego nawyku
+            const cooldownTime = cooldownTimers[row.original.id];
             return (
                 <div className="capitalize">
                     {cooldownTime || "Ready"}
@@ -149,9 +156,10 @@ export const createColumns = (
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            onClick={() => console.log(`Update habit ${habit.id}`)}
+                            onClick={() => openUpdateForm(habit)}
                         >
                             Update habit
+
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600"
@@ -172,7 +180,9 @@ const getToken = (): string | null => {
 };
 
 export function HabitTracker() {
-    const [cooldownTimers, setCooldownTimers] = useState<{ [key: string]: string }>({}); // Stan przechowujący odliczanie cooldownów
+    const [cooldownTimers, setCooldownTimers] = useState<{ [key: string]: string }>({});
+    const [isOpen, setIsOpen] = useState(false);
+    const [currentHabit, setCurrentHabit] = useState<Habit | null>(null);
 
     const handleTracking = async (id: string) => {
         try {
@@ -183,10 +193,6 @@ export function HabitTracker() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            setCheckedHabits([...checkedHabits, id]);
-            setSuccessHabit(id);
-            setTimeout(() => setSuccessHabit(null), 2000);
-            console.log("done");
             fetchHabits();
             fetchGoals();
         } catch (error) {
@@ -208,23 +214,44 @@ export function HabitTracker() {
         }
     };
 
-    const { habits, loading, error, fetchHabits, fetchGoals } = useAppContext();
+    const openUpdateForm = (habit: Habit) => {
+        setCurrentHabit(habit);
+        setIsOpen(true);
+    };
+
+    const closeUpdateForm = () => {
+        setIsOpen(false);
+        setCurrentHabit(null);
+    };
+
+    const { habits, fetchHabits, fetchGoals } = useAppContext();
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
-    const [checkedHabits, setCheckedHabits] = useState<string[]>([]);
-    const [successHabit, setSuccessHabit] = useState<string | null>(null);
 
-    // Aktualizacja odliczania cooldownu
     useEffect(() => {
         const updateCooldowns = () => {
             const updatedTimers: { [key: string]: string } = {};
             habits.forEach((habit) => {
-                if (isFuture(new Date(habit.cooldownTill))) {
-                    const secondsRemaining = differenceInSeconds(new Date(habit.cooldownTill), new Date());
-                    updatedTimers[habit.id] = formatDistanceToNowStrict(new Date(habit.cooldownTill));
+                const cooldownDate = new Date(habit.cooldownTill);
+                const currentDate = new Date();
+
+                if (isFuture(cooldownDate)) {
+                    const daysDifference = differenceInDays(cooldownDate, currentDate);
+                    const weeksDifference = differenceInWeeks(cooldownDate, currentDate);
+                    const monthsDifference = differenceInMonths(cooldownDate, currentDate);
+
+                    if (daysDifference === 1) {
+                        updatedTimers[habit.id] = "Comeback Tomorrow";
+                    } else if (weeksDifference === 1) {
+                        updatedTimers[habit.id] = "Comeback Next Week";
+                    } else if (monthsDifference === 1) {
+                        updatedTimers[habit.id] = "Comeback Next Month";
+                    } else {
+                        updatedTimers[habit.id] = formatDistanceToNowStrict(cooldownDate);
+                    }
                 } else {
                     updatedTimers[habit.id] = "Ready";
                 }
@@ -232,18 +259,28 @@ export function HabitTracker() {
             setCooldownTimers(updatedTimers);
         };
 
-        updateCooldowns(); // Pierwsze wywołanie
+        updateCooldowns();
 
-        const interval = setInterval(updateCooldowns, 1000); // Aktualizacja co sekundę
+        const interval = setInterval(() => {
+            const now = new Date();
+            const nextMidnight = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() + 1,
+                0, 0, 0, 0
+            );
+            const timeToMidnight = nextMidnight.getTime() - now.getTime();
+            setTimeout(updateCooldowns, timeToMidnight);
+        }, 86400000);
 
-        return () => clearInterval(interval); // Czyszczenie interwału po odmontowaniu komponentu
+        return () => clearInterval(interval);
     }, [habits]);
 
     React.useEffect(() => {
-        fetchHabits(); // Fetch habits when the component mounts
+        fetchHabits();
     }, []);
 
-    const columns = createColumns(handleTracking, handleDelete, cooldownTimers);
+    const columns = createColumns(handleTracking, handleDelete, cooldownTimers, openUpdateForm);
 
     const table = useReactTable({
         data: habits,
@@ -281,7 +318,7 @@ export function HabitTracker() {
                             Columns <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DialogDemo />
+                    <CreateForm />
                     <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
@@ -386,6 +423,13 @@ export function HabitTracker() {
                     </Button>
                 </div>
             </div>
+            {currentHabit && (
+                <UpdateForm
+                    habit={currentHabit}
+                    isOpen={isOpen}
+                    onClose={closeUpdateForm}
+                />
+            )}
         </div>
     );
 }
