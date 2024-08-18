@@ -84,7 +84,7 @@ mvn test
 mvn clean install
 ```
 ### 🤝 Contributing
-Feel free to fork the repository and submit pull requests. For major changes, please open an issue first to discuss what you would like to change. 
+Check the LICENSE.
 
 ### 📧 Contact
 For any inquiries, please contact playfulCloud@proton.me   <hr></hr> Happy Tracking! 🎉
