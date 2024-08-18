@@ -16,6 +16,7 @@ import com.dreamtracker.app.habit.domain.ports.*;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.model.User;
@@ -44,6 +45,7 @@ class DomainHabitServiceTest
   private final GoalService goalService = Mockito.mock(GoalService.class);
   private final HabitTrackService habitTrackService = Mockito.mock(HabitTrackService.class);
   private static final Logger logger = LoggerFactory.getLogger(DomainHabitServiceTest.class);
+  private final DateService dateService = Mockito.mock(DateService.class);
   private HabitService habitService;
   private User sampleUser;
   private Clock fixedClock;
@@ -62,7 +64,7 @@ class DomainHabitServiceTest
             statsAggregator,
             goalService,
             habitTrackService,
-            fixedClock);
+            fixedClock,dateService);
   }
 
  @Test
@@ -80,6 +82,8 @@ class DomainHabitServiceTest
     var expectedHabitResponse =
         getSampleHabitResponseBuilder(currentUserProvider.getCurrentUser())
             .id(habit.getId())
+            .cooldownTill(Instant.now(fixedClock).toString())
+            .frequency("DAILY")
             .build();
     when(habitRepositoryPort.save(habit)).thenReturn(habit);
     var actualHabitResponse = habitService.createHabit(habitRequest);
@@ -142,9 +146,13 @@ class DomainHabitServiceTest
   @Test
   void getAllUserHabitsPositiveTestCase() {
     // given
-    var sampleHabit = getSampleHabitBuilder(sampleUser.getUuid()).build();
-    when(habitRepositoryPort.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(sampleHabit));
-    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).categories(new ArrayList<>()).build();
+     var habit =
+        getSampleHabitBuilder(currentUserProvider.getCurrentUser())
+            .coolDownTill(Instant.now(fixedClock))
+                .frequency("DAILY")
+            .build();
+    when(habitRepositoryPort.findByUserUUID(sampleUser.getUuid())).thenReturn(List.of(habit));
+    var sampleHabitResponse = getSampleHabitResponseBuilder(sampleUser.getUuid()).categories(new ArrayList<>()).cooldownTill(Instant.now(fixedClock).toString()).frequency("DAILY").build();
     var expectedResponsePageItems = List.of(sampleHabitResponse);
     var expectedResponsePage = new Page<HabitResponse>(expectedResponsePageItems);
     // when
@@ -168,14 +176,14 @@ class DomainHabitServiceTest
   void updateHabit() {
     // given
     var sampleHabit =
-        getSampleHabitBuilder(sampleUser.getUuid()).coolDownTill(Instant.now(fixedClock)).build();
+        getSampleHabitBuilder(sampleUser.getUuid()).coolDownTill(Instant.now(fixedClock)).frequency("DAILY").build();
     var sampleUpdateRequest = getSampleHabitRequestUpdateBuilder().build();
 
     var updatedHabit =
         getSampleUpdatedHabitBuilder(sampleUser.getUuid())
             .coolDownTill(Instant.now(fixedClock))
             .build();
-    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().build();
+    var expectedHabitResponse = getSampleUpdatedHabitResponseBuilder().cooldownTill(Instant.now(fixedClock).toString()).frequency("DAILY").build();
 
     logger.debug(sampleHabit.toString());
     logger.debug(updatedHabit.toString());
