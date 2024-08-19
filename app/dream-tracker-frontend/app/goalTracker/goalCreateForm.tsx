@@ -104,7 +104,7 @@ export function GoalCreateForm() {
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant="outline">
-                    Create New Goal
+                    Create New Goal to do
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">

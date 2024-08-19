@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import * as React from "react";
 import { DateTime, Duration } from "luxon";
 import {
@@ -210,7 +211,7 @@ export function GoalTable() {
 
     return (
         <div className="container mx-auto p-4 max-w-3xl">
-            <div className="flex items-center py-4">
+            <div className="flex items-center space-x-4 py-4">
                 <Input
                     placeholder="Filter goals..."
                     value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -221,11 +222,10 @@ export function GoalTable() {
                 />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
+                        <Button variant="outline">
                             Columns <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <GoalCreateForm />
                     <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
@@ -246,6 +246,7 @@ export function GoalTable() {
                             })}
                     </DropdownMenuContent>
                 </DropdownMenu>
+                <GoalCreateForm />
             </div>
             <div className="rounded-md border">
                 <Table>
@@ -335,4 +336,3 @@ export function GoalTable() {
 }
 
 export default GoalTable;
-
