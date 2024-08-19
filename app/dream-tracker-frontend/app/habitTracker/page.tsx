@@ -206,6 +206,7 @@ export function HabitTracker() {
                 },
             });
             fetchHabits();
+            fetchGoals();
         } catch (error) {
             console.error('Failed to delete habit', error);
         }

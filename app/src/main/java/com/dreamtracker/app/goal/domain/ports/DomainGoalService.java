@@ -188,6 +188,7 @@ public class DomainGoalService implements GoalService {
         .habitID(goal.getHabitUUID())
         .currentCount(goal.getCurrentCount())
         .status(goal.getStatus())
+        .createdAt(goal.getCreatedAt().toString())
         .build();
   }
 
