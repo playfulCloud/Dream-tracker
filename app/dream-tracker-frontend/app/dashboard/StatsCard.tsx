@@ -1,29 +1,20 @@
 "use client";
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function StatsCard({ cardTitle, cardDescription, cardContent }) {
+export default function StatsCard({ cardTitle, cardDescription, cardContent, icon }) {
     return (
-        <Card className="w-[350px]">
-            <CardHeader>
-                <CardTitle>{cardTitle}</CardTitle>
-                <CardDescription>{cardDescription}</CardDescription>
-            </CardHeader>
-            <CardContent className="text-xl">
-                {cardContent}
-            </CardContent>
+        <Card className="flex flex-row items-center space-x-4 p-4 shadow-lg">
+            <div>{icon}</div> {/* Ikona */}
+            <div>
+                <CardHeader>
+                    <CardTitle>{cardTitle}</CardTitle>
+                    <CardDescription>{cardDescription}</CardDescription>
+                </CardHeader>
+                <CardContent className="text-lg font-semibold">
+                    {cardContent}
+                </CardContent>
+            </div>
         </Card>
     );
 }
-
-export default StatsCard;
