@@ -170,11 +170,7 @@ export function GoalTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                                onClick={() => console.log(row.original.id)}
-                            >
-                                Copy Goal ID
-                            </DropdownMenuItem>
+
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="text-red-600"
                                               onClick={() => handleDeleteGoal(goal.id)}

@@ -13,7 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
-import { HabitCombobox } from "./HabitCombobox"; // Import your new HabitCombobox component
+import { HabitCombobox } from "./HabitCombobox";
+import { CalendarForGoals } from "@/app/goalTracker/isoCalendar"; // Import CalendarForGoals component
 
 export function GoalCreateForm() {
     const { habits, fetchGoals } = useAppContext();
@@ -51,6 +52,17 @@ export function GoalCreateForm() {
         setErrors((prevErrors) => ({
             ...prevErrors,
             habitID: false,
+        }));
+    };
+
+    const handleDateChange = (isoPeriod) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            duration: isoPeriod,
+        }));
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            duration: false,
         }));
     };
 
@@ -120,14 +132,11 @@ export function GoalCreateForm() {
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="duration" className="text-right">
-                                Duration (e.g., P10D for 10 days)
+                                Duration
                             </Label>
-                            <Input
-                                id="duration"
-                                value={formData.duration}
-                                onChange={handleInputChange}
-                                className={`col-span-3 ${errors.duration ? 'border-red-500' : ''}`}
-                            />
+                            <div className="col-span-3">
+                                <CalendarForGoals onDateSelect={handleDateChange} />
+                            </div>
                             {errors.duration && (
                                 <p className="col-span-4 text-red-500 text-sm">Duration is required.</p>
                             )}
