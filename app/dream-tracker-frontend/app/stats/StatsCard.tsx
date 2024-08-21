@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function StatsCard({ cardTitle, cardDescription, cardContent, icon }) {
     return (
         <Card className="flex flex-row items-center space-x-4 p-4 shadow-lg">
-            <div>{icon}</div> {/* Ikona */}
+            <div>{icon}</div>
             <div>
                 <CardHeader>
                     <CardTitle>{cardTitle}</CardTitle>

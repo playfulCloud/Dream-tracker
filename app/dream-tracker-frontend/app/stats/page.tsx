@@ -2,16 +2,16 @@
 import * as React from "react";
 import axios from "axios";
 import { useAppContext } from '../AppContext';
-import StatsCard from "@/app/dashboard/StatsCard";
+import StatsCard from "@/app/stats/StatsCard";
 import { Card } from "@/components/ui/card";
 import { HabitCombobox } from "@/app/goalTracker/HabitCombobox";
-import { Calendar, TrendingUp, Clock, Award, BarChart } from "lucide-react"; // Import ikon
+import { Calendar, TrendingUp, Clock, Award, BarChart } from "lucide-react";
 
 const getToken = (): string | null => {
     return localStorage.getItem('token');
 };
 
-export default function Dashboard() {
+export default function Stats() {
     const { habits } = useAppContext();
     const [selectedHabit, setSelectedHabit] = React.useState("");
     const [stats, setStats] = React.useState({
@@ -34,10 +34,10 @@ export default function Dashboard() {
 
     const fetchStats = async (habitId) => {
         try {
-            const token = getToken(); // Pobierz token
+            const token = getToken();
             const response = await axios.get(`http://localhost:8080/v1/views/stats/${habitId}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`, // Przekaż token w nagłówku
+                    Authorization: `Bearer ${token}`,
                 },
             });
             setStats(response.data);
@@ -48,9 +48,11 @@ export default function Dashboard() {
 
     React.useEffect(() => {
         if (selectedHabit) {
-            fetchStats(selectedHabit);
+            if (!stats[selectedHabit]) {
+                fetchStats(selectedHabit);
+            }
         }
-    }, [selectedHabit]);
+    }, [selectedHabit, stats, fetchStats]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -83,12 +85,7 @@ export default function Dashboard() {
                             cardContent={`Done: ${stats.done}, Undone: ${stats.undone}, Trend: ${stats.trend}`}
                             icon={<BarChart className="text-yellow-500 w-10 h-10"/>} // Ikona wykresu
                         />
-                        <StatsCard
-                            cardTitle="Best Day for Habit"
-                            cardDescription="Describes the best day for habit completion"
-                            cardContent={`Most Completions: ${stats.most}, Actual on Single Day: ${stats.actualSingleDay}`}
-                            icon={<Calendar className="text-red-500 w-10 h-10"/>} // Ikona kalendarza
-                        />
+
                         <StatsCard
                             cardTitle="Success Rate by Day"
                             cardDescription="Shows the success rate by day of the week"

@@ -185,13 +185,14 @@ export function HabitTracker() {
         try {
             const token = getToken();
             const habitTrackingRequest = { habitId: id, status: "DONE" };
-            await axios.post<HabitTrackResponse>('http://localhost:8080/v1/habits-tracking', habitTrackingRequest, {
+            await axios.post('http://localhost:8080/v1/habits-tracking', habitTrackingRequest, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            fetchHabits();
-            fetchGoals();
+            await fetchHabits();
+            await fetchGoals();
+            await fetchStats(id);
         } catch (error) {
             console.error('Failed to track habit', error);
         }
@@ -222,7 +223,7 @@ export function HabitTracker() {
         setCurrentHabit(null);
     };
 
-    const { habits, fetchHabits, fetchGoals } = useAppContext();
+    const { habits, fetchHabits, fetchGoals, fetchStats } = useAppContext();
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =
