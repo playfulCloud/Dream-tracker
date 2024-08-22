@@ -19,9 +19,7 @@ export default function Example() {
                     <div className="flex lg:flex-1">
                         <a href="#" className="-m-1.5 p-1.5">
 
-                            <span className="tracking-tight text-white">Dream Tracker
                                 <CloudIcon className="h-8 w-8 text-white" aria-hidden="true" />
-                            </span>
                         </a>
                     </div>
                     <div className="flex lg:hidden">
