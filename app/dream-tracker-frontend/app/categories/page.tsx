@@ -36,7 +36,7 @@ const Categories = () => {
         if (fetchHabits) {
             fetchHabits();
         }
-    }, []); // Empty dependency array ensures this useEffect runs only once after initial render.
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
