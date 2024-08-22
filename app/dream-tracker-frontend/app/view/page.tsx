@@ -1,12 +1,12 @@
-"use client"
-
-import HabitTracker from "@/app/habitTracker/page";
-import GoalTable from "@/app/goalTracker/page";
+import BarNav from "@/app/nav/page";
+import ViewManager from "@/app/view/viewPanel";
 
 
-function View() {
-
-
+export default function ViewPage(){
+    return(
+        <div>
+           <BarNav></BarNav>
+            <ViewManager></ViewManager>
+        </div>
+    )
 }
-
-export default View;
