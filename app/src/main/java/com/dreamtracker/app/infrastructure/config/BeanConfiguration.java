@@ -48,9 +48,9 @@ public class BeanConfiguration {
           HabitTrackRepositoryPort habitTrackRepositoryPort,
           HabitRepositoryPort habitRepositoryPort,
           StatsAggregator statsAggregator,
-          Clock clock, GoalService domainGoalService, DateService dateService) {
+          Clock clock, GoalService domainGoalService, DateService dateService, CurrentUserProvider currentUserProvider) {
     return new DomainHabitTrackService(
-        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService, dateService);
+        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService, dateService, currentUserProvider);
   }
 
   @Bean

@@ -193,6 +193,7 @@ export function HabitTracker() {
             await fetchHabits();
             await fetchGoals();
             await fetchStats(id);
+            await fetchCharts;
         } catch (error) {
             console.error('Failed to track habit', error);
         }
@@ -223,7 +224,7 @@ export function HabitTracker() {
         setCurrentHabit(null);
     };
 
-    const { habits, fetchHabits, fetchGoals, fetchStats } = useAppContext();
+    const { habits, fetchHabits, fetchGoals, fetchStats,fetchCharts } = useAppContext();
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] =

@@ -10,4 +10,5 @@ public interface HabitTrackRepositoryPort {
     Optional<HabitTrack>findById(UUID id);
     List<HabitTrack>findByHabitUUID(UUID habitUUID);
     HabitTrack save(HabitTrack habitTrack);
+    List<HabitTrack> findAllByUserUUID(UUID userUUID);
 }

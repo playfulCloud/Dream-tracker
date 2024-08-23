@@ -22,6 +22,12 @@ interface GoalResponse {
     currentCount: number;
 }
 
+interface ChartData {
+    date: string;
+    count: number;
+    all: number;
+}
+
 interface AppContextProps {
     habits: Habit[];
     goals: GoalResponse[];
@@ -33,8 +39,10 @@ interface AppContextProps {
     fetchGoals: () => void;
     fetchHabits: () => void;
     fetchCategories: () => void;
-    fetchStats: (habitId: string) => Promise<void>;  // Dodajemy funkcję do fetchowania statystyk
-    stats: Record<string, any>;  // Przechowywanie statystyk dla nawyków
+    fetchStats: (habitId: string) => Promise<void>;
+    fetchCharts: () => Promise<void>;  // Add the fetchCharts function
+    stats: Record<string, any>;
+    chartData: ChartData[];  // Add chartData to the context
 }
 
 interface Category {
@@ -48,7 +56,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [habits, setHabits] = useState<Habit[]>([]);
     const [goals, setGoals] = useState<GoalResponse[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [stats, setStats] = useState<Record<string, any>>({}); // Statystyki dla nawyków
+    const [stats, setStats] = useState<Record<string, any>>({});
+    const [chartData, setChartData] = useState<ChartData[]>([]);  // State for chart data
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [views, setViews] = useState<string[]>(["habits"]);
@@ -133,10 +142,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     }, []);
 
+    const fetchCharts = useCallback(async () => {
+        try {
+            const token = getToken();
+            const response = await axios.get<{ items: ChartData[] }>('http://localhost:8080/v1/habitCharts', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const chartData = response.data.items || [];
+            setChartData(chartData);
+        } catch (error) {
+            console.error("Error fetching chart data:", error);
+        }
+    }, []);
+
     useEffect(() => {
         fetchGoals();
         fetchHabits();
         fetchCategories();
+        fetchCharts();
+
         const handleStorageChange = (event: StorageEvent) => {
             if (event.key === 'goals') {
                 setGoals(JSON.parse(event.newValue || '[]'));
@@ -153,10 +177,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
         };
-    }, []);
+    }, [fetchCharts]);
 
     return (
-        <AppContext.Provider value={{ habits, goals, categories, loading, error, views, toggleView, fetchGoals, fetchHabits, fetchCategories, fetchStats, stats }}>
+        <AppContext.Provider value={{ habits, goals, categories, loading, error, views, toggleView, fetchGoals, fetchHabits, fetchCategories, fetchStats, fetchCharts, stats, chartData }}>
             {children}
         </AppContext.Provider>
     );

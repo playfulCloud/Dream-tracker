@@ -1,5 +1,6 @@
 package com.dreamtracker.app.habit.adapters.api;
 
+import com.dreamtracker.app.habit.domain.model.ChartResponse;
 import com.dreamtracker.app.habit.domain.ports.HabitService;
 import com.dreamtracker.app.habit.domain.ports.HabitTrackService;
 import com.dreamtracker.app.infrastructure.response.Page;
@@ -21,7 +22,6 @@ public class HabitController {
 
   private final HabitService habitService;
   private final HabitTrackService habitTrackService;
-  private final CurrentUserProvider currentUserProvider;
 
   private static final Logger logger = LoggerFactory.getLogger(HabitController.class);
 
@@ -70,5 +70,10 @@ public class HabitController {
    @GetMapping("/habits/{habit-id}")
   public ResponseEntity<HabitResponse>getHabitById(@PathVariable("habit-id") UUID id){
       return new ResponseEntity<>(habitService.getHabitById(id),HttpStatus.OK);
+   }
+
+   @GetMapping("/habitCharts")
+   public ResponseEntity<Page<ChartResponse>>getChartOfHabits(){
+    return new ResponseEntity<>(habitTrackService.getChartsFromHabitTracks(),HttpStatus.OK);
    }
 }

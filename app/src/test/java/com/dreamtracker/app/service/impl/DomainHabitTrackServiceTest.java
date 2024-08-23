@@ -52,7 +52,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
     sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     fixedClock = Clock.fixed(Instant.parse("2024-07-17T00:00:00Z"), ZoneOffset.UTC);
     habitTrackService =
-        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService,dateService);
+        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService,dateService,currentUserProvider);
   }
 
   @Test
@@ -118,5 +118,31 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
         // then
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
+  @Test
+  void testQuery(){
+    var dateForTracks = Instant.now(fixedClock);
+    var sampleHabitTrack = getSampleHabitTrack(sampleHabit.getId(), dateForTracks).id(null).build();
+    var expectedHabitTrackResponse = getSampleHabitTrackResponse(dateForTracks).build();
+    var sampleHabitTrackRequest = getSampleHabitTrackRequest(sampleHabit.getId()).build();
+    when(habitRepositoryPort.findById(sampleHabit.getId())).thenReturn(Optional.of(sampleHabit));
+    when(habitTrackRepository.save(
+            HabitTrack.builder()
+                    .habitUUID(sampleHabit.getId())
+                    .date(dateForTracks)
+                    .status(sampleHabitTrackRequest.status())
+                    .build()))
+            .thenReturn(sampleHabitTrack);
+
+    // when
+
+    var actualHabitTrackResponse = habitTrackService.trackTheHabit(sampleHabitTrackRequest);
+    var actualHabitTrackResponse2 = habitTrackService.trackTheHabit(sampleHabitTrackRequest);
+
+
+
+
+
   }
 }
