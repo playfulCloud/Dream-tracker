@@ -9,7 +9,7 @@ export function SiteFooter() {
                     <FaHeart className="inline text-red-500" />{" "}
                     by{" "}
                     <a
-                        href="" // Replace with actual URL
+                        href=""
                         target="_blank"
                         rel="noreferrer"
                         className="font-medium underline underline-offset-4 text-white"

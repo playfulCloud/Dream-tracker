@@ -5,11 +5,11 @@ import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, CloudIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const navigation = [
-    { name: 'Developer', href: '#' },
-    { name: 'Features', href: '#' },
+    { name: 'Developer', href: '/developer' },
+    { name: 'Features', href: '/features' },
 ]
 
-export default function Example() {
+export default function appPage() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     return (

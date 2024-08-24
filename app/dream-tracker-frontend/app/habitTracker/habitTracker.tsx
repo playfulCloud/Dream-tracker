@@ -193,7 +193,7 @@ export function HabitTracker() {
             await fetchHabits();
             await fetchGoals();
             await fetchStats(id);
-            await fetchCharts;
+            await fetchCharts();
         } catch (error) {
             console.error('Failed to track habit', error);
         }
@@ -209,6 +209,8 @@ export function HabitTracker() {
             });
             fetchHabits();
             fetchGoals();
+            await fetchStats(id);
+            await fetchCharts();
         } catch (error) {
             console.error('Failed to delete habit', error);
         }

@@ -10,10 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { useEffect } from "react";
 
 const FormSchema = z.object({
-    habits: z.boolean().default(false),
-    goals: z.boolean().default(false),
-    statistics: z.boolean().default(false),
-    chart: z.boolean().default(false),
+    habits: z.boolean().default(true),
+    goals: z.boolean().default(true),
+    statistics: z.boolean().default(true),
+    chart: z.boolean().default(true),
 });
 
 export default function ViewManager() {
