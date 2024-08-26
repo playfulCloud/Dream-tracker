@@ -4,30 +4,37 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 public class Position {
 
   @Id @GeneratedValue public UUID id;
 
-  public int habitX;
-  public int habitY;
+  private int habitX;
+  private int habitY;
 
-  public int goalX;
-  public int goalY;
+  private int goalX;
+  private int goalY;
 
-  public int statX;
-  public int statY;
+  private int statX;
+  private int statY;
 
-  public int chartX;
-  public int chartY;
+  private int chartX;
+  private int chartY;
 
-  public UUID userUUID;
+  private UUID userUUID;
 
-  boolean habitEnabled;
-  boolean goalEnabled;
-  boolean statsEnabled;
-  boolean chartsEnabled;
+  private boolean habitEnabled;
+  private boolean goalEnabled;
+  private boolean statsEnabled;
+  private boolean chartsEnabled;
 }
