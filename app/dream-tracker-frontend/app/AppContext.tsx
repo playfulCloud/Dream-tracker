@@ -40,9 +40,9 @@ interface AppContextProps {
     fetchHabits: () => void;
     fetchCategories: () => void;
     fetchStats: (habitId: string) => Promise<void>;
-    fetchCharts: () => Promise<void>;  // Add the fetchCharts function
+    fetchCharts: () => Promise<void>;
     stats: Record<string, any>;
-    chartData: ChartData[];  // Add chartData to the context
+    chartData: ChartData[];
 }
 
 interface Category {
@@ -57,7 +57,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [goals, setGoals] = useState<GoalResponse[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [stats, setStats] = useState<Record<string, any>>({});
-    const [chartData, setChartData] = useState<ChartData[]>([]);  // State for chart data
+    const [chartData, setChartData] = useState<ChartData[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [views, setViews] = useState<string[]>(["habits"]);

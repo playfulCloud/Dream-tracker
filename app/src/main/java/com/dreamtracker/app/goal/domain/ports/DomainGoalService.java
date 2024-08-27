@@ -163,6 +163,7 @@ public class DomainGoalService implements GoalService {
     var period = Period.parse(goalDuration);
 
     var goalEndDate = createdAt.plus(period);
+
     logger.debug("Goal end date: " + goalEndDate.toString());
     logger.debug("Current date: " + Instant.now().toString());
 

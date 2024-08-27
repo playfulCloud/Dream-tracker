@@ -75,23 +75,38 @@ public class DomainPositionService implements PositionService {
   @Override
   public PositionResponse changeActivation(ActivationRequest activationRequest) {
     var positionToUpdate =
-        positionRepositoryPort
-            .findByUserUUID(currentUserProvider.getCurrentUser())
-            .orElseThrow(
-                () ->
-                    new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+            positionRepositoryPort
+                    .findByUserUUID(currentUserProvider.getCurrentUser())
+                    .orElseGet(() -> {
+                      Position newPosition = Position.builder()
+                              .habitX(0)
+                              .habitY(0)
+                              .goalX(0)
+                              .goalY(0)
+                              .statX(0)
+                              .statY(0)
+                              .chartX(0)
+                              .chartY(0)
+                              .userUUID(currentUserProvider.getCurrentUser())
+                              .habitEnabled(activationRequest.habitEnabled())
+                              .goalEnabled(activationRequest.goalEnabled())
+                              .statsEnabled(activationRequest.statsEnabled())
+                              .chartsEnabled(activationRequest.chartsEnabled())
+                              .build();
+                      return positionRepositoryPort.save(newPosition);
+                    });
 
     logger.debug(positionToUpdate.toString());
     logger.debug(activationRequest.toString());
 
     Optional.ofNullable(activationRequest.habitEnabled())
-        .ifPresent(positionToUpdate::setHabitEnabled);
+            .ifPresent(positionToUpdate::setHabitEnabled);
     Optional.ofNullable(activationRequest.goalEnabled())
-        .ifPresent(positionToUpdate::setGoalEnabled);
+            .ifPresent(positionToUpdate::setGoalEnabled);
     Optional.ofNullable(activationRequest.statsEnabled())
-        .ifPresent(positionToUpdate::setStatsEnabled);
+            .ifPresent(positionToUpdate::setStatsEnabled);
     Optional.ofNullable(activationRequest.chartsEnabled())
-        .ifPresent(positionToUpdate::setChartsEnabled);
+            .ifPresent(positionToUpdate::setChartsEnabled);
 
     logger.info(positionToUpdate.toString());
 
@@ -99,6 +114,7 @@ public class DomainPositionService implements PositionService {
 
     return mapToResponse(updatedPosition);
   }
+
 
   @Override
   public PositionResponse findByUserUUID(UUID userUUID) {
