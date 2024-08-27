@@ -34,6 +34,7 @@ public class SecurityConfiguration {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v1/login","/v1/auth/register").permitAll()
+                        .requestMatchers("/v1/positions").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
