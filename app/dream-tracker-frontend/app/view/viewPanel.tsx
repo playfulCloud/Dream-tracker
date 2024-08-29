@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 import { useEffect } from "react";
+import axios from 'axios';
 
 const FormSchema = z.object({
     habits: z.boolean().default(true),
@@ -16,8 +17,11 @@ const FormSchema = z.object({
     chart: z.boolean().default(true),
 });
 
-export default function ViewManager() {
+const getToken = (): string | null => {
+    return localStorage.getItem('token');
+};
 
+export default function ViewManager() {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -38,10 +42,25 @@ export default function ViewManager() {
         });
     }, [form]);
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         const selectedViews = Object.keys(data).filter((key) => data[key]);
         localStorage.setItem("views", JSON.stringify(selectedViews));
 
+        try {
+            const token = getToken();
+            await axios.put('http://localhost:8080/v1/position-activation', {
+                habitEnabled: selectedViews.includes('habits'),
+                goalEnabled: selectedViews.includes('goals'),
+                statsEnabled: selectedViews.includes('statistics'),
+                chartsEnabled: selectedViews.includes('chart')
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        } catch (error) {
+            console.error('Error saving views:', error);
+        }
     };
 
     return (

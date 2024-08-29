@@ -1,10 +1,16 @@
-"use client"
+"use client";
+
 import React, { useEffect, useState } from "react";
 import Draggable from "react-draggable";
 import HabitTracker from "@/app/habitTracker/habitTracker";
 import GoalTable from "@/app/goalTracker/goalTracker";
 import Dashboard from "@/app/stats/stats";
 import HabitChart from "@/app/habitChart/page";
+import axios from 'axios';
+
+const getToken = (): string | null => {
+    return localStorage.getItem('token');
+};
 
 export default function MainPanel() {
     const [views, setViews] = useState<string[]>([]);
@@ -17,36 +23,66 @@ export default function MainPanel() {
     });
 
     useEffect(() => {
-        const storedViews = JSON.parse(localStorage.getItem("views") || "[]");
-        setViews(storedViews);
+        const fetchPositionsFromServer = async () => {
+            try {
+                const token = getToken();
+                const response = await axios.get('http://localhost:8080/v1/positions', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const { habitX, habitY, goalX, goalY, statX, statY, chartX, chartY, habitEnabled, goalEnabled, statsEnabled, chartsEnabled } = response.data;
 
-        const storedDraggable = JSON.parse(localStorage.getItem("draggable"));
-        if (storedDraggable !== null) {
-            setDraggable(storedDraggable);
-        }
+                setPositions({
+                    habits: { x: habitX, y: habitY },
+                    goals: { x: goalX, y: goalY },
+                    statistics: { x: statX, y: statY },
+                    chart: { x: chartX, y: chartY }
+                });
 
-        const storedPositions = JSON.parse(localStorage.getItem("positions"));
-        if (storedPositions) {
-            setPositions(storedPositions);
-        }
+                setViews([
+                    habitEnabled && 'habits',
+                    goalEnabled && 'goals',
+                    statsEnabled && 'statistics',
+                    chartsEnabled && 'chart'
+                ].filter(Boolean));
+            } catch (error) {
+                console.error('Error fetching positions:', error);
+            }
+        };
+
+        fetchPositionsFromServer();
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem("draggable", JSON.stringify(draggable));
-    }, [draggable]);
+    const handleDragStop = async (e, data, view) => {
+        const newPositions = {
+            ...positions,
+            [view]: { x: data.x, y: data.y }
+        };
+        setPositions(newPositions);
 
-    useEffect(() => {
-        localStorage.setItem("positions", JSON.stringify(positions));
-    }, [positions]);
-
-    const handleDragStop = (e, data, view) => {
-        setPositions((prevPositions) => ({
-            ...prevPositions,
-            [view]: { x: data.x, y: data.y },
-        }));
+        try {
+            const token = getToken();
+            await axios.put('http://localhost:8080/v1/position-change', {
+                habitX: newPositions.habits.x,
+                habitY: newPositions.habits.y,
+                goalX: newPositions.goals.x,
+                goalY: newPositions.goals.y,
+                statX: newPositions.statistics.x,
+                statY: newPositions.statistics.y,
+                chartX: newPositions.chart.x,
+                chartY: newPositions.chart.y
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Dodanie nagłówka z tokenem
+                },
+            });
+        } catch (error) {
+            console.error('Error saving positions:', error);
+        }
     };
 
-    const resetPositions = () => {
+    const resetPositions = async () => {
         const resetPositions = {
             habits: { x: 0, y: 0 },
             goals: { x: 0, y: 0 },
@@ -54,11 +90,47 @@ export default function MainPanel() {
             chart: { x: 0, y: 0 },
         };
         setPositions(resetPositions);
+
+        try {
+            const token = getToken();
+            await axios.put('http://localhost:8080/v1/position-change', {
+                habitX: resetPositions.habits.x,
+                habitY: resetPositions.habits.y,
+                goalX: resetPositions.goals.x,
+                goalY: resetPositions.goals.y,
+                statX: resetPositions.statistics.x,
+                statY: resetPositions.statistics.y,
+                chartX: resetPositions.chart.x,
+                chartY: resetPositions.chart.y
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Dodanie nagłówka z tokenem
+                },
+            });
+        } catch (error) {
+            console.error('Error resetting positions:', error);
+        }
     };
 
-    const toggleDraggable = () => {
+    const toggleDraggable = async () => {
         setDraggable(!draggable);
-        console.log(positions)
+        const currentViews = {
+            habitEnabled: views.includes('habits'),
+            goalEnabled: views.includes('goals'),
+            statsEnabled: views.includes('statistics'),
+            chartsEnabled: views.includes('chart'),
+        };
+
+        try {
+            const token = getToken();
+            await axios.put('http://localhost:8080/v1/position-activation', currentViews, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        } catch (error) {
+            console.error('Error updating view activation:', error);
+        }
     };
 
     return (
@@ -131,5 +203,3 @@ export default function MainPanel() {
         </div>
     );
 }
-
-
