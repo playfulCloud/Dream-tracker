@@ -3,6 +3,7 @@ package com.dreamtracker.app.infrastructure.config;
 
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.cfg.Environment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,4 +45,5 @@ public class ApplicationConfiguration {
 
         return authProvider;
     }
+
 }

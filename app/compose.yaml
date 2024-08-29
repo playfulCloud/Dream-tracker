@@ -4,6 +4,12 @@ services:
     ports:
       - "5232:5432"
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${db_user}
+      POSTGRES_PASSWORD: ${db_password}
       POSTGRES_DB: dream-tracker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
+
+
