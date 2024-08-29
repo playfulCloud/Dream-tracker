@@ -7,9 +7,8 @@ import com.dreamtracker.app.habit.domain.ports.*;
 import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
-import com.dreamtracker.app.user.domain.ports.DomainUserService;
-import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
-import com.dreamtracker.app.user.domain.ports.UserService;
+import com.dreamtracker.app.user.domain.model.Position;
+import com.dreamtracker.app.user.domain.ports.*;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import com.dreamtracker.app.view.domain.ports.DomainViewService;
 import com.dreamtracker.app.view.domain.ports.ViewRepositoryPort;
@@ -29,13 +28,13 @@ public class BeanConfiguration {
           CurrentUserProvider currentUserProvider,
           UserService userService,
           CategoryRepositoryPort categoryRepositoryPort,
-          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator,GoalService domainGoalService, HabitTrackService habitTrackService, Clock clock) {
+          HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator,GoalService domainGoalService, HabitTrackService habitTrackService, Clock clock, DateService dateService) {
     return new DomainHabitService(
         habitRepositoryPort,
         currentUserProvider,
         userService,
         categoryRepositoryPort,
-        habitTrackRepositoryPort,statsAggregator, domainGoalService, habitTrackService, clock);
+        habitTrackRepositoryPort,statsAggregator, domainGoalService, habitTrackService, clock,dateService);
   }
 
   @Bean
@@ -48,9 +47,9 @@ public class BeanConfiguration {
           HabitTrackRepositoryPort habitTrackRepositoryPort,
           HabitRepositoryPort habitRepositoryPort,
           StatsAggregator statsAggregator,
-          Clock clock, GoalService domainGoalService, DateService dateService) {
+          Clock clock, GoalService domainGoalService, DateService dateService, CurrentUserProvider currentUserProvider) {
     return new DomainHabitTrackService(
-        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService, dateService);
+        habitTrackRepositoryPort, habitRepositoryPort, statsAggregator, clock, domainGoalService, dateService, currentUserProvider);
   }
 
   @Bean
@@ -67,4 +66,12 @@ public class BeanConfiguration {
   public UserService userService(CurrentUserProvider currentUserProvider, UserRepositoryPort userRepositoryPort){
       return new DomainUserService(userRepositoryPort,currentUserProvider);
   }
+
+
+  @Bean
+  public PositionService positionService( PositionRepositoryPort positionRepositoryPort,CurrentUserProvider currentUserProvider){
+    return new DomainPositionService(positionRepositoryPort,currentUserProvider);
+  }
+
+
 }

@@ -71,13 +71,13 @@ class HabitControllerTest
 
   private void registerAndLoginUser() {
     var registrationRequest =
-            new RegistrationRequest("john.doe@example.com", "Doe", "john.doe@example.com");
+            new RegistrationRequest("john.doe@example.com", "Valid1@Password", "john.doe@example.com");
     var registrationResponse =
             restTemplate.postForEntity(
                     BASE_URL + "/auth/register", registrationRequest, UserResponse.class);
     assertThat(registrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-    var loginRequest = new LoginRequest("john.doe@example.com", "Doe");
+    var loginRequest = new LoginRequest("john.doe@example.com", "Valid1@Password");
     var loginResponse =
             restTemplate.postForEntity(BASE_URL + "/login", loginRequest, AuthenticationResponse.class);
     assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);

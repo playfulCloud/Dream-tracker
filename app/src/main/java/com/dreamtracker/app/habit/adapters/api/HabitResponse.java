@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 @Builder
-public record HabitResponse(UUID id, String name, String action, String duration, String difficulty, String status, List<Category> categories) {
+public record HabitResponse(UUID id, String name, String action, String duration, String difficulty, String status, List<Category> categories, String cooldownTill, String frequency) {
 }

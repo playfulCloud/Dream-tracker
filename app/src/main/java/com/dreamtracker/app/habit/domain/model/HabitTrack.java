@@ -20,7 +20,7 @@ public class HabitTrack {
     @Id
     @GeneratedValue
     private UUID id;
-  private Instant date;
+    private Instant date;
     private String status;
     private UUID habitUUID;
 }

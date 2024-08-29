@@ -10,15 +10,13 @@ import com.dreamtracker.app.habit.domain.model.*;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
 import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
 import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -36,6 +34,7 @@ public class DomainHabitService implements HabitService {
   private final GoalService goalService;
   private final HabitTrackService habitTrackService;
   private final Clock clock;
+  private final DateService dateService;
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DomainGoalService.class);
 
  @Override
@@ -107,12 +106,18 @@ public boolean delete(UUID id) {
     logger.debug(habitToUpdate.toString());
     logger.debug(habitRequest.toString());
 
+    boolean isAfter = Instant.now(clock).isAfter(habitToUpdate.getCoolDownTill());
+    if (!isAfter && habitRequest.frequency() != null && !habitToUpdate.getFrequency().equals( habitRequest.frequency()) ) {
+      var updatedCoolDown = dateService.getCooldownPeriodBasedOnCurrentDate(habitToUpdate.getCoolDownTill(),habitRequest.frequency());
+      habitToUpdate.setCoolDownTill(updatedCoolDown);
+    }
+
     Optional.ofNullable(habitRequest.name()).ifPresent(habitToUpdate::setName);
     Optional.ofNullable(habitRequest.action()).ifPresent(habitToUpdate::setAction);
     Optional.ofNullable(habitRequest.frequency()).ifPresent(habitToUpdate::setFrequency);
     Optional.ofNullable(habitRequest.duration()).ifPresent(habitToUpdate::setDuration);
     Optional.ofNullable(habitRequest.difficulty()).ifPresent(habitToUpdate::setDifficulty);
-
+    
     var updatedHabit = habitRepositoryPort.save(habitToUpdate);
 
     return mapToResponse(updatedHabit);
@@ -173,7 +178,9 @@ public boolean delete(UUID id) {
         .duration(habit.getDuration())
         .difficulty(habit.getDifficulty())
         .status(habit.getStatus())
-            .categories(habit.getCategories())
+        .categories(habit.getCategories())
+        .cooldownTill(habit.getCoolDownTill().toString())
+        .frequency(habit.getFrequency())
         .build();
   }
 }

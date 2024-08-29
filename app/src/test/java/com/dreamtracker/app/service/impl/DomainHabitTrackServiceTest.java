@@ -1,14 +1,11 @@
 package com.dreamtracker.app.service.impl;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.when;
-
 import com.dreamtracker.app.fixtures.HabitFixture;
 import com.dreamtracker.app.fixtures.HabitTrackFixture;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.adapters.api.HabitTrackResponse;
+import com.dreamtracker.app.habit.domain.model.ChartResponse;
 import com.dreamtracker.app.habit.domain.model.Habit;
 import com.dreamtracker.app.habit.domain.model.HabitTrack;
 import com.dreamtracker.app.habit.domain.ports.DomainHabitTrackService;
@@ -22,14 +19,23 @@ import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.view.domain.model.aggregate.StatsAggregator;
-import java.time.*;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.logging.Logger;
 import org.junit.platform.commons.logging.LoggerFactory;
 import org.mockito.Mockito;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
 
@@ -52,7 +58,7 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
     sampleHabit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
     fixedClock = Clock.fixed(Instant.parse("2024-07-17T00:00:00Z"), ZoneOffset.UTC);
     habitTrackService =
-        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService,dateService);
+        new DomainHabitTrackService(habitTrackRepository, habitRepositoryPort, statsAggregator,fixedClock,goalService,dateService,currentUserProvider);
   }
 
   @Test
@@ -118,5 +124,27 @@ class DomainHabitTrackServiceTest implements HabitFixture, HabitTrackFixture {
         // then
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
+  }
+
+  @Test
+  void getChartFromHabitTracksPositiveTestCase() {
+    //given
+    var today = Instant.now(fixedClock);
+    var tomorrow = Instant.now(fixedClock).plus(1, ChronoUnit.DAYS);
+    var habit = getSampleHabitBuilder(currentUserProvider.getCurrentUser()).build();
+    var track = getSampleHabitTrack(habit.getId(), today).build();
+    var otherTrack = getSampleHabitTrack(habit.getId(), tomorrow).build();
+    var listOfTracks = List.of(track, otherTrack);
+    when(habitTrackRepository.findAllByUserUUID(currentUserProvider.getCurrentUser())).thenReturn(listOfTracks);
+    var firstChart = new ChartResponse(today.atZone(ZoneId.systemDefault()).toLocalDate(), 1, 1);
+    var secondChart = new ChartResponse(tomorrow.atZone(ZoneId.systemDefault()).toLocalDate(), 1, 1);
+    var listOfCharts = List.of(secondChart, firstChart);
+    var expectedOutput = new Page<>(listOfCharts);
+
+    // when
+    var actual = habitTrackService.getChartsFromHabitTracks();
+
+    // then
+    assertThat(expectedOutput).isEqualTo(actual);
   }
 }

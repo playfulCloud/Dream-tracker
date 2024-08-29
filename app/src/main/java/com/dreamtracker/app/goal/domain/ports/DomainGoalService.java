@@ -163,6 +163,7 @@ public class DomainGoalService implements GoalService {
     var period = Period.parse(goalDuration);
 
     var goalEndDate = createdAt.plus(period);
+
     logger.debug("Goal end date: " + goalEndDate.toString());
     logger.debug("Current date: " + Instant.now().toString());
 
@@ -188,6 +189,7 @@ public class DomainGoalService implements GoalService {
         .habitID(goal.getHabitUUID())
         .currentCount(goal.getCurrentCount())
         .status(goal.getStatus())
+        .createdAt(goal.getCreatedAt().toString())
         .build();
   }
 
