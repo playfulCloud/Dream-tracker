@@ -1,19 +1,15 @@
 package com.dreamtracker.app.user.adapters.api;
 
-import com.dreamtracker.app.infrastructure.auth.AuthenticationResponse;
-import com.dreamtracker.app.infrastructure.auth.AuthenticationService;
-import com.dreamtracker.app.infrastructure.auth.LoginRequest;
-import com.dreamtracker.app.infrastructure.auth.RegistrationRequest;
+import com.dreamtracker.app.infrastructure.auth.*;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1")
@@ -40,5 +36,16 @@ public class UserController {
   public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
     logger.debug("Login request received");
     return new ResponseEntity<>(authenticationService.login(loginRequest), HttpStatus.OK);
+  }
+
+  @PutMapping("/auth/reset-password-request")
+  public ResponseEntity<PasswordResetResponse>requestPasswordReset(
+      @RequestBody EnterPasswordResetRequest resetRequest) {
+    return new ResponseEntity<>(userService.requestPasswordReset(resetRequest), HttpStatus.OK);
+  }
+
+  @PutMapping("/auth/reset-password")
+  public ResponseEntity<Boolean> resetPassword(@RequestBody PasswordResetRequest resetRequest) {
+    return new ResponseEntity<>(userService.resetPassword(resetRequest), HttpStatus.OK);
   }
 }

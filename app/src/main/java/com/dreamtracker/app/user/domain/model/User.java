@@ -26,8 +26,7 @@ public class User implements UserDetails {
    @Id
    @GeneratedValue(strategy = GenerationType.AUTO)
    private UUID uuid;
-   private String name;
-   private String surname;
+   private String resetToken;
 
    @Override
    public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -64,12 +63,12 @@ public class User implements UserDetails {
       return true;
    }
 
+
    @Column(nullable = false)
    private String fullName;
 
    @Column(unique = true, length = 100, nullable = false)
    private String email;
-//
    @Column(nullable = false)
    private String password;
 
@@ -80,4 +79,6 @@ public class User implements UserDetails {
    @UpdateTimestamp
    @Column(name = "updated_at")
    private Date updatedAt;
+
+
 }

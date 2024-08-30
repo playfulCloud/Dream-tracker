@@ -28,4 +28,9 @@ public class PostgresUserRepository implements UserRepositoryPort {
     public Optional<User> findByEmail(String email) {
         return springDataUserRepository.findByEmail(email) ;
     }
+
+    @Override
+    public User getByResetToken(String resetToken) {
+        return springDataUserRepository.getByResetToken(resetToken);
+    }
 }

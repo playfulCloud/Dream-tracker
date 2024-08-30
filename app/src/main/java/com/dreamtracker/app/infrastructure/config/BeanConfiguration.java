@@ -4,6 +4,7 @@ import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.goal.domain.ports.GoalRepositoryPort;
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.domain.ports.*;
+import com.dreamtracker.app.infrastructure.mail.MailService;
 import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.infrastructure.utils.DateService;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
@@ -18,6 +19,7 @@ import java.time.Clock;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class BeanConfiguration {
@@ -63,8 +65,8 @@ public class BeanConfiguration {
   }
 
   @Bean
-  public UserService userService(CurrentUserProvider currentUserProvider, UserRepositoryPort userRepositoryPort){
-      return new DomainUserService(userRepositoryPort,currentUserProvider);
+  public UserService userService(UserRepositoryPort userRepositoryPort, CurrentUserProvider currentUserProvider, MailService mailService, PasswordEncoder passwordEncoder){
+      return new DomainUserService(userRepositoryPort,currentUserProvider,mailService,passwordEncoder);
   }
 
 
