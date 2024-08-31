@@ -32,7 +32,7 @@ public class UserController {
         authenticationService.register(registrationRequest), HttpStatus.CREATED);
   }
 
-  @PostMapping("/login")
+  @PostMapping("/auth/login")
   public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
     logger.debug("Login request received");
     return new ResponseEntity<>(authenticationService.login(loginRequest), HttpStatus.OK);

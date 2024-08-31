@@ -13,9 +13,15 @@ public interface UserFixtures {
     }
 
 
+    default User.UserBuilder getUser(){
+        return User.builder();
+    }
+
+
     default User.UserBuilder getSampleUserWithCategories(UUID uuid){
         return User.builder()
                 .uuid(uuid);
     }
+
 
 }

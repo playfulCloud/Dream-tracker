@@ -1,5 +1,6 @@
 package com.dreamtracker.app.user.domain.ports;
 
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetResponse;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetTokenGenerator;
 import com.dreamtracker.app.infrastructure.mail.MailService;
@@ -9,12 +10,16 @@ import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.model.User;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Data
+
+@RequiredArgsConstructor
 public class DomainUserService implements UserService {
 
     private final UserRepositoryPort userRepositoryPort;
@@ -22,12 +27,8 @@ public class DomainUserService implements UserService {
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
 
-    public DomainUserService(UserRepositoryPort userRepositoryPort, CurrentUserProvider currentUserProvider, MailService mailService, PasswordEncoder passwordEncoder) {
-        this.userRepositoryPort = userRepositoryPort;
-        this.currentUserProvider = currentUserProvider;
-        this.mailService = mailService;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(DomainUserService.class);
+
 
 
     @Override
