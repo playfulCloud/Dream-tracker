@@ -38,13 +38,13 @@ public class UserController {
     return new ResponseEntity<>(authenticationService.login(loginRequest), HttpStatus.OK);
   }
 
-  @PutMapping("/auth/reset-password-request")
+  @PostMapping("/auth/reset-password-request")
   public ResponseEntity<PasswordResetResponse>requestPasswordReset(
       @RequestBody EnterPasswordResetRequest resetRequest) {
     return new ResponseEntity<>(userService.requestPasswordReset(resetRequest), HttpStatus.OK);
   }
 
-  @PutMapping("/auth/reset-password")
+  @PostMapping("/auth/reset-password")
   public ResponseEntity<Boolean> resetPassword(@RequestBody PasswordResetRequest resetRequest) {
     return new ResponseEntity<>(userService.resetPassword(resetRequest), HttpStatus.OK);
   }

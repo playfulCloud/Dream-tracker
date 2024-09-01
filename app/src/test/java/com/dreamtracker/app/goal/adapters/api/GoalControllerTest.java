@@ -65,15 +65,15 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
 
   private void registerAndLoginUser() {
     var registrationRequest =
-        new RegistrationRequest("john.doe@example.com", "Doe", "john.doe@example.com");
+        new RegistrationRequest("john.doe@example.com", "Valid1@Password", "john.doe@example.com");
     var registrationResponse =
         restTemplate.postForEntity(
             BASE_URL + "/auth/register", registrationRequest, UserResponse.class);
     assertThat(registrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-    var loginRequest = new LoginRequest("john.doe@example.com", "Doe");
+    var loginRequest = new LoginRequest("john.doe@example.com", "Valid1@Password");
     var loginResponse =
-        restTemplate.postForEntity(BASE_URL + "/login", loginRequest, AuthenticationResponse.class);
+        restTemplate.postForEntity(BASE_URL + "/auth/login", loginRequest, AuthenticationResponse.class);
     assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     var authToken = loginResponse.getBody().token();
@@ -109,7 +109,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
             GoalResponse.class);
     // then
     assertThat(createdGoalResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    assertThat(createdGoalResponse.getBody()).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedGoalResponse);
+    assertThat(createdGoalResponse.getBody()).usingRecursiveComparison().ignoringFields("id","createdAt").isEqualTo(expectedGoalResponse);
   }
 
 
@@ -145,7 +145,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
                     new ParameterizedTypeReference<Page<GoalResponse>>() {});
     // then
     assertThat(actualPageResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(actualPageResponse.getBody().getItems().get(0)).usingRecursiveComparison().ignoringFields("id").isEqualTo(expectedGoalResponse);
+    assertThat(actualPageResponse.getBody().getItems().get(0)).usingRecursiveComparison().ignoringFields("id","createdAt").isEqualTo(expectedGoalResponse);
   }
 
   @Test
@@ -198,7 +198,7 @@ class GoalControllerTest implements GoalFixtures, HabitFixture {
                     GoalResponse.class);
     // then
     assertThat(updated.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(updated.getBody()).usingRecursiveComparison().ignoringFields("id").isEqualTo(updatedGoal);
+    assertThat(updated.getBody()).usingRecursiveComparison().ignoringFields("id","createdAt").isEqualTo(updatedGoal);
   }
 
   @Test

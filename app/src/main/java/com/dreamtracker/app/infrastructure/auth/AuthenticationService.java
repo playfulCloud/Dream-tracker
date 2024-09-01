@@ -22,8 +22,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final CredentialsValidator credentialsValidator;
-
-    private final MailService mailService;
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public UserResponse register(RegistrationRequest input) {
@@ -51,14 +49,12 @@ public class AuthenticationService {
         }
 
         var authenticatedUser = userRepository.findByEmail(input.email()).orElseThrow();
-        logger.debug(authenticatedUser.toString());
 
         return mapToAuthenticationResponse(authenticatedUser);
     }
 
     private AuthenticationResponse mapToAuthenticationResponse(User user) {
         var token = jwtService.generateToken(user);
-        logger.debug("Token generated: " + token);
         return AuthenticationResponse.builder().token(token).build();
     }
 
