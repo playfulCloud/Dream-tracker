@@ -31,28 +31,35 @@ Welcome to the **Dream Tracker** project! This README provides all the crucial i
 - **Framework:** React - Next.js
 - **Package Manager:** npm
 
-## 🔐 Security Features
+### 🔐 Security Features
 
-- **User Registration:**
-  - Google OAuth
-  - Facebook OAuth
-  - GitHub OAuth
-  - Email with verification
+#### User Registration:
 
-- **User Authentication:**
-  - Google OAuth
-  - GitHub OAuth
-  - Email and password
+- **Email with verification**
+- **Google OAuth (planned)**
+- **Facebook OAuth (planned)**
+- **GitHub OAuth (planned)**
+  
+#### User Authentication:
 
-- **Password Management:**
-  - Change credentials
-  - Password reset via email
+
+**JWT (JSON Web Token) as the primary authentication mechanism: Upon successful login, a JWT is issued to the user, which is then used for securing subsequent requests**.
+- **Email and password**
+- **Google OAuth (planned)**
+- **GitHub OAuth (planned)**
+
+  
+#### Password Management:
+
+- **Change credentials**
+- **Password reset via email**
+
+JWT plays a crucial role in securing user sessions by embedding user details within the token, which is validated on every request.
 
 ## 📊 Habit and Goal Tracking
 
 ### Habit Features
-- Define action, frequency, duration, category, goal, difficulty, and status
-- Add other users to habits or goals
+- Define action, frequency, duration,  goal, difficulty, and status
 - Mark habits as done or undone
 - Browse active and inactive habits
 
@@ -64,10 +71,8 @@ Welcome to the **Dream Tracker** project! This README provides all the crucial i
 ## 🖥️ Interface Features
 
 - Create custom views for habit tracking
-- Use predefined views:
-  - Habit-oriented
-  - Goal-oriented
-  - Category-oriented
+- Pick tracking componnets up to your liking to create your own expierience
+  
 
 ## 📄 API Documentation
 
