@@ -65,12 +65,11 @@ public class DomainUserService implements UserService {
     }
 
     @Override
-    public Boolean resetPassword(PasswordResetRequest resetRequest) {
+    public void resetPassword(PasswordResetRequest resetRequest) {
         var user = userRepositoryPort.getByResetToken(resetRequest.resetToken());
         user.setPassword(passwordEncoder.encode(resetRequest.password()));
         user.setResetToken(PasswordResetTokenGenerator.generateResetToken(user.getEmail()));
         userRepositoryPort.save(user);
-        return true;
     }
 
 

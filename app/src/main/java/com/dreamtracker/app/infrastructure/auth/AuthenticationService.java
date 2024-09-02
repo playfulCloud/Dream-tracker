@@ -36,6 +36,7 @@ public class AuthenticationService {
                         .build();
 
         var userSavedToDB = userRepository.save(user);
+        logger.trace(userSavedToDB.toString());
         return mapToUserResponse(userSavedToDB);
     }
 
@@ -59,6 +60,6 @@ public class AuthenticationService {
     }
 
     private UserResponse mapToUserResponse(User user) {
-        return UserResponse.builder().uuid(user.getUuid()).build();
+        return UserResponse.builder().uuid(user.getUuid()).email(user.getEmail()).build();
     }
 }
