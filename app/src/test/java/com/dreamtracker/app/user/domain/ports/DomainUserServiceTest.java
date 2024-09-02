@@ -83,10 +83,9 @@ class DomainUserServiceTest implements UserFixtures {
         when(passwordEncoder.encode("Valid1@Password")).thenReturn("changed");
         when(userRepositoryPort.save(user)).thenReturn(user);
 
-        var actual = domainUserService.resetPassword(request);
+         domainUserService.resetPassword(request);
 
-        // tnen
-        assertThat(actual).isEqualTo(true);
+        // then
         assertThat(user.getPassword()).isEqualTo("changed");
         assertThat(user.getResetToken()).isNotEqualTo(currentResetToken);
     }

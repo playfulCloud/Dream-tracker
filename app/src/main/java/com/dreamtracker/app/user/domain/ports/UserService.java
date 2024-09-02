@@ -12,5 +12,5 @@ public interface UserService {
     UserResponse createSampleUser();
     Optional<User>findById(UUID uuid);
     PasswordResetResponse requestPasswordReset(EnterPasswordResetRequest resetRequest);
-    Boolean resetPassword(PasswordResetRequest resetRequest);
+    void resetPassword(PasswordResetRequest resetRequest);
 }

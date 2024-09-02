@@ -40,7 +40,7 @@ function PasswordResetFormComponent() {
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
-            const response = await axios.put('http://localhost:8080/v1/auth/reset-password', {
+            const response = await axios.post('http://localhost:8080/v1/auth/reset-password', {
                 password: data.password,
                 passwordConfirmation: data.passwordConfirmation,
                 resetToken: resetToken,
