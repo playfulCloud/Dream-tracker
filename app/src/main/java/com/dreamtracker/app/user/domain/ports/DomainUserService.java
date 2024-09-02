@@ -3,6 +3,8 @@ package com.dreamtracker.app.user.domain.ports;
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetResponse;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetTokenGenerator;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.mail.MailService;
 import com.dreamtracker.app.user.adapters.api.EnterPasswordResetRequest;
 import com.dreamtracker.app.user.adapters.api.PasswordResetRequest;
@@ -28,7 +30,6 @@ public class DomainUserService implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     private static final Logger logger = LoggerFactory.getLogger(DomainUserService.class);
-
 
 
     @Override
@@ -58,13 +59,9 @@ public class DomainUserService implements UserService {
 
     @Override
     public PasswordResetResponse requestPasswordReset(EnterPasswordResetRequest resetRequest) {
-        var user = userRepositoryPort.findByEmail(resetRequest.email());
-        if (user.isPresent()) {
-            var foundUser = user.get();
-            mailService.sendPasswordResetMail(foundUser.getEmail(),user.get().getResetToken(), foundUser.getFullName());
-            return new PasswordResetResponse("Password reset email sent");
-        }
-        return new PasswordResetResponse("There is no user with that email address");
+        var user = userRepositoryPort.findByEmail(resetRequest.email()).orElseThrow(() -> new EntityNotFoundException(ExceptionMessages.entityNotFoundExceptionMessage));
+        mailService.sendPasswordResetMail(user.getEmail(), user.getResetToken(), user.getFullName());
+        return new PasswordResetResponse("Password reset email sent");
     }
 
     @Override
@@ -75,7 +72,6 @@ public class DomainUserService implements UserService {
         userRepositoryPort.save(user);
         return true;
     }
-
 
 
 }

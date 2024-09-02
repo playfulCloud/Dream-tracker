@@ -58,11 +58,11 @@ class ViewControllerTest implements ViewFixture, HabitFixture {
   private void resetDatabase() {
     try (var connection = dataSource.getConnection();
         var statement = connection.createStatement()) {
-      statement.execute("TRUNCATE TABLE View RESTART IDENTITY CASCADE");
-      statement.execute("TRUNCATE TABLE category RESTART IDENTITY CASCADE");
-      statement.execute("TRUNCATE TABLE Goal RESTART IDENTITY CASCADE");
-      statement.execute("TRUNCATE TABLE Habit RESTART IDENTITY CASCADE");
-      statement.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Views RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Categories RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Goals RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Habits RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Users RESTART IDENTITY CASCADE");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -78,7 +78,7 @@ class ViewControllerTest implements ViewFixture, HabitFixture {
 
     var loginRequest = new LoginRequest("john.doe@example.com", "Valid1@Password");
     var loginResponse =
-            restTemplate.postForEntity(BASE_URL + "/login", loginRequest, AuthenticationResponse.class);
+            restTemplate.postForEntity(BASE_URL + "/auth/login", loginRequest, AuthenticationResponse.class);
     Assertions.assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     var authToken = loginResponse.getBody().token();
