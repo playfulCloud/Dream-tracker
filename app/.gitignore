@@ -69,4 +69,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 env.properties
+env-test.properties
 .env
