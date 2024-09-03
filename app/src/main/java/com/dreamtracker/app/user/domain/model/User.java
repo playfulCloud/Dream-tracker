@@ -27,6 +27,7 @@ public class User implements UserDetails {
    @GeneratedValue(strategy = GenerationType.AUTO)
    private UUID uuid;
    private String resetToken;
+   private boolean confirmed;
 
    @Override
    public Collection<? extends GrantedAuthority> getAuthorities() {

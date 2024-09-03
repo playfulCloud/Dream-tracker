@@ -33,4 +33,9 @@ public class PostgresUserRepository implements UserRepositoryPort {
     public User getByResetToken(String resetToken) {
         return springDataUserRepository.getByResetToken(resetToken);
     }
+
+    @Override
+    public User getById(UUID uuid) {
+        return springDataUserRepository.getById(uuid);
+    }
 }

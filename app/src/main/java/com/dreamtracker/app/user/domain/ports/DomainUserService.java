@@ -32,24 +32,7 @@ public class DomainUserService implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(DomainUserService.class);
 
 
-    @Override
-    public UserResponse createSampleUser() {
-        var sampleUser =
-                User.builder()
-                        .uuid(currentUserProvider.getCurrentUser())
-                        .fullName("John Doe")
-                        .email("john.doe@example.com")
-                        .password("securepassword")
-                        .build();
 
-        var userSavedToDB = userRepositoryPort.save(sampleUser);
-
-        return UserResponse.builder()
-                .uuid(userSavedToDB.getUuid())
-                .fullName(userSavedToDB.getFullName())
-                .email(userSavedToDB.getEmail())
-                .build();
-    }
 
 
     @Override
@@ -65,11 +48,24 @@ public class DomainUserService implements UserService {
     }
 
     @Override
+    public UserResponse confirmAccount(UUID userUUID) {
+        var user = userRepositoryPort.getById(userUUID);
+        user.setConfirmed(true);
+        var userSavedToDB = userRepositoryPort.save(user);
+        return mapToUserResponse(userSavedToDB);
+    }
+
+    @Override
     public void resetPassword(PasswordResetRequest resetRequest) {
         var user = userRepositoryPort.getByResetToken(resetRequest.resetToken());
         user.setPassword(passwordEncoder.encode(resetRequest.password()));
         user.setResetToken(PasswordResetTokenGenerator.generateResetToken(user.getEmail()));
         userRepositoryPort.save(user);
+    }
+
+
+    private UserResponse mapToUserResponse(User user) {
+        return UserResponse.builder().uuid(user.getUuid()).email(user.getEmail()).confirmed(user.isConfirmed()).build();
     }
 
 

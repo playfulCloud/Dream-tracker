@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserService {
-    UserResponse createSampleUser();
     Optional<User>findById(UUID uuid);
     PasswordResetResponse requestPasswordReset(EnterPasswordResetRequest resetRequest);
+    UserResponse confirmAccount(UUID userUUID);
     void resetPassword(PasswordResetRequest resetRequest);
 }

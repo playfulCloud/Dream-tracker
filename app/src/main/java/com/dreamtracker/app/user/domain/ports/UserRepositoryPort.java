@@ -9,4 +9,5 @@ public interface UserRepositoryPort {
     Optional<User> findById(UUID id);
     Optional<User> findByEmail(String email);
     User getByResetToken(String resetToken);
+    User getById(UUID uuid);
 }

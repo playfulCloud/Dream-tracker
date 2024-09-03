@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SpringDataUserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     User getByResetToken(String resetToken);
+    User getById(UUID uuid);
 }
