@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,6 +63,13 @@ public class DomainUserService implements UserService {
         user.setPassword(passwordEncoder.encode(resetRequest.password()));
         user.setResetToken(PasswordResetTokenGenerator.generateResetToken(user.getEmail()));
         userRepositoryPort.save(user);
+    }
+
+    @Override
+    public void removeUnconfirmedUsers(LocalDate date) {
+        LocalDate dateBefore = date.minusDays(1);
+        var users = userRepositoryPort.findUnconfirmedUsersCreatedBefore(dateBefore);
+
     }
 
 
