@@ -52,7 +52,7 @@ public class MailService {
         try {
             mimeMessage.setFrom("dontreplydreamtracker@outlook.com");
             mimeMessage.setRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(email));
-            mimeMessage.setSubject("Password reset");
+            mimeMessage.setSubject("Confirm Registration");
             String content = readFileContent("AccountConfirmation.html");
             content = content.replace("${name}", name);
             content = content.replace("${userUUID}", userUUID.toString());
