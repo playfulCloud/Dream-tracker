@@ -3,6 +3,7 @@ package com.dreamtracker.app.infrastructure.repository;
 import com.dreamtracker.app.user.domain.model.User;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,5 @@ public interface SpringDataUserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     User getByResetToken(String resetToken);
     User getById(UUID uuid);
-    @Query("SELECT u FROM User u WHERE u.confirmed = false AND u.createdAt <= :date")
-    List<User> findUnconfirmedUsersCreatedBefore(@Param("date") LocalDate date);
+    List<User> findByConfirmedFalse();
 }

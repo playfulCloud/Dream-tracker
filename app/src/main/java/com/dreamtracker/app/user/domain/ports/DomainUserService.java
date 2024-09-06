@@ -68,7 +68,7 @@ public class DomainUserService implements UserService {
     @Override
     public void removeUnconfirmedUsers(LocalDate date) {
         LocalDate dateBefore = date.minusDays(1);
-        var users = userRepositoryPort.findUnconfirmedUsersCreatedBefore(dateBefore);
+//        var users = userRepositoryPort.findUnconfirmedUsersCreatedBefore(dateBefore);
 
     }
 

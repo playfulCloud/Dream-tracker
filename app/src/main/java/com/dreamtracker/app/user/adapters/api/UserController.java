@@ -47,6 +47,7 @@ public class UserController {
 
   @PutMapping("/auth/confirm-password")
   public ResponseEntity<UserResponse>confirmRegistration(@RequestBody RegistrationConfirmation registrationConfirmation){
+    logger.error(registrationConfirmation.toString());
     return new ResponseEntity<>(userService.confirmAccount(UUID.fromString(registrationConfirmation.userUUID())),HttpStatus.OK);
   }
 }

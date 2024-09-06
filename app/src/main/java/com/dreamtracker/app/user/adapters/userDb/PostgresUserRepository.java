@@ -5,6 +5,7 @@ import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class PostgresUserRepository implements UserRepositoryPort {
     }
 
     @Override
-    public List<User> findUnconfirmedUsersCreatedBefore(LocalDate date) {
-        return springDataUserRepository.findUnconfirmedUsersCreatedBefore(date);
+    public List<User> findUnconfirmedUsersCreatedBefore() {
+        return springDataUserRepository.findByConfirmedFalse();
     }
 }

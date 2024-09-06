@@ -2,6 +2,7 @@ package com.dreamtracker.app.user.domain.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
