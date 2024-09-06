@@ -177,7 +177,7 @@ class UserControllerTest implements UserFixtures {
         restTemplate.postForEntity(BASE_URL + "/auth/reset-password-request", requestReset, PasswordResetResponse.class);
         // then
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
-        assertThat(receivedMessages[0].getSubject().toString().equals("Password reset")).isEqualTo(true);
+        assertThat(receivedMessages[1].getSubject().toString().equals("Password reset")).isEqualTo(true);
     }
 
 

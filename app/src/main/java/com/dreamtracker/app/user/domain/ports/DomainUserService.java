@@ -34,9 +34,6 @@ public class DomainUserService implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(DomainUserService.class);
 
 
-
-
-
     @Override
     public Optional<User> findById(UUID uuid) {
         return userRepositoryPort.findById(uuid);

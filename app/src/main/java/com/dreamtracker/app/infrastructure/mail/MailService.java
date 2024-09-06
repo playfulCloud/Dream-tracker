@@ -1,10 +1,13 @@
 package com.dreamtracker.app.infrastructure.mail;
 
 
+import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -21,9 +24,10 @@ public class MailService {
 
     private final JavaMailSender javaMailSender;
     private final ResourceLoader resourceLoader;
+    private static final Logger logger = LoggerFactory.getLogger(MailService.class);
 
 
-    public boolean sendPasswordResetMail(String email,String resetToken, String name){
+    public boolean sendPasswordResetMail(String email, String resetToken, String name) {
         var mimeMessage = javaMailSender.createMimeMessage();
         try {
             mimeMessage.setFrom("dontreplydreamtracker@outlook.com");
@@ -37,7 +41,6 @@ public class MailService {
         } catch (MessagingException | IOException e) {
             throw new RuntimeException(e);
         }
-
         javaMailSender.send(mimeMessage);
         return true;
     }
@@ -47,7 +50,7 @@ public class MailService {
         return new String(Files.readAllBytes(Paths.get(resource.getURI())));
     }
 
-    public boolean sendConfirmationMail(String email, UUID userUUID, String name){
+    public boolean sendConfirmationMail(String email, UUID userUUID, String name) {
         var mimeMessage = javaMailSender.createMimeMessage();
         try {
             mimeMessage.setFrom("dontreplydreamtracker@outlook.com");
@@ -65,8 +68,6 @@ public class MailService {
         javaMailSender.send(mimeMessage);
         return true;
     }
-
-
 
 
 }
