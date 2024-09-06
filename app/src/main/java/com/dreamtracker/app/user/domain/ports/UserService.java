@@ -17,4 +17,5 @@ public interface UserService {
     UserResponse confirmAccount(UUID userUUID);
     void resetPassword(PasswordResetRequest resetRequest);
     void removeUnconfirmedUsers(LocalDate date);
+    void deleteById(UUID uuid);
 }

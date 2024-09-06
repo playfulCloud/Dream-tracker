@@ -45,7 +45,12 @@ public class PostgresUserRepository implements UserRepositoryPort {
     }
 
     @Override
-    public List<User> findUnconfirmedUsersCreatedBefore() {
+    public List<User> findByConfirmedFalse() {
         return springDataUserRepository.findByConfirmedFalse();
+    }
+
+    @Override
+    public void deleteByUuid(UUID uuid) {
+        springDataUserRepository.deleteByUuid(uuid);
     }
 }

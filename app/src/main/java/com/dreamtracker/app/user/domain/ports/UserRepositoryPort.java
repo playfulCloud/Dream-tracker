@@ -15,5 +15,6 @@ public interface UserRepositoryPort {
     Optional<User> findByEmail(String email);
     User getByResetToken(String resetToken);
     User getById(UUID uuid);
-    List<User> findUnconfirmedUsersCreatedBefore();
+    List<User> findByConfirmedFalse();
+    void deleteByUuid(UUID uuid);
 }

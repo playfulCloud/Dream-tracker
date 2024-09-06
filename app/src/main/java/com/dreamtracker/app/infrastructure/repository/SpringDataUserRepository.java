@@ -18,4 +18,5 @@ public interface SpringDataUserRepository extends JpaRepository<User, UUID> {
     User getByResetToken(String resetToken);
     User getById(UUID uuid);
     List<User> findByConfirmedFalse();
+    void deleteByUuid(UUID uuid);
 }

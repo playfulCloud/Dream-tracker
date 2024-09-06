@@ -180,6 +180,8 @@ public class DomainGoalService implements GoalService {
   }
 
 
+
+
   public GoalResponse mapToResponse(Goal goal) {
     return GoalResponse.builder()
         .id(goal.getUuid())

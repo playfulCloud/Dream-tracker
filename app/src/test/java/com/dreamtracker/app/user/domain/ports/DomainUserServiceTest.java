@@ -1,8 +1,11 @@
 package com.dreamtracker.app.user.domain.ports;
 
 import com.dreamtracker.app.fixtures.UserFixtures;
+import com.dreamtracker.app.habit.domain.ports.HabitService;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetResponse;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetTokenGenerator;
+import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
+import com.dreamtracker.app.infrastructure.exception.ExceptionMessages;
 import com.dreamtracker.app.infrastructure.mail.MailService;
 import com.dreamtracker.app.user.adapters.api.EnterPasswordResetRequest;
 import com.dreamtracker.app.user.adapters.api.PasswordResetRequest;
@@ -17,16 +20,18 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 class DomainUserServiceTest implements UserFixtures {
 
 
     private final UserRepositoryPort userRepositoryPort = Mockito.mock(UserRepositoryPort.class);
+    private final HabitService habitService = Mockito.mock(HabitService.class);
+    private final PositionService positionService = Mockito.mock(PositionService.class);
     private final MailService mailService = Mockito.mock(MailService.class);
-    private final CurrentUserProvider currentUserProvider = Mockito.mock(CurrentUserProvider.class);
     private final PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
-    private final DomainUserService domainUserService = new DomainUserService(userRepositoryPort,currentUserProvider ,mailService,passwordEncoder);
+    private final DomainUserService domainUserService = new DomainUserService(userRepositoryPort, habitService, positionService, mailService, passwordEncoder);
     private static final Logger logger = LoggerFactory.getLogger(DomainUserServiceTest.class);
 
     @Test
@@ -61,29 +66,30 @@ class DomainUserServiceTest implements UserFixtures {
         when(userRepositoryPort.findByEmail(user.getEmail())).thenReturn(Optional.empty());
         when(mailService.sendPasswordResetMail(user.getEmail(), user.getResetToken(), user.getFullName())).thenReturn(false);
         // when
-        var actual = domainUserService.requestPasswordReset(request);
-        // then
-        assertThat(actual).isEqualTo(expected);
+        assertThatThrownBy(() -> {
+            domainUserService.requestPasswordReset(request);
+        }) // then
+                .isInstanceOf(EntityNotFoundException.class).hasMessage(ExceptionMessages.entityNotFoundExceptionMessage);
     }
 
     @Test
     void resetPasswordPositiveTestCase() {
         // given
         var currentResetToken = PasswordResetTokenGenerator.generateResetToken("smaple@gmail.com");
-            var user = getUser().email("sample@gmail.com").uuid(
-                            UUID.fromString("8fbb366d-64bb-4e2a-8527-93085885270e")
-                    ).fullName("Jakub Testowski")
-                    .resetToken(currentResetToken)
-                    .password("previousPassword")
-                    .build();
-        var request = new PasswordResetRequest("Valid1@Password","Valid1@Password",user.getResetToken());
+        var user = getUser().email("sample@gmail.com").uuid(
+                        UUID.fromString("8fbb366d-64bb-4e2a-8527-93085885270e")
+                ).fullName("Jakub Testowski")
+                .resetToken(currentResetToken)
+                .password("previousPassword")
+                .build();
+        var request = new PasswordResetRequest("Valid1@Password", "Valid1@Password", user.getResetToken());
         logger.trace(user.toString());
         // when
         when(userRepositoryPort.getByResetToken(user.getResetToken())).thenReturn(user);
         when(passwordEncoder.encode("Valid1@Password")).thenReturn("changed");
         when(userRepositoryPort.save(user)).thenReturn(user);
 
-         domainUserService.resetPassword(request);
+        domainUserService.resetPassword(request);
 
         // then
         assertThat(user.getPassword()).isEqualTo("changed");
@@ -92,7 +98,7 @@ class DomainUserServiceTest implements UserFixtures {
 
 
     @Test
-    void confirmAccountPositiveTestCase(){
+    void confirmAccountPositiveTestCase() {
         var user = getUser().email("sample@gmail.com").uuid(
                         UUID.fromString("8fbb366d-64bb-4e2a-8527-93085885270e")
                 ).fullName("Jakub Testowski")
