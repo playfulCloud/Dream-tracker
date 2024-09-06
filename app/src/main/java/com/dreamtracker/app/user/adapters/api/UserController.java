@@ -20,11 +20,6 @@ public class UserController {
   private final AuthenticationService authenticationService;
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-  @PostMapping("/seed")
-  public ResponseEntity<UserResponse> createSampleUserForTesting() {
-    return ResponseEntity.ok(userService.createSampleUser());
-  }
-
   @PostMapping("/auth/register")
   public ResponseEntity<UserResponse> register(
       @RequestBody RegistrationRequest registrationRequest) {
@@ -48,5 +43,10 @@ public class UserController {
   public ResponseEntity<Void> resetPassword(@RequestBody PasswordResetRequest resetRequest) {
     userService.resetPassword(resetRequest);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PutMapping("/auth/confirm-password")
+  public ResponseEntity<UserResponse>confirmRegistration(@RequestBody RegistrationConfirmation registrationConfirmation){
+    return new ResponseEntity<>(userService.confirmAccount(UUID.fromString(registrationConfirmation.userUUID())),HttpStatus.OK);
   }
 }

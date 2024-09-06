@@ -2,6 +2,7 @@ package com.dreamtracker.app.user.domain.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +28,7 @@ public class User implements UserDetails {
    @GeneratedValue(strategy = GenerationType.AUTO)
    private UUID uuid;
    private String resetToken;
+   private boolean confirmed;
 
    @Override
    public Collection<? extends GrantedAuthority> getAuthorities() {

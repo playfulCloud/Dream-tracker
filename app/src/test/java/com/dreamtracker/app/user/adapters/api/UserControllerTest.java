@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -29,6 +31,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -98,6 +101,7 @@ class UserControllerTest implements UserFixtures {
     }
 
 
+    @SneakyThrows
     @Test
     void registerPositiveTestCase() {
         // given
@@ -108,6 +112,8 @@ class UserControllerTest implements UserFixtures {
                 restTemplate.postForEntity(
                         BASE_URL + "/auth/register", registrationRequest, UserResponse.class);
         // then
+        MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
+        assertThat(receivedMessages[0].getSubject().toString().equals("Confirm Registration")).isEqualTo(true);
         assertThat(registrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(registrationResponse.getBody().email()).isEqualTo("john.doe@example.com");
     }
@@ -171,7 +177,7 @@ class UserControllerTest implements UserFixtures {
         restTemplate.postForEntity(BASE_URL + "/auth/reset-password-request", requestReset, PasswordResetResponse.class);
         // then
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
-        assertThat(receivedMessages[0].getSubject().toString().equals("Password reset")).isEqualTo(true);
+        assertThat(receivedMessages[1].getSubject().toString().equals("Password reset")).isEqualTo(true);
     }
 
 
@@ -184,11 +190,30 @@ class UserControllerTest implements UserFixtures {
                 BASE_URL + "/auth/register", registrationRequest, UserResponse.class);
 
         var user = userService.findById(userResponse.getBody().uuid());
-        var resetRequest = new PasswordResetRequest("Valid2@Password", "Valied2@Password",user.get().getResetToken());
+        var resetRequest = new PasswordResetRequest("Valid2@Password", "Valied2@Password", user.get().getResetToken());
         // when
         var response = restTemplate.postForEntity(BASE_URL + "/auth/reset-password", resetRequest, Void.class);
         // then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+
+    @Test
+    void confirmRegistrationPositiveTestCase() {
+        // given
+        var registrationRequest =
+                new RegistrationRequest("test@test.me", "Valid1@Password", "test@test.me");
+        var userResponse = restTemplate.postForEntity(
+                BASE_URL + "/auth/register", registrationRequest, UserResponse.class);
+
+        var confirmationRequest = new RegistrationConfirmation(userResponse.getBody().uuid().toString());
+        var requestEntity = new HttpEntity<>(confirmationRequest);
+        // when
+        var response = restTemplate.exchange(BASE_URL + "/auth/confirm-password", HttpMethod.PUT, requestEntity, UserResponse.class);
+
+        // then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().confirmed()).isEqualTo(true);
     }
 
 

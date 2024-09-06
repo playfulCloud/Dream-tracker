@@ -2,6 +2,7 @@ package com.dreamtracker.app.infrastructure.utils;
 
 import com.dreamtracker.app.goal.domain.ports.GoalService;
 import com.dreamtracker.app.habit.domain.ports.HabitService;
+import com.dreamtracker.app.user.domain.ports.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class ScheduleManager {
 
   private static final Logger log = LoggerFactory.getLogger(ScheduleManager.class);
   private final HabitService habitService;
+  private final UserService userService;
   private final GoalService goalService;
 
 
@@ -33,6 +35,11 @@ public class ScheduleManager {
       habitService.manageHabitsBasedOnCooldown();
     }, executorService);
     executorService.shutdown();
+  }
+
+  @Scheduled(cron = "0 0 0 * * ?")
+  public void triggerUsersRemoval(){
+    userService.removeUnconfirmedUsers(LocalDate.now());
   }
 
 

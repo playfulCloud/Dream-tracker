@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,26 +35,6 @@ public class DomainUserService implements UserService {
 
 
     @Override
-    public UserResponse createSampleUser() {
-        var sampleUser =
-                User.builder()
-                        .uuid(currentUserProvider.getCurrentUser())
-                        .fullName("John Doe")
-                        .email("john.doe@example.com")
-                        .password("securepassword")
-                        .build();
-
-        var userSavedToDB = userRepositoryPort.save(sampleUser);
-
-        return UserResponse.builder()
-                .uuid(userSavedToDB.getUuid())
-                .fullName(userSavedToDB.getFullName())
-                .email(userSavedToDB.getEmail())
-                .build();
-    }
-
-
-    @Override
     public Optional<User> findById(UUID uuid) {
         return userRepositoryPort.findById(uuid);
     }
@@ -65,11 +47,31 @@ public class DomainUserService implements UserService {
     }
 
     @Override
+    public UserResponse confirmAccount(UUID userUUID) {
+        var user = userRepositoryPort.getById(userUUID);
+        user.setConfirmed(true);
+        var userSavedToDB = userRepositoryPort.save(user);
+        return mapToUserResponse(userSavedToDB);
+    }
+
+    @Override
     public void resetPassword(PasswordResetRequest resetRequest) {
         var user = userRepositoryPort.getByResetToken(resetRequest.resetToken());
         user.setPassword(passwordEncoder.encode(resetRequest.password()));
         user.setResetToken(PasswordResetTokenGenerator.generateResetToken(user.getEmail()));
         userRepositoryPort.save(user);
+    }
+
+    @Override
+    public void removeUnconfirmedUsers(LocalDate date) {
+        LocalDate dateBefore = date.minusDays(1);
+//        var users = userRepositoryPort.findUnconfirmedUsersCreatedBefore(dateBefore);
+
+    }
+
+
+    private UserResponse mapToUserResponse(User user) {
+        return UserResponse.builder().uuid(user.getUuid()).email(user.getEmail()).confirmed(user.isConfirmed()).build();
     }
 
 

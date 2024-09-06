@@ -3,6 +3,11 @@ package com.dreamtracker.app.user.adapters.userDb;
 import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +37,15 @@ public class PostgresUserRepository implements UserRepositoryPort {
     @Override
     public User getByResetToken(String resetToken) {
         return springDataUserRepository.getByResetToken(resetToken);
+    }
+
+    @Override
+    public User getById(UUID uuid) {
+        return springDataUserRepository.getById(uuid);
+    }
+
+    @Override
+    public List<User> findUnconfirmedUsersCreatedBefore() {
+        return springDataUserRepository.findByConfirmedFalse();
     }
 }

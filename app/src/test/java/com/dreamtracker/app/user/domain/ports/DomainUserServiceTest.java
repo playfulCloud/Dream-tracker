@@ -89,4 +89,22 @@ class DomainUserServiceTest implements UserFixtures {
         assertThat(user.getPassword()).isEqualTo("changed");
         assertThat(user.getResetToken()).isNotEqualTo(currentResetToken);
     }
+
+
+    @Test
+    void confirmAccountPositiveTestCase(){
+        var user = getUser().email("sample@gmail.com").uuid(
+                        UUID.fromString("8fbb366d-64bb-4e2a-8527-93085885270e")
+                ).fullName("Jakub Testowski")
+                .password("previousPassword")
+                .build();
+        when(userRepositoryPort.getById(user.getUuid())).thenReturn(user);
+        when(userRepositoryPort.save(user)).thenReturn(user);
+
+        var userResponse = domainUserService.confirmAccount(user.getUuid());
+
+        assertThat(userResponse.confirmed()).isEqualTo(true);
+    }
+
+
 }

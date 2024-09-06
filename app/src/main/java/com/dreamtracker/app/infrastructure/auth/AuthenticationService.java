@@ -22,6 +22,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final CredentialsValidator credentialsValidator;
+    private final MailService mailService;
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
     public UserResponse register(RegistrationRequest input) {
@@ -33,10 +34,10 @@ public class AuthenticationService {
                         .fullName(input.fullName())
                         .password(passwordEncoder.encode(input.password()))
                         .resetToken(PasswordResetTokenGenerator.generateResetToken(input.email()))
+                        .confirmed(false)
                         .build();
-
         var userSavedToDB = userRepository.save(user);
-        logger.trace(userSavedToDB.toString());
+        mailService.sendConfirmationMail(userSavedToDB.getEmail(),userSavedToDB.getUuid(),userSavedToDB.getFullName());
         return mapToUserResponse(userSavedToDB);
     }
 
@@ -60,6 +61,6 @@ public class AuthenticationService {
     }
 
     private UserResponse mapToUserResponse(User user) {
-        return UserResponse.builder().uuid(user.getUuid()).email(user.getEmail()).build();
+        return UserResponse.builder().uuid(user.getUuid()).email(user.getEmail()).confirmed(user.isConfirmed()).build();
     }
 }
