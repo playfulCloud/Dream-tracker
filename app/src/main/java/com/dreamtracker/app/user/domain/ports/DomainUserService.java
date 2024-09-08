@@ -70,17 +70,18 @@ public class DomainUserService implements UserService {
     public void removeUnconfirmedUsers(LocalDate date) {
         LocalDate dateBefore = date.minusDays(1);
         var unconfirmedUsers = userRepositoryPort.findByConfirmedFalse();
-        unconfirmedUsers.stream().filter(user -> !isSameDay(user.getCreatedAt(), date)).forEach(user -> deleteById(user.getUuid()));
-
+        unconfirmedUsers.stream()
+                .filter(user -> isDifferentDay(user.getCreatedAt(), dateBefore))
+                .forEach(user -> deleteById(user.getUuid()));
 
     }
 
-    private boolean isSameDay(Date date, LocalDate localDate) {
+    private boolean isDifferentDay(Date date, LocalDate localDate) {
         LocalDate dateToLocalDate = date.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
 
-        return dateToLocalDate.equals(localDate);
+        return !dateToLocalDate.equals(localDate);
     }
 
     @Override
