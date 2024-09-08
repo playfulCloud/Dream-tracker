@@ -15,5 +15,5 @@ public interface GoalService {
     GoalResponse getGoalById(UUID id);
     GoalResponse increaseCompletionCount(UUID id);
     boolean markGoalAsFailedIfNotCompleted();
-    public Goal setStatusBasedOnDate(Goal goal);
+    Goal setStatusBasedOnDate(Goal goal);
 }

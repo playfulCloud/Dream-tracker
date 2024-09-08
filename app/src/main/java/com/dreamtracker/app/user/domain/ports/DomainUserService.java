@@ -1,6 +1,7 @@
 package com.dreamtracker.app.user.domain.ports;
 
 import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
+import com.dreamtracker.app.habit.domain.ports.HabitService;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetResponse;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetTokenGenerator;
 import com.dreamtracker.app.infrastructure.exception.EntityNotFoundException;
@@ -11,6 +12,7 @@ import com.dreamtracker.app.user.adapters.api.PasswordResetRequest;
 import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.model.User;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +30,8 @@ import java.util.UUID;
 public class DomainUserService implements UserService {
 
     private final UserRepositoryPort userRepositoryPort;
-    private final CurrentUserProvider currentUserProvider;
+    private final HabitService habitService;
+    private final PositionService positionService;
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
 
@@ -65,8 +69,27 @@ public class DomainUserService implements UserService {
     @Override
     public void removeUnconfirmedUsers(LocalDate date) {
         LocalDate dateBefore = date.minusDays(1);
-//        var users = userRepositoryPort.findUnconfirmedUsersCreatedBefore(dateBefore);
+        var unconfirmedUsers = userRepositoryPort.findByConfirmedFalse();
+        unconfirmedUsers.stream()
+                .filter(user -> isDifferentDay(user.getCreatedAt(), dateBefore))
+                .forEach(user -> deleteById(user.getUuid()));
 
+    }
+
+    private boolean isDifferentDay(Date date, LocalDate localDate) {
+        LocalDate dateToLocalDate = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        return !dateToLocalDate.equals(localDate);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID uuid) {
+        habitService.deleteUser(uuid);
+        positionService.deleteUser(uuid);
+        userRepositoryPort.deleteByUuid(uuid);
     }
 
 

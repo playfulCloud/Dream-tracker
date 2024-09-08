@@ -12,6 +12,5 @@ public interface GoalRepositoryPort {
    void deleteById(UUID id);
    Optional<Goal>findById(UUID id);
    List<Goal>findByUserUUID(UUID userUUID);
-
   List<Goal> findAll();
 }

@@ -7,7 +7,6 @@ import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.domain.model.User;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,4 +16,5 @@ public interface UserService {
     UserResponse confirmAccount(UUID userUUID);
     void resetPassword(PasswordResetRequest resetRequest);
     void removeUnconfirmedUsers(LocalDate date);
+    void deleteById(UUID uuid);
 }

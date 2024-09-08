@@ -12,4 +12,5 @@ public  interface PositionService {
     PositionResponse changePosition(PositionChangeRequest positionChangeRequest);
     PositionResponse changeActivation(ActivationRequest activationRequest);
     PositionResponse findByUserUUID(UUID userUUID);
+    boolean deleteUser(UUID userUUID);
 }

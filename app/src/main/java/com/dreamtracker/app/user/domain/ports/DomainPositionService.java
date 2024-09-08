@@ -127,6 +127,12 @@ public class DomainPositionService implements PositionService {
     return mapToResponse(position);
   }
 
+  @Override
+  public boolean deleteUser(UUID userUUID) {
+    positionRepositoryPort.deleteByUserUUID(userUUID);
+    return true;
+  }
+
   private PositionResponse mapToResponse(Position position) {
     return new PositionResponse(
         position.getHabitX(),

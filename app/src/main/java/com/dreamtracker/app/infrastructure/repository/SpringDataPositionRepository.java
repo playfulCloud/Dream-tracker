@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface SpringDataPositionRepository extends JpaRepository<Position, UUID> {
     Optional<Position> findByUserUUID(UUID userUUID);
+    void deleteByUserUUID(UUID userUUID);
 }
