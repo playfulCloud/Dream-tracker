@@ -27,4 +27,9 @@ public class PostgresPositionRepository  implements PositionRepositoryPort {
     public Optional<Position> findByUserUUID(UUID userUUID) {
         return springDataPositionRepository.findByUserUUID(userUUID);
     }
+
+    @Override
+    public void deleteByUserUUID(UUID userUUID) {
+        springDataPositionRepository.deleteByUserUUID(userUUID);
+    }
 }

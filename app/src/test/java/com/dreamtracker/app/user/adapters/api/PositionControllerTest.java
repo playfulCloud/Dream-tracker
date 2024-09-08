@@ -73,7 +73,7 @@ class PositionControllerTest implements PositionFixtures {
 
         var loginRequest = new LoginRequest("john.doe@example.com", "Valid1@Password");
         var loginResponse =
-                restTemplate.postForEntity(BASE_URL + "/login", loginRequest, AuthenticationResponse.class);
+                restTemplate.postForEntity(BASE_URL + "/auth/login", loginRequest, AuthenticationResponse.class);
         assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 

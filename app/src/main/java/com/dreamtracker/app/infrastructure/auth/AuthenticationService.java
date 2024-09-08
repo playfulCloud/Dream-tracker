@@ -1,5 +1,6 @@
 package com.dreamtracker.app.infrastructure.auth;
 
+import com.dreamtracker.app.infrastructure.mail.MailService;
 import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.domain.model.CredentialsValidator;
 import com.dreamtracker.app.user.domain.model.User;
@@ -16,49 +17,50 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-  private final UserRepositoryPort userRepository;
-  private final JwtService jwtService;
-  private final PasswordEncoder passwordEncoder;
-  private final AuthenticationManager authenticationManager;
-  private final CredentialsValidator credentialsValidator;
-  private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+    private final UserRepositoryPort userRepository;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final CredentialsValidator credentialsValidator;
+    private final MailService mailService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
-  public UserResponse register(RegistrationRequest input) {
-    var user =
-        User.builder()
-            .email(input.email())
-            .fullName(input.fullName())
-            .password(passwordEncoder.encode(input.password()))
-            .build();
-
-    credentialsValidator.validateEmail(input.email());
-    credentialsValidator.validatePassword(input.password());
-    var userSavedToDB = userRepository.save(user);
-    return mapToUserResponse(userSavedToDB);
-  }
-
-  public AuthenticationResponse login(LoginRequest input) {
-    try {
-      authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(input.email(), input.password()));
-    } catch (Exception e) {
-      logger.error("Authentication failed for user: " + input.email(), e);
-      throw e;
+    public UserResponse register(RegistrationRequest input) {
+        credentialsValidator.validateEmail(input.email());
+        credentialsValidator.validatePassword(input.password());
+        var user =
+                User.builder()
+                        .email(input.email())
+                        .fullName(input.fullName())
+                        .password(passwordEncoder.encode(input.password()))
+                        .resetToken(PasswordResetTokenGenerator.generateResetToken(input.email()))
+                        .confirmed(false)
+                        .build();
+        var userSavedToDB = userRepository.save(user);
+        mailService.sendConfirmationMail(userSavedToDB.getEmail(),userSavedToDB.getUuid(),userSavedToDB.getFullName());
+        return mapToUserResponse(userSavedToDB);
     }
 
-    var authenticatedUser = userRepository.findByEmail(input.email()).orElseThrow();
-    logger.debug(authenticatedUser.toString());
+    public AuthenticationResponse login(LoginRequest input) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(input.email(), input.password()));
+        } catch (Exception e) {
+            logger.error("Authentication failed for user: " + input.email(), e);
+            throw e;
+        }
 
-    return mapToAuthenticationResponse(authenticatedUser);
-  }
+        var authenticatedUser = userRepository.findByEmail(input.email()).orElseThrow();
 
-  private AuthenticationResponse mapToAuthenticationResponse(User user) {
-    var token = jwtService.generateToken(user);
-    logger.debug("Token generated: " + token);
-    return AuthenticationResponse.builder().token(token).build();
-  }
+        return mapToAuthenticationResponse(authenticatedUser);
+    }
 
-  private UserResponse mapToUserResponse(User user) {
-    return UserResponse.builder().uuid(user.getUuid()).build();
-  }
+    private AuthenticationResponse mapToAuthenticationResponse(User user) {
+        var token = jwtService.generateToken(user);
+        return AuthenticationResponse.builder().token(token).build();
+    }
+
+    private UserResponse mapToUserResponse(User user) {
+        return UserResponse.builder().uuid(user.getUuid()).email(user.getEmail()).confirmed(user.isConfirmed()).build();
+    }
 }

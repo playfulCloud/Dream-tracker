@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface PositionRepositoryPort {
    Position save(Position position);
    Optional<Position> findByUserUUID(UUID userUUID);
+   void deleteByUserUUID(UUID userUUID);
 }

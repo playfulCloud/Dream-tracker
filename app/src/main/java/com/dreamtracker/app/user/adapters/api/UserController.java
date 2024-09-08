@@ -1,19 +1,15 @@
 package com.dreamtracker.app.user.adapters.api;
 
-import com.dreamtracker.app.infrastructure.auth.AuthenticationResponse;
-import com.dreamtracker.app.infrastructure.auth.AuthenticationService;
-import com.dreamtracker.app.infrastructure.auth.LoginRequest;
-import com.dreamtracker.app.infrastructure.auth.RegistrationRequest;
+import com.dreamtracker.app.infrastructure.auth.*;
 import com.dreamtracker.app.user.domain.ports.UserService;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1")
@@ -24,11 +20,6 @@ public class UserController {
   private final AuthenticationService authenticationService;
   private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-  @PostMapping("/seed")
-  public ResponseEntity<UserResponse> createSampleUserForTesting() {
-    return ResponseEntity.ok(userService.createSampleUser());
-  }
-
   @PostMapping("/auth/register")
   public ResponseEntity<UserResponse> register(
       @RequestBody RegistrationRequest registrationRequest) {
@@ -36,9 +27,26 @@ public class UserController {
         authenticationService.register(registrationRequest), HttpStatus.CREATED);
   }
 
-  @PostMapping("/login")
+  @PostMapping("/auth/login")
   public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
     logger.debug("Login request received");
     return new ResponseEntity<>(authenticationService.login(loginRequest), HttpStatus.OK);
+  }
+
+  @PostMapping("/auth/reset-password-request")
+  public ResponseEntity<PasswordResetResponse>requestPasswordReset(
+      @RequestBody EnterPasswordResetRequest resetRequest) {
+    return new ResponseEntity<>(userService.requestPasswordReset(resetRequest), HttpStatus.ACCEPTED);
+  }
+
+  @PostMapping("/auth/reset-password")
+  public ResponseEntity<Void> resetPassword(@RequestBody PasswordResetRequest resetRequest) {
+    userService.resetPassword(resetRequest);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PutMapping("/auth/confirm-password")
+  public ResponseEntity<UserResponse>confirmRegistration(@RequestBody RegistrationConfirmation registrationConfirmation){
+    return new ResponseEntity<>(userService.confirmAccount(UUID.fromString(registrationConfirmation.userUUID())),HttpStatus.OK);
   }
 }

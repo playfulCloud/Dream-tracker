@@ -159,6 +159,14 @@ public boolean delete(UUID id) {
     return true;
   }
 
+  @Override
+  @Transactional
+  public boolean deleteUser(UUID userUUID) {
+   var userHabitsToRemove = habitRepositoryPort.findByUserUUID(userUUID);
+   userHabitsToRemove.forEach(habit -> habitRepositoryPort.deleteById(habit.getId()));
+    return true;
+  }
+
 
   private void trackUndoneHabit(Habit habit) {
     logger.info("Managing habit: ");

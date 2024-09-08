@@ -21,4 +21,5 @@ public interface HabitService {
     void linkCategoryWithHabit(UUID habitId, HabitCategoryCreateRequest categoryCreateRequest);
     HabitResponse getHabitById(UUID habitUUID);
     boolean manageHabitsBasedOnCooldown();
+    boolean deleteUser(UUID userUUID);
 }

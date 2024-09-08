@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 // app/layout.tsx
 import './globals.css';
 import { AppProvider } from './AppContext';
+import React from "react";
+import {SiteFooter} from "@/app/nav/footer";
 
 export default function RootLayout({
                                      children,

@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
@@ -22,42 +20,39 @@ import {
 
 const FormSchema = z.object({
     email: z.string().email({ message: "Invalid email address." }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 })
 
-export function InputForm() {
+export function PasswordResetRequestForm() {
     const router = useRouter()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             email: "",
-            password: "",
         },
     })
 
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
-            const response = await axios.post('http://localhost:8080/v1/auth/login', {
+            const response = await axios.post('http://localhost:8080/v1/auth/reset-password-request', {
                 email: data.email,
-                password: data.password,
             })
 
-            const token = response.data.token;
-            localStorage.setItem('token', token);
+            if (response.data.message === "Password reset email sent") {
+                toast({
+                    title: "Request Successful",
+                    description: "Password reset email sent. Please check your inbox.",
+                })
+            } else {
+                toast({
+                    title: "Request Failed",
+                    description: "There is no user with that email address.",
+                })
+            }
 
-            toast({
-                title: "Login Successful",
-                description: (
-                    <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                        <code className="text-white">{JSON.stringify(response.data, null, 2)}</code>
-                    </pre>
-                ),
-            })
-
-            router.push('/main')
+            router.push('/login')
         } catch (error) {
             toast({
-                title: "Login Failed",
+                title: "Request Failed",
                 description: error.response?.data?.message || String(error),
             })
         }
@@ -92,25 +87,7 @@ export function InputForm() {
                             </FormItem>
                         )}
                     />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input type="password" placeholder="Password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <Button type="submit" className="w-full">Sign in</Button>
-                    <div className="text-center mt-4">
-                        <Link href="/password-reset-request" className="text-sm text-blue-600 hover:underline">
-                            Reset your password
-                        </Link>
-                    </div>
+                    <Button type="submit" className="w-full">Request Password Reset</Button>
                 </form>
             </Form>
             <div
@@ -129,8 +106,8 @@ export function InputForm() {
     )
 }
 
-const Login = () => {
-    return <InputForm />
+const PasswordResetRequest = () => {
+    return <PasswordResetRequestForm />
 }
 
-export default Login
+export default PasswordResetRequest
