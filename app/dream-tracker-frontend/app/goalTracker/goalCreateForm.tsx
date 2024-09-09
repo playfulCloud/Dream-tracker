@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { HabitCombobox } from "./HabitCombobox";
-import { CalendarForGoals } from "@/app/goalTracker/isoCalendar"; // Import CalendarForGoals component
+import { CalendarForGoals } from "@/app/goalTracker/isoCalendar";
 
 export function GoalCreateForm() {
     const { habits, fetchGoals } = useAppContext();

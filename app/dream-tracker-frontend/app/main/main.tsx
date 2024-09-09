@@ -5,7 +5,7 @@ import Draggable from "react-draggable";
 import HabitTracker from "@/app/habitTracker/habitTracker";
 import GoalTable from "@/app/goalTracker/goalTracker";
 import Dashboard from "@/app/stats/stats";
-import HabitChart from "@/app/habitChart/page";
+import HabitChart from "@/app/habitChart/habitCharts";
 import axios from 'axios';
 
 const getToken = (): string | null => {
