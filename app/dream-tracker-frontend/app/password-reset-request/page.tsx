@@ -37,7 +37,7 @@ export function PasswordResetRequestForm() {
                 email: data.email,
             })
 
-            if (response.data.message === "Password reset email sent") {
+            if (response.status === 202) {
                 toast({
                     title: "Request Successful",
                     description: "Password reset email sent. Please check your inbox.",

@@ -46,7 +46,7 @@ function PasswordResetFormComponent() {
                 resetToken: resetToken,
             });
 
-            if (response.status === 200 && response.data === true) {
+            if (response.status === 200 ) {
                 toast({
                     title: "Password Reset Successful",
                     description: "Your password has been successfully reset.",

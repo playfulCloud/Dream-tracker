@@ -1,6 +1,5 @@
 package com.dreamtracker.app.user.domain.ports;
 
-import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
 import com.dreamtracker.app.habit.domain.ports.HabitService;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetResponse;
 import com.dreamtracker.app.infrastructure.auth.PasswordResetTokenGenerator;
@@ -10,10 +9,8 @@ import com.dreamtracker.app.infrastructure.mail.MailService;
 import com.dreamtracker.app.user.adapters.api.EnterPasswordResetRequest;
 import com.dreamtracker.app.user.adapters.api.PasswordResetRequest;
 import com.dreamtracker.app.user.adapters.api.UserResponse;
-import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.domain.model.User;
 import jakarta.transaction.Transactional;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
