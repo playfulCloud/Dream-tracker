@@ -29,13 +29,11 @@ public class BeanConfiguration {
   HabitService habitService(
           HabitRepositoryPort habitRepositoryPort,
           CurrentUserProvider currentUserProvider,
-          UserService userService,
           CategoryRepositoryPort categoryRepositoryPort,
           HabitTrackRepositoryPort habitTrackRepositoryPort, StatsAggregator statsAggregator,GoalService domainGoalService, HabitTrackService habitTrackService, Clock clock, DateService dateService) {
     return new DomainHabitService(
         habitRepositoryPort,
         currentUserProvider,
-        userService,
         categoryRepositoryPort,
         habitTrackRepositoryPort,statsAggregator, domainGoalService, habitTrackService, clock,dateService);
   }

@@ -86,6 +86,30 @@
   }
 }
 
+.toast-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+.toast {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  animation: slide-in 0.5s;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 .disabled-row {
    background-color: #6c757d;
   cursor: not-allowed;

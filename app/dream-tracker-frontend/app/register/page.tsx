@@ -26,7 +26,6 @@ const FormSchema = z.object({
     password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 })
 
-// Define the registration form component
 export function InputForm({ router }) {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -38,7 +37,6 @@ export function InputForm({ router }) {
         },
     })
 
-    // Function to handle form submission
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         try {
             const response = await axios.post('http://localhost:8080/v1/auth/register', {
@@ -49,11 +47,6 @@ export function InputForm({ router }) {
             console.log(response);
             toast({
                 title: "Registration Successful",
-                description: (
-                    <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                        <code className="text-white">{JSON.stringify(response.data, null, 2)}</code>
-                    </pre>
-                ),
             })
 
             router.push('/login')

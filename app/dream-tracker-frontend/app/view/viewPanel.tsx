@@ -9,6 +9,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } fr
 import { Switch } from "@/components/ui/switch";
 import { useEffect } from "react";
 import axios from 'axios';
+import {toast} from "@/components/ui/use-toast";
 
 const FormSchema = z.object({
     habits: z.boolean().default(true),
@@ -58,6 +59,9 @@ export default function ViewManager() {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            toast({
+                title: "View updated",
+            })
         } catch (error) {
             console.error('Error saving views:', error);
         }

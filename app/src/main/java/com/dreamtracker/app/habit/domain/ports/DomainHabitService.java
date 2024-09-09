@@ -27,7 +27,6 @@ public class DomainHabitService implements HabitService {
 
   private final HabitRepositoryPort habitRepositoryPort;
   private final CurrentUserProvider currentUserProvider;
-  private final UserService userService;
   private final CategoryRepositoryPort categoryRepositoryPort;
   private final HabitTrackRepositoryPort habitTrackRepositoryPort;
   private final StatsAggregator statsAggregator;

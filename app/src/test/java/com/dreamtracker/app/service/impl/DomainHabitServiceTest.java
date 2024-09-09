@@ -58,7 +58,6 @@ class DomainHabitServiceTest
         new DomainHabitService(
             habitRepositoryPort,
             currentUserProvider,
-            userService,
             categoryRepository,
             habitTrackRepositoryPort,
             statsAggregator,

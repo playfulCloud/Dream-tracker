@@ -77,6 +77,7 @@ export default function MainPanel() {
                     Authorization: `Bearer ${token}`, // Dodanie nagłówka z tokenem
                 },
             });
+
         } catch (error) {
             console.error('Error saving positions:', error);
         }
