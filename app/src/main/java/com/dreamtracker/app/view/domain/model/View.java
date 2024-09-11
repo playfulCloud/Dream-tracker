@@ -1,29 +1,28 @@
 package com.dreamtracker.app.view.domain.model;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-
-import java.util.UUID;
 
 @Entity
 @Data
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Table(name = "Views")
 public class View {
 
-    //TODO: Will be changed in third iteration for now there is only habitUUID of one habit for testing api
     @Id
     @GeneratedValue
     private UUID id;
     private UUID userUUID;
-    private UUID habitUUID;
     private String name;
+    private String description;
+    private boolean habits;
+    private boolean stats;
+    private boolean goals;
 
 }

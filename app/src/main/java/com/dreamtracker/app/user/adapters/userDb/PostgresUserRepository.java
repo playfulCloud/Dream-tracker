@@ -3,6 +3,11 @@ package com.dreamtracker.app.user.adapters.userDb;
 import com.dreamtracker.app.infrastructure.repository.SpringDataUserRepository;
 import com.dreamtracker.app.user.domain.model.User;
 import com.dreamtracker.app.user.domain.ports.UserRepositoryPort;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +27,30 @@ public class PostgresUserRepository implements UserRepositoryPort {
     @Override
     public Optional<User> findById(UUID id) {
         return springDataUserRepository.findById(id);
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return springDataUserRepository.findByEmail(email) ;
+    }
+
+    @Override
+    public User getByResetToken(String resetToken) {
+        return springDataUserRepository.getByResetToken(resetToken);
+    }
+
+    @Override
+    public User getById(UUID uuid) {
+        return springDataUserRepository.getById(uuid);
+    }
+
+    @Override
+    public List<User> findByConfirmedFalse() {
+        return springDataUserRepository.findByConfirmedFalse();
+    }
+
+    @Override
+    public void deleteByUuid(UUID uuid) {
+        springDataUserRepository.deleteByUuid(uuid);
     }
 }

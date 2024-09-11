@@ -14,12 +14,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "HabitTracks")
 public class HabitTrack {
 
     @Id
     @GeneratedValue
     private UUID id;
-  private Instant date;
+    private Instant date;
     private String status;
     private UUID habitUUID;
 }

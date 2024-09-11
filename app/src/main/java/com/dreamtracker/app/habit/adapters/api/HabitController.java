@@ -1,15 +1,15 @@
 package com.dreamtracker.app.habit.adapters.api;
 
-import com.dreamtracker.app.goal.domain.ports.DomainGoalService;
-import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.habit.domain.model.ChartResponse;
 import com.dreamtracker.app.habit.domain.ports.HabitService;
-import java.util.UUID;
-
 import com.dreamtracker.app.habit.domain.ports.HabitTrackService;
+import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.user.config.CurrentUserProvider;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +22,7 @@ public class HabitController {
 
   private final HabitService habitService;
   private final HabitTrackService habitTrackService;
+
   private static final Logger logger = LoggerFactory.getLogger(HabitController.class);
 
   @PostMapping("/habits")
@@ -69,5 +70,10 @@ public class HabitController {
    @GetMapping("/habits/{habit-id}")
   public ResponseEntity<HabitResponse>getHabitById(@PathVariable("habit-id") UUID id){
       return new ResponseEntity<>(habitService.getHabitById(id),HttpStatus.OK);
+   }
+
+   @GetMapping("/habitCharts")
+   public ResponseEntity<Page<ChartResponse>>getChartOfHabits(){
+    return new ResponseEntity<>(habitTrackService.getChartsFromHabitTracks(),HttpStatus.OK);
    }
 }

@@ -31,4 +31,10 @@ public class PostgresHabitTrackRepository implements HabitTrackRepositoryPort {
     public HabitTrack save(HabitTrack habitTrack) {
         return springHabitTrackRepository.save(habitTrack);
     }
+
+
+    @Override
+    public List<HabitTrack> findAllByUserUUID(UUID userUUID) {
+        return springHabitTrackRepository.findAllByUserUUID(userUUID);
+    }
 }

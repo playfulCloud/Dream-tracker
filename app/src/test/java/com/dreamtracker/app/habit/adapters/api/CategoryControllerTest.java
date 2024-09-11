@@ -4,7 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.dreamtracker.app.configuration.TestPostgresConfiguration;
 import com.dreamtracker.app.fixtures.CategoryFixtures;
+import com.dreamtracker.app.infrastructure.auth.AuthenticationResponse;
+import com.dreamtracker.app.infrastructure.auth.LoginRequest;
+import com.dreamtracker.app.infrastructure.auth.RegistrationRequest;
 import com.dreamtracker.app.infrastructure.response.Page;
+import com.dreamtracker.app.user.adapters.api.UserResponse;
 import com.dreamtracker.app.user.config.CurrentUserProvider;
 import com.dreamtracker.app.user.config.MockCurrentUserProviderImpl;
 import com.dreamtracker.app.user.domain.ports.UserService;
@@ -18,6 +22,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -27,6 +32,7 @@ import javax.sql.DataSource;
 @Testcontainers
 @ContextConfiguration(classes = TestPostgresConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class CategoryControllerTest implements CategoryFixtures {
   @Autowired
   PostgreSQLContainer<?> postgreSQLContainer;
@@ -42,17 +48,44 @@ class CategoryControllerTest implements CategoryFixtures {
   @BeforeEach
   void setUp() {
     resetDatabase();
-    userService.createSampleUser();
-
+    registerAndLoginUser();
   }
 
   private void resetDatabase() {
     try (var connection = dataSource.getConnection();
          var statement = connection.createStatement()) {
-      statement.execute("TRUNCATE TABLE category RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Categories RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Goals RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Habits RESTART IDENTITY CASCADE");
+      statement.execute("TRUNCATE TABLE Users RESTART IDENTITY CASCADE");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private void registerAndLoginUser() {
+    var registrationRequest =
+            new RegistrationRequest("john.doe@example.com", "Valid1@Password", "john.doe@example.com");
+    var registrationResponse =
+            restTemplate.postForEntity(
+                    BASE_URL + "/auth/register", registrationRequest, UserResponse.class);
+    assertThat(registrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+    var loginRequest = new LoginRequest("john.doe@example.com", "Valid1@Password");
+    var loginResponse =
+            restTemplate.postForEntity(BASE_URL + "/auth/login", loginRequest, AuthenticationResponse.class);
+    assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    var authToken = loginResponse.getBody().token();
+    restTemplate.getRestTemplate().getInterceptors().clear();
+    restTemplate
+            .getRestTemplate()
+            .getInterceptors()
+            .add(
+                    (request, body, execution) -> {
+                      request.getHeaders().add("Authorization", "Bearer " + authToken);
+                      return execution.execute(request, body);
+                    });
   }
 
   @Test

@@ -1,7 +1,6 @@
 package com.dreamtracker.app.goal.domain.model;
-import com.dreamtracker.app.habit.domain.model.Habit;
 import jakarta.persistence.*;
-import java.util.List;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Goals")
 public class Goal {
 
     @Id
@@ -26,6 +26,9 @@ public class Goal {
     private UUID habitUUID;
     private int completionCount;
     private int currentCount;
+    private Instant createdAt;
+    @Version
+    private Integer version;
 
 
     public void increaseCompletionCount(){

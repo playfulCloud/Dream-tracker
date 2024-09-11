@@ -79,10 +79,10 @@ class DomainCategoryServiceTest implements CategoryFixtures, UserFixtures {
 //  @Test
 //  void deleteTestNegativeCase() {
 //    // given
-//    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentUser())).thenReturn();
+//    when(categoryRepositoryPort.findById(currentUserProvider.getCurrentFromSecurityContext())).thenReturn();
 //    var expected = false;
 //    // when
-//    var actual = categoryService.delete(currentUserProvider.getCurrentUser());
+//    var actual = categoryService.delete(currentUserProvider.getCurrentFromSecurityContext());
 //    // then
 //    assertThat(actual).isEqualTo(expected);
 //  }

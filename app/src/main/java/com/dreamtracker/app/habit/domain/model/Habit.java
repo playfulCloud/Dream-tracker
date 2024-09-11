@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjuster;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +18,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "Habits")
 public class Habit {
 
     @Id
@@ -26,6 +31,10 @@ public class Habit {
     private String difficulty;
     private String status;
     private UUID userUUID;
+    private Instant coolDownTill;
+
+    @Version
+    private Integer version;
 
     @ManyToMany
     @JoinTable(
@@ -42,5 +51,6 @@ public class Habit {
             inverseJoinColumns = @JoinColumn(name = "goal_id")
     )
     private List<Goal>goals;
+
 
 }
