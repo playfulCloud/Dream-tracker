@@ -6,6 +6,7 @@ const navigation = [
     { name: 'Habits', href: '/habitTracker', current: false },
     { name: 'Goals', href: '/goalTracker', current: false },
     { name: 'Stats', href: '/stats', current: false },
+    { name: 'Charts', href: '/habitChart', current: false },
     { name: 'View', href: '/view', current: false },
 ]
 

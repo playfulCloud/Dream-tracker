@@ -27,7 +27,7 @@ public class AuthenticationService {
 
     public UserResponse register(RegistrationRequest input) {
         credentialsValidator.validateEmail(input.email());
-        credentialsValidator.validatePassword(input.password());
+//        credentialsValidator.validatePassword(input.password());
         var user =
                 User.builder()
                         .email(input.email())

@@ -1,3 +1,4 @@
+import React from "react";
 import { useAppContext } from '../AppContext';
 import { Button } from "@/components/ui/button";
 import { FrequencyCombobox } from "@/app/habitTracker/frequencyCombobox";
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React from "react";
 import axios from "axios";
 
 export function CreateForm() {
@@ -31,6 +31,8 @@ export function CreateForm() {
         frequency: false,
         difficulty: false
     });
+
+    const [isOpen, setIsOpen] = React.useState(false); // Manage Dialog open state
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
@@ -66,14 +68,13 @@ export function CreateForm() {
         }));
     };
 
-    const getToken = (): string | null => {
+    const getToken = () => {
         return localStorage.getItem('token');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Walidacja
         const newErrors = {
             name: formData.name === '',
             action: formData.action === '',
@@ -96,15 +97,16 @@ export function CreateForm() {
                 },
             });
             fetchHabits();
+            setIsOpen(false); // Close the dialog after submission
         } catch (error) {
             console.error(error);
         }
     };
 
     return (
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => setIsOpen(true)}>
                     Create habit to track
                 </Button>
             </DialogTrigger>
